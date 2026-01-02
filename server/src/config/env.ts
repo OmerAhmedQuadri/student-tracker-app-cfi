@@ -1,31 +1,32 @@
-import zod from "zod";
+import { z } from "zod";
 import dotenv from "dotenv";
-import path from "path";
 
 dotenv.config();
 
-const envSchema = zod.object({
-  PORT: zod
+const envSchema = z.object({
+  PORT: z.coerce.number().default(5000),
+
+  MONGO_URI: z
     .string()
-    .optional() // allow undefined
-    .default("5000") // use 5000 if not provided
-    .transform((val) => parseInt(val, 10)), // convert to number
-  MONGO_URI: zod.string().min(1, "DB_URL is required"),
-  JWT_SECRET: zod.string().min(1, "JWT_SECRET is required"),
-  JWT_ACCESS_SECRET: zod.string().min(1, "JWT_ACCESS_SECRET is required"),
-  JWT_REFRESH_SECRET: zod.string().min(1, "JWT_REFRESH_SECRET is required"),
-  NODE_ENV: zod.string().optional(),
-  GITHUB_TOKEN: zod.string().optional(),
+    .min(1, "MONGO_URI is required"),
+
+  JWT_SECRET: z.string().min(1),
+  JWT_ACCESS_SECRET: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(1),
+
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+
+  GITHUB_TOKEN: z.string().optional(),
 });
 
-const env = envSchema.safeParse(process.env);
+const parsedEnv = envSchema.safeParse(process.env);
 
-// Check if env variables are valid
-if (!env.success) {
-  console.error("❌ Invalid environment variables:", env.error.format());
-  throw new Error("Invalid environment variables");
+if (!parsedEnv.success) {
+  console.error("❌ Invalid environment variables");
+  console.error(parsedEnv.error.flatten().fieldErrors);
+  process.exit(1);
 }
 
-// Export validated env variables
-
-export default env;
+export const env = parsedEnv.data;

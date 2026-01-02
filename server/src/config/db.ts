@@ -1,14 +1,16 @@
-import mongoose from 'mongoose';
-import env from './env';
-
-const MONGO_URI = env.data?.MONGO_URI as string;
+import mongoose from "mongoose";
+import { env } from "./env";
 
 export const connectDB = async () => {
-    try {
-        await mongoose.connect(MONGO_URI)
-        console.log('MongoDB connected successfully');
-    } catch (error) {
-        console.error('MongoDB connection error:', error);
-        process.exit(1);
-    }
-}
+  try {
+    mongoose.set("strictQuery", true);
+
+    await mongoose.connect(env.MONGO_URI);
+
+    console.log("✅ MongoDB connected");
+  } catch (error) {
+    console.error("❌ MongoDB connection failed");
+    console.error(error);
+    process.exit(1);
+  }
+};
