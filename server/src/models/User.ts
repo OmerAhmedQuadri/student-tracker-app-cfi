@@ -5,7 +5,7 @@ export interface IUser {
   email: string;
   password?: string;
   role: "student" | "mentor" | "admin";
-  batchId?: Types.ObjectId;
+  batchId?: string;
   status: "pending" | "active" | "suspended";
   isActive: boolean;
 }
@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: { type: String, enum: ["student", "mentor", "admin"], required: true, default: "student" },
-    batchId: { type: Schema.Types.ObjectId, ref: "Batch" },
+    batchId: { type: String, ref: "Batch" },
     status: { type: String, enum: ["pending", "active", "suspended"], default: "pending" },
     isActive: { type: Boolean, default: true },
   },
