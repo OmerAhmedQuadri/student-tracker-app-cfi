@@ -43,3 +43,84 @@ export const getMentorById = asyncHandler(
         res.json(mentor);
     }
 );
+
+export const updateUserStatus = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { status } = req.body;
+
+    if (!["active", "suspended"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  }
+);
+
+export const getUsersByRole = asyncHandler(
+  async (req: Request, res: Response) => {
+    const role = req.params.role;
+
+    if (!["student", "mentor"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const users = await User.find({ role });
+
+    res.json(users);
+  }
+);
+
+export const deactivateUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User deactivated successfully" });
+  }
+);
+
+export const activateUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive: true },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User activated successfully" });
+  }
+);
+
+// delete student or mentor
+export const deleteUser = asyncHandler(
+    async (req: Request, res: Response) => {
+        const user = await User.findByIdAndDelete(req.params.id);
+
+        if(!user){
+            return res.status(404).json({message: "User not found"});
+        }
+
+        res.json({message: "User deleted successfully"});
+    }
+)

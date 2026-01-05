@@ -4,9 +4,9 @@ export interface IStudentProfile {
   userId: Types.ObjectId;
   stage: "beginner" | "intermediate" | "advanced";
   socials?: {
-    github?: { username: string; lastFetchedAt?: Date };
+    github?: { profileUrl: string; lastFetchedAt?: Date };
     linkedin?: { profileUrl: string; lastFetchedAt?: Date };
-    medium?: { username: string; lastFetchedAt?: Date };
+    medium?: { profileUrl: string; lastFetchedAt?: Date };
   };
 }
 
@@ -16,15 +16,15 @@ const StudentProfileSchema = new Schema<IStudentProfile>(
     stage: { type: String, enum: ["beginner", "intermediate", "advanced"] },
     socials: {
       github: {
-        username: String,
+        profileUrl: String,
         lastFetchedAt: Date,
       },
       linkedin: {
         profileUrl: String,
-        lastFetchedAt: Date,
+        lastFetchedAt: Date,  
       },
       medium: {
-        username: String,
+        profileUrl: String,
         lastFetchedAt: Date,
       },
     },
