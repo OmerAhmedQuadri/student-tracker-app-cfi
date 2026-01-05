@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db";
 import { env } from "./config/env";
+import authRoutes from "./routes/user";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -15,6 +18,8 @@ app.get("/", (req, res) => {
 async function bootstrap() {
   try {
     await connectDB(); // 🔥 BLOCK until Mongo connects
+
+    app.use("/api", authRoutes);
 
     app.listen(env.PORT, () => {
       console.log(`🚀 Server running on http://localhost:${env.PORT}`);
