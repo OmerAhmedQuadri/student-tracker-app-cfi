@@ -7,14 +7,19 @@ export const addSocialMediaLinks = asyncHandler(
   async (req: Request, res: Response) => {
     const { githubUrl, linkedinUrl, mediumUrl } = req.body;
 
-    const studentProfile = await StudentProfile.findOne({ userId: req.user!.id });
-    
+    const studentProfile = await StudentProfile.findOne({
+      userId: req.user!.id,
+    });
+
     if (!studentProfile) {
-      return res.status(404).json({ message: "Student profile not found" });
+      return res.status(404).json({
+        message: "Student profile not found",
+      });
     }
 
+    studentProfile.socials ??= {};
+
     if (githubUrl) {
-      studentProfile.socials = studentProfile.socials || {};
       studentProfile.socials.github = {
         profileUrl: githubUrl,
         lastFetchedAt: new Date(),
@@ -22,7 +27,6 @@ export const addSocialMediaLinks = asyncHandler(
     }
 
     if (linkedinUrl) {
-      studentProfile.socials = studentProfile.socials || {};
       studentProfile.socials.linkedin = {
         profileUrl: linkedinUrl,
         lastFetchedAt: new Date(),
@@ -30,7 +34,6 @@ export const addSocialMediaLinks = asyncHandler(
     }
 
     if (mediumUrl) {
-      studentProfile.socials = studentProfile.socials || {};
       studentProfile.socials.medium = {
         profileUrl: mediumUrl,
         lastFetchedAt: new Date(),
@@ -39,6 +42,9 @@ export const addSocialMediaLinks = asyncHandler(
 
     await studentProfile.save();
 
-    res.status(200).json({ message: "Social media links updated successfully" });
+    res.status(200).json({
+      message: "Social media links updated successfully",
+    });
   }
 );
+
