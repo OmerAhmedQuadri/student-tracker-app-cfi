@@ -17,6 +17,14 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
+    
+    // Email Config
+  EMAIL_HOST: z.string().optional(),
+  EMAIL_PORT: z.string().optional(),
+  EMAIL_SECURE: z.string().optional(),
+  EMAIL_USER: z.string().optional(),
+  EMAIL_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
 
   GITHUB_TOKEN: z.string().optional(),
 });

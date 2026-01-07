@@ -6,6 +6,8 @@ import { env } from "./config/env";
 import authRoutes from "./routes/user";
 import adminRoutes from "./routes/admin";
 import studentRoutes from "./routes/students";
+import mentorRoutes from "./routes/mentor";
+import dashboardRoutes from "./routes/dashboard";
 
 const app = express();
 
@@ -23,7 +25,9 @@ async function bootstrap() {
 
     app.use("/api", authRoutes);
     app.use("/api/admin", adminRoutes);
+    app.use("/api/mentor", mentorRoutes);
     app.use("/api", studentRoutes);
+    app.use("/api/dashboard", dashboardRoutes);
 
     app.listen(env.PORT, () => {
       console.log(`🚀 Server running on http://localhost:${env.PORT}`);
