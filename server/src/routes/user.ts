@@ -3,7 +3,7 @@ import { Router } from "express";
 import { requireRole } from "../middleware/role.middleware";
 import { authMiddleware } from "../middleware/auth.middleware";
 
-const router = Router();
+const router: Router = Router();
 
 router.post("/admin", createAdmin);
 router.post("/students", authMiddleware, requireRole("admin"), createStudent);

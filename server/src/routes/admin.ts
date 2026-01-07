@@ -3,7 +3,7 @@ import {getAllStudents, getAllMentors, getStudentById, getMentorById, updateUser
 import { authMiddleware } from "../middleware/auth.middleware";
 import { requireRole } from "../middleware/role.middleware";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/students", authMiddleware, requireRole("admin"), getAllStudents);
 router.get("/mentors", authMiddleware, requireRole("admin"), getAllMentors);
