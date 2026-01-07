@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { StudentProfile } from "../models/StudentProfile";
 import { Skill } from "../models/Skills";
+import { SkillTopic } from "../models/SkillTopic";
 
 // add skills to the student profile
 export const addSkills = asyncHandler(async (req: Request, res: Response) => {
@@ -83,3 +84,76 @@ export const deleteStudentSkill = asyncHandler(async (req: Request, res: Respons
     message: "Skill deleted successfully",
   });
 });
+
+// add skillsTopic to the student profile 
+export const addSkillsTopic = asyncHandler(async (req: Request, res: Response) => {
+  const {title, difficulty, estimatedMinutes} = req.body;
+
+  if(!title || !difficulty || !estimatedMinutes){
+    return res.status(400).json({message: "All fields are required"});
+  }
+
+  const newSkillTopic = new SkillTopic({
+    title,
+    difficulty,
+    estimatedMinutes
+  });
+
+  await newSkillTopic.save();
+
+  res.status(200).json({
+    message: "skill topic added successfully"
+  })
+});
+
+//updated skill topic 
+export const updateSkillTopic = asyncHandler(async (req: Request, res: Response) => {
+  const { skillId } = req.params;
+  const { title, difficulty, estimatedMinutes } = req.body;
+
+  const skillTopic = await SkillTopic.findById(skillId);
+
+  if (!skillTopic) {
+    return res.status(404).json({
+      message: "Skill topic not found",
+    });
+  }
+
+  if (title) skillTopic.title = title;
+  if (difficulty) skillTopic.difficulty = difficulty;
+  if (estimatedMinutes !== undefined) skillTopic.estimatedMinutes = estimatedMinutes;
+
+  await skillTopic.save();
+
+  res.status(200).json({
+    message: "Skill topic updated successfully",
+  });
+});
+
+//delete skill topic 
+export const deleteSkillTopic = asyncHandler(async (req: Request, res: Response)  => {
+  const { skillId } = req.params;
+
+  const skillTopic = await SkillTopic.findById(skillId);
+
+  if (!skillTopic) {
+    return res.status(404).json({
+      message: "Skill topic not found",
+    });
+  }
+
+  await skillTopic.deleteOne();
+
+  res.status(200).json({
+    message: "Skill topic deleted successfully",
+  });
+});
+
+// get all skills topics 
+export const getAllSkillsTopics = asyncHandler(async (req: Request, res: Response) => {
+  const skillTopics = await SkillTopic.find();
+
+  res.status(200).json({
+    skillTopics,
+  })
+})
