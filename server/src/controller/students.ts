@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { StudentProfile } from "../models/StudentProfile";
-import { Skill } from "../models/Skills";
+import { SkillTopic } from "../models/SkillTopic";
 
 // add socail media links of the student by the student themselves
 export const addSocialMediaLinks = asyncHandler(
