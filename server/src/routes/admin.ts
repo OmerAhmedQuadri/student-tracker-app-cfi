@@ -56,7 +56,7 @@ router.delete("/delete/:id", authMiddleware, requireRole("admin"), deleteUser);
 router.post(
   "/assignments",
   authMiddleware,
-  requireRole("admin"),
+  requireRole("admin", "mentor"),
   assignmentController.createAssignment
 );
 router.get(
