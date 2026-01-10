@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 
 async function bootstrap() {
   try {
-    await connectDB(); // 🔥 BLOCK until Mongo connects
+    await connectDB(); //  BLOCK until Mongo connects
 
     app.use("/api", authRoutes);
     app.use("/api/admin", adminRoutes);
