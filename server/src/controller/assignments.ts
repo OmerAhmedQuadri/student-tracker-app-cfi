@@ -98,3 +98,12 @@ export const getMyAssignments = asyncHandler(async (req: Request, res: Response)
     const submissions = await StudentAssignment.find({ userId: req.user!.id }).populate("assignmentId");
     res.json(submissions);
 });
+
+// Get Submissions for an Assignment (Mentor)
+export const getSubmissionsForAssignment = asyncHandler(async (req: Request, res: Response) => {
+    const { assignmentId } = req.params;
+    const submissions = await StudentAssignment.find({ assignmentId })
+        .populate("userId", "name email")
+        .sort({ submittedAt: -1 });
+    res.json(submissions);
+});

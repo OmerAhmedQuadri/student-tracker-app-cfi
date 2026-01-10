@@ -23,6 +23,10 @@ router.patch(
   "/assignments/grade/:studentAssignmentId",
   assignmentController.gradeAssignment
 );
+router.get(
+  "/assignments/:assignmentId/submissions",
+  assignmentController.getSubmissionsForAssignment
+);
 
 // Attendance
 router.get(

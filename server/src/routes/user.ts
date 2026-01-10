@@ -1,10 +1,11 @@
-import { createAdmin, createMentor, createStudent, login, logout } from  "../controller/user";
+import { createAdmin, createMentor, createStudent, login, logout, getMe } from  "../controller/user";
 import { Router } from "express";
 import { requireRole } from "../middleware/role.middleware";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const router: Router = Router();
 
+router.get("/me", authMiddleware, getMe);
 router.post("/admin", createAdmin);
 router.post("/students", authMiddleware, requireRole("admin"), createStudent);
 router.post("/mentors", authMiddleware, requireRole("admin"), createMentor);
