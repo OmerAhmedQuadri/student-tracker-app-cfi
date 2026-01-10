@@ -197,3 +197,21 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie("refreshToken");
   res.status(200).json({ message: "Logged out successfully" });
 });
+
+export const getMe = asyncHandler(async (req: Request, res: Response) => {
+  const user = await User.findById(req.user?.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.status(200).json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
+});
+
