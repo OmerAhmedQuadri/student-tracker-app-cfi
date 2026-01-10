@@ -1,0 +1,32 @@
+Modern Login Page Prompt
+
+Create a modern, aesthetically pleasing login page using React, Vite, TypeScript, and Tailwind CSS.
+
+Requirements
+
+1. Tech Stack:
+   - React (Vite)
+   - TypeScript
+   - Tailwind CSS
+   - lucide-react (for icons)
+
+2. Design Aesthetics:
+   - Modern & Clean: Use a sleek design with ample whitespace.
+   - Visuals: Incorporate a subtle gradient background or a high-quality abstract image on one side (split-screen layout) or as a background.
+   - Card Style: Use a glassmorphism effect or a clean white card with soft drop shadows for the form container.
+   - Typography: Use a modern sans-serif font (e.g., Inter or Roboto).
+   - Interactivity: Add smooth hover states for buttons and inputs, and focus rings for accessibility.
+
+3. Functional Features:
+   - Email Input: Validation for email format.
+   - Password Input: Include a "Show/Hide" toggle eye icon.
+   - Remember Me: A custom checkbox.
+   - Forgot Password: A link to a password recovery route.
+   - Submit Button: A primary button with a loading spinner state while authenticating.
+   - Social Login: "Continue with Google" and "Continue with GitHub" buttons.
+   - Sign Up Link: A prompt for new users to create an account.
+
+4. Code Quality:
+   - Fully typed with TypeScript.
+   - Mobile-responsive layout.
+   - Accessible implementation (aria-labels, proper HTML semantics).
