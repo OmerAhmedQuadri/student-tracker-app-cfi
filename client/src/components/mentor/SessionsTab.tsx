@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, Users, Video, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Clock, Users, Video, Link as LinkIcon, Loader2, MapPin, ExternalLink, X } from 'lucide-react';
 import * as mentorApi from '@/api/mentorApis';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'; // Assuming Dialog generic structure or using inline if missing
-// Note: If Dialog is not exported from UI, I'll fallback to conditional rendering as before but styled better.
-// I will check imports. The previous file didn't import Dialog. I'll stick to conditional rendering for safety but make it look like a modal.
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'react-hot-toast';
 
 interface Session {
     _id: string;
@@ -16,7 +15,7 @@ interface Session {
     date: string;
     batchId: string;
     status: string;
-    description?: string;
+    platform?: string;
     meetingLink?: string;
 }
 
@@ -24,14 +23,16 @@ export const SessionsTab = () => {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
         topic: '',
         date: '',
         batchId: '',
-        meetingLink: '',
-        description: ''
+        platform: 'Online',
+        meetingLink: ''
     });
 
     useEffect(() => {
@@ -43,8 +44,9 @@ export const SessionsTab = () => {
         try {
             const data = await mentorApi.getMentorshipSessions();
             setSessions(data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to load sessions", error);
+            toast.error(error?.response?.data?.message || 'Failed to load sessions');
         } finally {
             setLoading(false);
         }
@@ -52,13 +54,32 @@ export const SessionsTab = () => {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        
         try {
-            await mentorApi.createMentorshipSession(formData);
+            // Send all the fields including platform and meetingLink
+            const sessionData = {
+                topic: formData.topic,
+                date: formData.date,
+                batchId: formData.batchId,
+                platform: formData.platform,
+                meetingLink: formData.meetingLink
+            };
+            
+            console.log('Sending session data:', sessionData);
+            
+            await mentorApi.createMentorshipSession(sessionData);
+            toast.success('Session scheduled successfully');
             setIsCreating(false);
-            setFormData({ topic: '', date: '', batchId: '', meetingLink: '', description: '' });
+            setFormData({ topic: '', date: '', batchId: '', platform: 'Online', meetingLink: '' });
             loadSessions();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to create session", error);
+            console.error("Error response:", error?.response?.data);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create session';
+            toast.error(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -133,6 +154,22 @@ export const SessionsTab = () => {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <Label htmlFor="platform">Platform</Label>
+                                    <Select value={formData.platform} onValueChange={(value) => setFormData({ ...formData, platform: value })}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select platform" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Online">Online</SelectItem>
+                                            <SelectItem value="Offline">Offline</SelectItem>
+                                            <SelectItem value="Google Meet">Google Meet</SelectItem>
+                                            <SelectItem value="Zoom">Zoom</SelectItem>
+                                            <SelectItem value="Microsoft Teams">Microsoft Teams</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="link">Meeting Link (Optional)</Label>
                                     <Input
                                         id="link"
@@ -143,8 +180,28 @@ export const SessionsTab = () => {
                                 </div>
 
                                 <div className="flex justify-end gap-3 pt-4">
-                                    <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
-                                    <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">Schedule Session</Button>
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        onClick={() => setIsCreating(false)}
+                                        disabled={isSubmitting}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        type="submit" 
+                                        className="bg-indigo-600 hover:bg-indigo-700"
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Scheduling...
+                                            </>
+                                        ) : (
+                                            'Schedule Session'
+                                        )}
+                                    </Button>
                                 </div>
                             </form>
                         </CardContent>
@@ -199,22 +256,148 @@ export const SessionsTab = () => {
                                     </div>
                                      <div className="flex items-center gap-2.5 text-sm text-foreground/80">
                                         <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                                            <Video className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                            {session.platform === 'Offline' ? (
+                                                <MapPin className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                            ) : (
+                                                <Video className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                            )}
                                         </div>
                                         <div>
                                             <p className="font-medium text-xs text-muted-foreground uppercase">Platform</p>
-                                            <p>Google Meet</p>
+                                            <p>{session.platform || 'Online'}</p>
                                         </div>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="pt-2 border-t border-border/50 bg-muted/10">
-                                     <Button variant="ghost" className="w-full text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 h-9">
+                                     <Button 
+                                        variant="ghost" 
+                                        className="w-full text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 h-9"
+                                        onClick={() => setSelectedSession(session)}
+                                     >
                                         View Details
                                      </Button>
                                 </CardFooter>
                             </Card>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Session Details Modal */}
+            {selectedSession && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <Card className="w-full max-w-2xl shadow-2xl border-border/60 max-h-[90vh] overflow-y-auto">
+                        <CardHeader className="border-b border-border/40">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <CardTitle className="text-2xl">{selectedSession.topic}</CardTitle>
+                                    <CardDescription className="mt-2 flex items-center gap-2">
+                                        <Badge variant={selectedSession.status === 'completed' ? 'secondary' : 'default'} className="bg-indigo-100 text-indigo-700">
+                                            {selectedSession.status}
+                                        </Badge>
+                                        <Badge variant="outline">{selectedSession.batchId}</Badge>
+                                    </CardDescription>
+                                </div>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={() => setSelectedSession(null)}
+                                    className="h-8 w-8 rounded-full"
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-6">
+                            {/* Date and Time */}
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                                    <Calendar className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm text-muted-foreground uppercase mb-1">Date & Time</p>
+                                    <p className="text-lg font-medium">
+                                        {new Date(selectedSession.date).toLocaleDateString(undefined, { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        })}
+                                    </p>
+                                    <p className="text-base text-muted-foreground mt-1">
+                                        {new Date(selectedSession.date).toLocaleTimeString([], { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit',
+                                            hour12: true 
+                                        })}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Platform */}
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                                    {selectedSession.platform === 'Offline' ? (
+                                        <MapPin className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                                    ) : (
+                                        <Video className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm text-muted-foreground uppercase mb-1">Platform</p>
+                                    <p className="text-lg font-medium">{selectedSession.platform || 'Online'}</p>
+                                </div>
+                            </div>
+
+                            {/* Meeting Link */}
+                            {selectedSession.meetingLink && (
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                                        <LinkIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-sm text-muted-foreground uppercase mb-1">Meeting Link</p>
+                                        <a 
+                                            href={selectedSession.meetingLink} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-base font-medium text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-2"
+                                        >
+                                            {selectedSession.meetingLink.length > 50 
+                                                ? selectedSession.meetingLink.substring(0, 50) + '...' 
+                                                : selectedSession.meetingLink}
+                                            <ExternalLink className="w-4 h-4" />
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Batch Info */}
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                                    <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm text-muted-foreground uppercase mb-1">Batch</p>
+                                    <p className="text-lg font-medium">{selectedSession.batchId}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                        <CardFooter className="border-t border-border/40 pt-4 flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setSelectedSession(null)}>
+                                Close
+                            </Button>
+                            {selectedSession.meetingLink && (
+                                <Button 
+                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                    onClick={() => window.open(selectedSession.meetingLink, '_blank')}
+                                >
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Join Meeting
+                                </Button>
+                            )}
+                        </CardFooter>
+                    </Card>
                 </div>
             )}
         </div>
