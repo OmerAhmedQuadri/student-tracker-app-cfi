@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Award, Book, Code, TrendingUp, Loader2 } from 'lucide-react';
+import { Award, Book, Code, TrendingUp, Loader2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
@@ -18,13 +20,19 @@ interface SkillProgress {
 
 const Skills = () => {
     const [skillProgress, setSkillProgress] = useState<SkillProgress[]>([]);
+    const [allSkills, setAllSkills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
 
     useEffect(() => {
         const fetchSkills = async () => {
             try {
-                const res = await api.get('/skills/progress/my');
-                setSkillProgress(res.data);
+                const [progressRes, skillsRes] = await Promise.all([
+                    api.get('/skills/progress/my'),
+                    api.get('/skills')
+                ]);
+                setSkillProgress(progressRes.data);
+                setAllSkills(skillsRes.data);
             } catch (error) {
                 console.error(error);
                 toast.error("Failed to fetch skills");
@@ -34,6 +42,45 @@ const Skills = () => {
         };
         fetchSkills();
     }, []);
+
+    const updateSkillLevel = async (skillId: string, newLevel: 'beginner' | 'intermediate' | 'advanced') => {
+        setUpdating(true);
+        try {
+            await api.post('/skills/progress', {
+                skillId,
+                level: newLevel
+            });
+            
+            // Update local state
+            setSkillProgress(prev => {
+                const existing = prev.find(sp => sp.skillId._id === skillId);
+                if (existing) {
+                    return prev.map(sp => 
+                        sp.skillId._id === skillId ? { ...sp, level: newLevel } : sp
+                    );
+                } else {
+                    // Add new skill progress
+                    const skill = allSkills.find(s => s._id === skillId);
+                    if (skill) {
+                        return [...prev, {
+                            _id: Date.now().toString(),
+                            skillId: skill,
+                            level: newLevel,
+                            topicsCompleted: []
+                        }];
+                    }
+                    return prev;
+                }
+            });
+
+            toast.success('Skill progress updated');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to update skill progress');
+        } finally {
+            setUpdating(false);
+        }
+    };
 
     const getProgressValue = (level: string) => {
         switch (level) {
@@ -58,7 +105,10 @@ const Skills = () => {
             // Let's assume grouping based on response or defaulting.
             const cat = sp.skillId.category || 'technical';
             const item = {
+                _id: sp._id,
+                skillId: sp.skillId._id,
                 name: sp.skillId.name,
+                level: sp.level,
                 progress: getProgressValue(sp.level),
                 color: 'bg-blue-600' // Dynamic color logic could be here
             };
@@ -101,9 +151,23 @@ const Skills = () => {
                         <CardContent className="space-y-6">
                             {category.skills.map((skill: any) => (
                                 <div key={skill.name} className="space-y-2">
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between items-center text-sm">
                                         <span className="font-medium text-gray-700">{skill.name}</span>
-                                        <span className="text-gray-500">{skill.progress}%</span>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="text-xs">
+                                                {skill.level}
+                                            </Badge>
+                                            <select
+                                                className="text-xs border rounded px-2 py-1"
+                                                value={skill.level}
+                                                onChange={(e) => updateSkillLevel(skill.skillId, e.target.value as any)}
+                                                disabled={updating}
+                                            >
+                                                <option value="beginner">Beginner</option>
+                                                <option value="intermediate">Intermediate</option>
+                                                <option value="advanced">Advanced</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <Progress
                                         value={skill.progress}

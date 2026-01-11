@@ -11,6 +11,18 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import MentorDashboard from './pages/MentorDashboard';
+import MentorAttendance from './pages/MentorAttendance';
+import MentorStudents from './pages/MentorStudents';
+import AttendanceHistory from './pages/AttendanceHistory';
+import UsersManagement from './pages/admin/Users';
+import AdminSessions from './pages/admin/Sessions';
+import AdminAttendance from './pages/admin/Attendance';
+import AdminCreateUsers from './pages/admin/CreateUsers';
+import BatchManagement from './pages/admin/BatchManagement';
+import MentorExternalActivities from './pages/mentor/ExternalActivities';
+import Notifications from './pages/Notifications';
+import ExternalActivitiesPage from './pages/ExternalActivities';
+import Leaderboard from './pages/Leaderboard';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import Root from './components/layout/Root';
 
@@ -33,6 +45,30 @@ export const router = createBrowserRouter([
                             {
                                 path: 'dashboard',
                                 element: <AdminDashboard />,
+                            },
+                            {
+                                path: 'users',
+                                element: <UsersManagement />,
+                            },
+                            {
+                                path: 'create-users',
+                                element: <AdminCreateUsers />,
+                            },
+                            {
+                                path: 'batches',
+                                element: <BatchManagement />,
+                            },
+                            {
+                                path: 'sessions',
+                                element: <AdminSessions />,
+                            },
+                            {
+                                path: 'attendance',
+                                element: <AdminAttendance />,
+                            },
+                            {
+                                path: 'profile',
+                                element: <Profile />,
                             }
                         ]
                     }
@@ -48,6 +84,14 @@ export const router = createBrowserRouter([
                             {
                                 path: 'dashboard',
                                 element: <StudentDashboard />,
+                            },
+                            {
+                                path: 'notifications',
+                                element: <Notifications />,
+                            },
+                            {
+                                path: 'external-activities',
+                                element: <ExternalActivitiesPage />,
                             }
                         ]
                     }
@@ -65,16 +109,32 @@ export const router = createBrowserRouter([
                                 element: <MentorDashboard />,
                             },
                             {
+                                path: 'students',
+                                element: <MentorStudents />,
+                            },
+                            {
                                 path: 'assignments',
                                 element: <MentorDashboard />,
                             },
                             {
                                 path: 'attendance',
-                                element: <MentorDashboard />,
+                                element: <MentorAttendance />,
+                            },
+                            {
+                                path: 'attendance/history',
+                                element: <AttendanceHistory />,
                             },
                             {
                                 path: 'sessions',
                                 element: <MentorDashboard />,
+                            },
+                            {
+                                path: 'external-activities',
+                                element: <MentorExternalActivities />,
+                            },
+                            {
+                                path: 'profile',
+                                element: <Profile />,
                             }
                         ]
                     }
@@ -114,6 +174,14 @@ export const router = createBrowserRouter([
                             {
                                 path: 'profile',
                                 element: <Profile />,
+                            },
+                            {
+                                path: 'leaderboard',
+                                element: <Leaderboard />,
+                            },
+                            {
+                                path: 'notifications',
+                                element: <Notifications />,
                             },
                         ],
                     },

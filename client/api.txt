@@ -1,0 +1,362 @@
+this are the user apis
+apis/ this endpoints
+router.get("/me", authMiddleware, getMe);
+router.post("/admin", createAdmin);
+router.post("/students", authMiddleware, requireRole("admin"), createStudent);
+router.post("/mentors", authMiddleware, requireRole("admin"), createMentor);
+router.post("/login", login);
+router.post("/logout", logout);
+
+/api/admin
+this endpoints
+/ Existing Admin User Management
+router.get("/students", authMiddleware, requireRole("admin"), getAllStudents);
+router.get("/mentors", authMiddleware, requireRole("admin"), getAllMentors);
+router.get(
+  "/students/:id",
+  authMiddleware,
+  requireRole("admin"),
+  getStudentById
+);
+router.get("/mentors/:id", authMiddleware, requireRole("admin"), getMentorById);
+router.put(
+  "/update-status/:id",
+  authMiddleware,
+  requireRole("admin"),
+  updateUserStatus
+);
+router.get(
+  "/getUsersByRole/:role",
+  authMiddleware,
+  requireRole("admin"),
+  getUsersByRole
+);
+router.put("/activate/:id", authMiddleware, requireRole("admin"), activateUser);
+router.put(
+  "/deactivate/:id",
+  authMiddleware,
+  requireRole("admin"),
+  deactivateUser
+);
+router.delete("/delete/:id", authMiddleware, requireRole("admin"), deleteUser);
+
+// Assignments
+router.post(
+  "/assignments",
+  authMiddleware,
+  requireRole("admin", "mentor"),
+  assignmentController.createAssignment
+);
+router.get(
+  "/assignments",
+  authMiddleware,
+  requireRole("admin"),
+  assignmentController.getAllAssignments
+);
+router.get(
+  "/assignments/:id",
+  authMiddleware,
+  requireRole("admin"),
+  assignmentController.getAssignmentById
+);
+router.patch(
+  "/assignments/:id",
+  authMiddleware,
+  requireRole("admin"),
+  assignmentController.updateAssignment
+);
+router.delete(
+  "/assignments/:id",
+  authMiddleware,
+  requireRole("admin"),
+  assignmentController.deleteAssignment
+);
+router.patch(
+  "/assignments/grade/:studentAssignmentId",
+  authMiddleware,
+  requireRole("admin"),
+  assignmentController.gradeAssignment
+);
+
+// Attendance
+router.get(
+  "/attendance/session/:sessionId",
+  authMiddleware,
+  requireRole("admin"),
+  attendanceController.getSessionAttendance
+);
+router.patch(
+  "/attendance/approve/:attendanceId",
+  authMiddleware,
+  requireRole("admin"),
+  attendanceController.approveAttendance
+);
+
+// Sessions
+router.post(
+  "/sessions/mentorship",
+  authMiddleware,
+  requireRole("admin"),
+  sessionController.createMentorshipSession
+);
+router.get(
+  "/sessions/mentorship",
+  authMiddleware,
+  requireRole("admin"),
+  sessionController.getMentorshipSessions
+);
+router.patch(
+  "/sessions/mentorship/:id",
+  authMiddleware,
+  requireRole("admin"),
+  sessionController.updateMentorshipSession
+);
+router.get(
+  "/sessions/learning/:userId",
+  authMiddleware,
+  requireRole("admin"),
+  sessionController.getStudentLearningSessions
+);
+
+// Notifications
+router.post(
+  "/notifications",
+  authMiddleware,
+  requireRole("admin"),
+  notificationController.createNotification
+);
+
+// External Activities
+router.get(
+  "/external-activities/:userId",
+  authMiddleware,
+  requireRole("admin"),
+  externalActivityController.getUserExternalActivities
+);
+
+// Skills
+router.get(
+  "/skills",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.getAllSkills
+);
+router.post(
+  "/skills/topics",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.createSkillTopic
+);
+router.get(
+  "/skills/topics/:skillId",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.getSkillTopics
+);
+router.patch(
+  "/skills/topics/:id",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.updateSkillTopic
+);
+router.delete(
+  "/skills/topics/:id",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.deleteSkillTopic
+);
+router.get(
+  "/skills/progress/:userId",
+  authMiddleware,
+  requireRole("admin"),
+  skillController.getStudentSkillProgress
+);
+
+mentors
+/api/mentor
+router.use(requireRole("mentor"));
+
+// Assignments
+router.post("/assignments", assignmentController.createAssignment);
+router.get("/assignments", assignmentController.getAllAssignments);
+router.get("/assignments/:id", assignmentController.getAssignmentById);
+router.patch("/assignments/:id", assignmentController.updateAssignment);
+router.delete("/assignments/:id", assignmentController.deleteAssignment);
+router.patch(
+  "/assignments/grade/:studentAssignmentId",
+  assignmentController.gradeAssignment
+);
+router.get(
+  "/assignments/:assignmentId/submissions",
+  assignmentController.getSubmissionsForAssignment
+);
+
+// Attendance
+router.get(
+  "/attendance/session/:sessionId",
+  attendanceController.getSessionAttendance
+);
+router.patch(
+  "/attendance/approve/:attendanceId",
+  attendanceController.approveAttendance
+);
+
+// Sessions
+router.post("/sessions/mentorship", sessionController.createMentorshipSession);
+router.get("/sessions/mentorship", sessionController.getMentorshipSessions);
+router.patch(
+  "/sessions/mentorship/:id",
+  sessionController.updateMentorshipSession
+);
+router.get(
+  "/sessions/learning/:userId",
+  sessionController.getStudentLearningSessions
+);
+
+// Notifications
+router.post("/notifications", notificationController.createNotification);
+
+// External Activities
+router.get(
+  "/external-activities/:userId",
+  externalActivityController.getUserExternalActivities
+);
+
+// Skills
+router.get("/skills", skillController.getAllSkills);
+router.post("/skills/topics", skillController.createSkillTopic);
+router.get("/skills/topics/:skillId", skillController.getSkillTopics);
+router.patch("/skills/topics/:id", skillController.updateSkillTopic);
+router.delete("/skills/topics/:id", skillController.deleteSkillTopic);
+router.get("/skills/progress/:userId", skillController.getStudentSkillProgress);
+
+/api/dashboard
+router.use(authMiddleware);
+
+router.get("/student", requireRole("student"), getStudentDashboard);
+router.get("/mentor", requireRole("mentor", "admin"), getMentorDashboard);
+router.get("/leaderboard", getLeaderboard);
+
+students
+/api
+router.put(
+  "/students/me/socials",
+  authMiddleware,
+  requireRole("student"),
+  addSocialMediaLinks
+);
+
+// Assignments
+router.get(
+  "/assignments",
+  authMiddleware,
+  assignmentController.getAllAssignments
+);
+router.get(
+  "/assignments/my",
+  authMiddleware,
+  requireRole("student"),
+  assignmentController.getMyAssignments
+);
+router.get(
+  "/assignments/:id",
+  authMiddleware,
+  assignmentController.getAssignmentById
+);
+router.post(
+  "/assignments/submit",
+  authMiddleware,
+  requireRole("student"),
+  assignmentController.submitAssignment
+);
+
+// Attendance
+router.post(
+  "/attendance/mark",
+  authMiddleware,
+  requireRole("student"),
+  attendanceController.markAttendance
+);
+router.get(
+  "/attendance/my",
+  authMiddleware,
+  requireRole("student"),
+  attendanceController.getMyAttendance
+);
+
+// Sessions
+router.get(
+  "/sessions/mentorship",
+  authMiddleware,
+  sessionController.getMentorshipSessions
+);
+router.post(
+  "/sessions/learning",
+  authMiddleware,
+  requireRole("student"),
+  sessionController.logLearningSession
+);
+router.get(
+  "/sessions/learning/my",
+  authMiddleware,
+  requireRole("student"),
+  sessionController.getMyLearningSessions
+);
+
+// Notifications
+router.get(
+  "/notifications",
+  authMiddleware,
+  notificationController.getMyNotifications
+);
+router.patch(
+  "/notifications/:id/read",
+  authMiddleware,
+  notificationController.markAsRead
+);
+
+// External Activities
+router.post(
+  "/external-activities",
+  authMiddleware,
+  requireRole("student"),
+  externalActivityController.logExternalActivity
+);
+router.get(
+  "/external-activities/my",
+  authMiddleware,
+  requireRole("student"),
+  externalActivityController.getMyExternalActivities
+);
+router.post(
+  "/external-activities/post",
+  authMiddleware,
+  requireRole("student"),
+  externalActivityController.addBrandingPost
+);
+router.get(
+  "/external-activities/posts/my",
+  authMiddleware,
+  requireRole("student"),
+  externalActivityController.getMyBrandingPosts
+);
+
+// Skills
+router.get("/skills", authMiddleware, skillController.getAllSkills);
+router.get(
+  "/skills/topics/:skillId",
+  authMiddleware,
+  skillController.getSkillTopics
+);
+router.post(
+  "/skills/progress",
+  authMiddleware,
+  requireRole("student"),
+  skillController.updateSkillProgress
+);
+router.get(
+  "/skills/progress/my",
+  authMiddleware,
+  requireRole("student"),
+  skillController.getMySkillProgress
+);
