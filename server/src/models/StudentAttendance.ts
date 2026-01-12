@@ -5,16 +5,18 @@ export interface IStudentAttendance {
   userId: Types.ObjectId;
   markedByStudent: boolean;
   approvedByMentor: boolean;
-  finalStatus: "present" | "absent";
+  finalStatus: "present" | "absent" | "late";
+  date?: Date;
 }
 
 const StudentAttendanceSchema = new Schema<IStudentAttendance>({
-  sessionId: { type: Schema.Types.ObjectId, ref: "MentorshipSession" },
-  userId: { type: Schema.Types.ObjectId, ref: "User" },
-  markedByStudent: Boolean,
-  approvedByMentor: Boolean,
-  finalStatus: { type: String, enum: ["present", "absent"] },
-});
+  sessionId: { type: Schema.Types.ObjectId, ref: "MentorshipSession", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  markedByStudent: { type: Boolean, default: false },
+  approvedByMentor: { type: Boolean, default: false },
+  finalStatus: { type: String, enum: ["present", "absent", "late"], required: true },
+  date: { type: Date, default: Date.now },
+}, { timestamps: true });
 
 export const StudentAttendance = model<IStudentAttendance>(
   "StudentAttendance",

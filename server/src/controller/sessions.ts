@@ -6,13 +6,15 @@ import { LearningSession } from "../models/LearningSession";
 // --- Mentorship Sessions ---
 
 export const createMentorshipSession = asyncHandler(async (req: Request, res: Response) => {
-    const { batchId, date, topic } = req.body;
+    const { batchId, date, topic, platform, meetingLink } = req.body;
     const session = await MentorshipSession.create({
         batchId,
         mentorId: req.user!.id,
         date,
         topic,
-        status: "scheduled"
+        status: "scheduled",
+        platform: platform || "Online",
+        meetingLink
     });
     res.status(201).json(session);
 });

@@ -50,6 +50,48 @@ export const approveAttendance = asyncHandler(async (req: Request, res: Response
     res.json(attendance);
 });
 
+// Mark Attendance by Mentor for Students
+export const mentorMarkAttendance = asyncHandler(async (req: Request, res: Response) => {
+    const { sessionId, studentId, status } = req.body;
+    
+    if (!sessionId || !studentId || !status) {
+        return res.status(400).json({ message: "Session ID, Student ID, and status are required" });
+    }
+
+    if (!["present", "absent", "late"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status. Must be present, absent, or late" });
+    }
+
+    const session = await MentorshipSession.findById(sessionId);
+    if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+    }
+
+    // Check if attendance already exists
+    let attendance = await StudentAttendance.findOne({
+        userId: studentId,
+        sessionId
+    });
+
+    if (attendance) {
+        // Update existing attendance
+        attendance.finalStatus = status;
+        attendance.approvedByMentor = true;
+        await attendance.save();
+    } else {
+        // Create new attendance record
+        attendance = await StudentAttendance.create({
+            userId: studentId,
+            sessionId,
+            finalStatus: status,
+            approvedByMentor: true,
+            markedByStudent: false
+        });
+    }
+
+    res.status(200).json(attendance);
+});
+
 // Get Attendance for a Session (Mentor)
 export const getSessionAttendance = asyncHandler(async (req: Request, res: Response) => {
     const { sessionId } = req.params;

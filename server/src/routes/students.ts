@@ -92,25 +92,13 @@ router.post(
   "/external-activities",
   authMiddleware,
   requireRole("student"),
-  externalActivityController.logExternalActivity
+  externalActivityController.submitExternalActivity
 );
 router.get(
   "/external-activities/my",
   authMiddleware,
   requireRole("student"),
   externalActivityController.getMyExternalActivities
-);
-router.post(
-  "/external-activities/post",
-  authMiddleware,
-  requireRole("student"),
-  externalActivityController.addBrandingPost
-);
-router.get(
-  "/external-activities/posts/my",
-  authMiddleware,
-  requireRole("student"),
-  externalActivityController.getMyBrandingPosts
 );
 
 // Skills

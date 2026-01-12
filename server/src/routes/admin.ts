@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllUsers,
   getAllStudents,
   getAllMentors,
   getStudentById,
@@ -9,7 +10,10 @@ import {
   activateUser,
   deactivateUser,
   deleteUser,
+  assignBatch,
+  updateMentorBatches,
 } from "../controller/admin";
+import { getAllBatchDetails, getBatchById } from "../controller/batch";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { requireRole } from "../middleware/role.middleware";
 import * as assignmentController from "../controller/assignments";
@@ -22,6 +26,7 @@ import * as skillController from "../controller/skills";
 const router: Router = Router();
 
 // Existing Admin User Management
+router.get("/users", authMiddleware, requireRole("admin"), getAllUsers);
 router.get("/students", authMiddleware, requireRole("admin"), getAllStudents);
 router.get("/mentors", authMiddleware, requireRole("admin"), getAllMentors);
 router.get(
@@ -50,7 +55,23 @@ router.put(
   requireRole("admin"),
   deactivateUser
 );
+router.patch(
+  "/users/:userId/batch",
+  authMiddleware,
+  requireRole("admin"),
+  assignBatch
+);
+router.patch(
+  "/mentors/:userId/batches",
+  authMiddleware,
+  requireRole("admin"),
+  updateMentorBatches
+);
 router.delete("/delete/:id", authMiddleware, requireRole("admin"), deleteUser);
+
+// Batch Management
+router.get("/batches", authMiddleware, requireRole("admin"), getAllBatchDetails);
+router.get("/batches/:batchId", authMiddleware, requireRole("admin"), getBatchById);
 
 // Assignments
 router.post(
@@ -138,13 +159,7 @@ router.post(
   notificationController.createNotification
 );
 
-// External Activities
-router.get(
-  "/external-activities/:userId",
-  authMiddleware,
-  requireRole("admin"),
-  externalActivityController.getUserExternalActivities
-);
+
 
 // Skills
 router.get(

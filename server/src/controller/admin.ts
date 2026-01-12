@@ -3,6 +3,14 @@ import { StudentProfile } from "../models/StudentProfile";
 import { User } from "../models/User";
 import { Request, Response } from "express";
 
+// get all users
+export const getAllUsers = asyncHandler(
+  async (req: Request, res: Response) => {
+    const users = await User.find().select('-password');
+    res.json(users);
+  }
+);
+
 // get all students
 export const getAllStudents = asyncHandler(
   async (req: Request, res: Response) => {
@@ -157,5 +165,70 @@ export const getAllStudentsWithSkills = asyncHandler(
     res.status(200).json({
       students,
     });
+  }
+);
+
+// assign batch to user
+export const assignBatch = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { batchId, batchIds } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Handle mentor with multiple batches
+    if (user.role === "mentor") {
+      // If batchIds array is provided, use it
+      if (batchIds && Array.isArray(batchIds)) {
+        user.batchIds = batchIds;
+      } 
+      // If single batchId provided, add it to batchIds array
+      else if (batchId) {
+        user.batchIds = user.batchIds || [];
+        if (!user.batchIds.includes(batchId)) {
+          user.batchIds.push(batchId);
+        }
+      }
+    } 
+    // Handle student with single batch
+    else if (user.role === "student") {
+      user.batchId = batchId;
+    }
+
+    await user.save();
+
+    const updatedUser = await User.findById(userId).select('-password');
+    res.json(updatedUser);
+  }
+);
+
+// Add or remove batch from mentor
+export const updateMentorBatches = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { action, batchId } = req.body; // action: 'add' or 'remove'
+
+    const mentor = await User.findOne({ _id: userId, role: "mentor" });
+
+    if (!mentor) {
+      return res.status(404).json({ message: "Mentor not found" });
+    }
+
+    mentor.batchIds = mentor.batchIds || [];
+
+    if (action === "add" && !mentor.batchIds.includes(batchId)) {
+      mentor.batchIds.push(batchId);
+    } else if (action === "remove") {
+      mentor.batchIds = mentor.batchIds.filter(id => id !== batchId);
+    }
+
+    await mentor.save();
+
+    const updatedMentor = await User.findById(userId).select('-password');
+    res.json(updatedMentor);
   }
 );
