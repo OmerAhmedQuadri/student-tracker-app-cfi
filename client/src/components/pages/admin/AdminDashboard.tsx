@@ -51,7 +51,8 @@ interface User {
   name: string;
   email: string;
   role: "student" | "mentor";
-  batchId?: string;
+  batchId?: string; // For students
+  batchIds?: string[]; // For mentors - multiple batches
   isActive: boolean;
 }
 
@@ -73,9 +74,12 @@ const AdminDashboard = () => {
   const [editingBatch, setEditingBatch] = useState<{
     userId: string;
     userName: string;
+    userRole: "student" | "mentor";
     currentBatch: string;
+    currentBatches?: string[];
   } | null>(null);
   const [batchInput, setBatchInput] = useState("");
+  const [batchesInput, setBatchesInput] = useState<string[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -131,12 +135,21 @@ const AdminDashboard = () => {
     if (!editingBatch) return;
 
     try {
-      await api.patch(`/admin/users/${editingBatch.userId}/batch`, {
-        batchId: batchInput,
-      });
+      if (editingBatch.userRole === "mentor") {
+        // For mentors, send the batches array
+        await api.patch(`/admin/users/${editingBatch.userId}/batch`, {
+          batchIds: batchesInput.filter(b => b.trim())
+        });
+      } else {
+        // For students, send single batchId
+        await api.patch(`/admin/users/${editingBatch.userId}/batch`, {
+          batchId: batchInput,
+        });
+      }
       toast.success("Batch assigned successfully");
       setEditingBatch(null);
       setBatchInput("");
+      setBatchesInput([]);
       fetchDashboardData();
     } catch (error) {
       console.error("Failed to assign batch:", error);
@@ -144,13 +157,18 @@ const AdminDashboard = () => {
     }
   };
 
-  const openBatchModal = (
-    userId: string,
-    userName: string,
-    currentBatch: string = ""
-  ) => {
-    setEditingBatch({ userId, userName, currentBatch });
+  const openBatchModal = (user: User) => {
+    const currentBatch = user.batchId || "";
+    const currentBatches = user.batchIds || (user.batchId ? [user.batchId] : []);
+    setEditingBatch({ 
+      userId: user._id, 
+      userName: user.name,
+      userRole: user.role,
+      currentBatch,
+      currentBatches
+    });
     setBatchInput(currentBatch);
+    setBatchesInput(currentBatches);
   };
 
   if (loading) {
@@ -496,7 +514,27 @@ const AdminDashboard = () => {
                             {user.role}
                           </span>
                         </td>
-                        <td className="px-6 py-4">{user.batchId || "-"}</td>
+                        <td className="px-6 py-4">
+                          {user.role === 'mentor' ? (
+                            // Mentor: show multiple batches
+                            user.batchIds && user.batchIds.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {user.batchIds.map(batch => (
+                                  <span key={batch} className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                                    {batch}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : user.batchId ? (
+                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                                {user.batchId}
+                              </span>
+                            ) : "-"
+                          ) : (
+                            // Student: show single batch
+                            user.batchId || "-"
+                          )}
+                        </td>
                         <td className="px-6 py-4">
                           <span
                             className={`flex items-center gap-1.5 ${
@@ -513,13 +551,7 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() =>
-                              openBatchModal(
-                                user._id,
-                                user.name,
-                                user.batchId || ""
-                              )
-                            }
+                            onClick={() => openBatchModal(user)}
                             className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
                           >
                             <Edit className="w-4 h-4" />
@@ -541,12 +573,13 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">
-                Assign Batch
+                {editingBatch.userRole === 'mentor' ? 'Assign Batches' : 'Assign Batch'}
               </h3>
               <button
                 onClick={() => {
                   setEditingBatch(null);
                   setBatchInput("");
+                  setBatchesInput([]);
                 }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -559,29 +592,125 @@ const AdminDashboard = () => {
                 <p className="text-base font-medium text-gray-900">
                   {editingBatch.userName}
                 </p>
+                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                  editingBatch.userRole === 'mentor' 
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {editingBatch.userRole === 'mentor' ? 'Mentor' : 'Student'}
+                </span>
               </div>
-              <div className="mb-5">
-                <label
-                  htmlFor="batchInput"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
-                >
-                  Batch ID
-                </label>
-                <Input
-                  id="batchInput"
-                  placeholder="Enter batch name (e.g., A26, B27)"
-                  value={batchInput}
-                  onChange={(e) => setBatchInput(e.target.value)}
-                  className="transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  autoFocus
-                />
-              </div>
+              
+              {editingBatch.userRole === 'mentor' ? (
+                // Multiple batches for mentor
+                <div className="mb-5">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Manage Mentor Batches
+                  </label>
+                  <div className="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-xs text-amber-800">
+                      ⚠️ <strong>Important:</strong> Edit the list below. Current batches are shown - add or remove as needed.
+                    </p>
+                  </div>
+                  
+                  {/* Current Batches Tags */}
+                  {batchesInput.filter(b => b).length > 0 && (
+                    <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Current Batches:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {batchesInput.filter(b => b).map((batch, idx) => (
+                          <div key={idx} className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                            <span className="text-sm font-medium">{batch}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newBatches = batchesInput.filter((_, i) => i !== idx || !batchesInput[i]);
+                                setBatchesInput(newBatches);
+                              }}
+                              className="ml-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Add New Batch */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Add New Batch</label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter batch ID (e.g., A26)"
+                        value={batchInput}
+                        onChange={(e) => setBatchInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && batchInput.trim()) {
+                            e.preventDefault();
+                            if (!batchesInput.includes(batchInput.trim())) {
+                              setBatchesInput([...batchesInput, batchInput.trim()]);
+                              setBatchInput('');
+                            } else {
+                              toast.error('Batch already added');
+                            }
+                          }
+                        }}
+                        className="flex-1 transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          if (batchInput.trim()) {
+                            if (!batchesInput.includes(batchInput.trim())) {
+                              setBatchesInput([...batchesInput, batchInput.trim()]);
+                              setBatchInput('');
+                            } else {
+                              toast.error('Batch already added');
+                            }
+                          }
+                        }}
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Press Enter or click Add to include a new batch
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                // Single batch for student
+                <div className="mb-5">
+                  <label
+                    htmlFor="batchInput"
+                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                  >
+                    Batch ID
+                  </label>
+                  <Input
+                    id="batchInput"
+                    placeholder="Enter batch name (e.g., A26, B27)"
+                    value={batchInput}
+                    onChange={(e) => setBatchInput(e.target.value)}
+                    className="transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Current: {editingBatch.currentBatch || 'None'}
+                  </p>
+                </div>
+              )}
+              
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => {
                     setEditingBatch(null);
                     setBatchInput("");
+                    setBatchesInput([]);
                   }}
                   className="transition-all"
                 >
