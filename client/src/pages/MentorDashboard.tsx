@@ -1,217 +1,259 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, FileCheck, Calendar, Activity, LayoutDashboard, Presentation, GraduationCap, Clock, ChevronRight } from 'lucide-react';
-import StatCard from '@/components/dashboard/StatCard';
-import { AssignmentsTab } from '@/components/mentor/AssignmentsTab';
-import { AttendanceTab } from '@/components/mentor/AttendanceTab';
-import { SessionsTab } from '@/components/mentor/SessionsTab';
-import * as mentorApi from '@/api/mentorApis';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  FileCheck,
+  Users,
+  Calendar,
+  Activity,
+  ChevronRight,
+  Presentation,
+  Clock,
+} from "lucide-react";
 
-const MentorDashboard = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
+import StatCard from "@/components/dashboard/StatCard";
+import { AssignmentsTab } from "@/components/mentor/AssignmentsTab";
+import { AttendanceTab } from "@/components/mentor/AttendanceTab";
+import { SessionsTab } from "@/components/mentor/SessionsTab";
 
-    // Determine active tab from path
-    const getTabFromPath = () => {
-        const path = location.pathname.split('/').pop();
-        if (path === 'assignments') return 'assignments';
-        if (path === 'attendance') return 'attendance';
-        if (path === 'sessions') return 'sessions';
-        return 'overview';
-    };
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import * as mentorApi from "@/api/mentorApis";
 
-    const activeTab = getTabFromPath();
+const tabs = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "assignments", label: "Assignments", icon: FileCheck },
+  { id: "attendance", label: "Attendance", icon: Users },
+  { id: "sessions", label: "Sessions", icon: Calendar },
+] as const;
 
-    const [stats, setStats] = useState({
-        assignmentsCount: 0,
-        sessionsCount: 0,
-        activeStudents: 0
-    });
+type TabId = (typeof tabs)[number]["id"];
 
-    useEffect(() => {
-        // Fetch quick stats for overview
-        const fetchStats = async () => {
-            try {
-                const [assignments, sessions] = await Promise.all([
-                    mentorApi.getAllAssignments(),
-                    mentorApi.getMentorshipSessions()
-                ]);
-                setStats({
-                    assignmentsCount: assignments.length,
-                    sessionsCount: sessions.length,
-                    activeStudents: 12 // Placeholder as we don't have this API yet
-                });
-            } catch (error) {
-                console.error("Failed to load dashboard stats", error);
-            }
-        };
-        fetchStats();
-    }, []);
+export default function MentorDashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const tabs = [
-        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-        { id: 'assignments', label: 'Assignments', icon: FileCheck },
-        { id: 'attendance', label: 'Attendance', icon: Users },
-        { id: 'sessions', label: 'Sessions', icon: Calendar }
-    ];
+  const getActiveTab = (): TabId => {
+    const last = location.pathname.split("/").pop();
+    return tabs.some(t => t.id === last) ? (last as TabId) : "overview";
+  };
 
-    const handleTabChange = (tabId: string) => {
-        if (tabId === 'overview') navigate('/mentor/dashboard');
-        else navigate(`/mentor/${tabId}`);
-    };
+  const activeTab = getActiveTab();
 
-    return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/40 pb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Mentor Dashboard</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Welcome back, {user?.name}. Manage your cohort effectively.</p>
+  const [stats, setStats] = useState({
+    assignments: 0,
+    sessions: 0,
+    students: 12,
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [assignments, sessions] = await Promise.all([
+          mentorApi.getAllAssignments(),
+          mentorApi.getMentorshipSessions(),
+        ]);
+
+        setStats({
+          assignments: assignments.length,
+          sessions: sessions.length,
+          students: 12,
+        });
+      } catch (err) {
+        console.error("Dashboard stats failed", err);
+      }
+    })();
+  }, []);
+
+  const changeTab = (tab: TabId) => {
+    tab === "overview"
+      ? navigate("/mentor/dashboard")
+      : navigate(`/mentor/${tab}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+
+        {/* ===== HEADER ===== */}
+        <header className="space-y-2">
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white">
+            Mentor Dashboard
+          </h1>
+          <p className="text-sm md:text-lg text-slate-600 dark:text-slate-400">
+            Welcome back, {user?.name}
+          </p>
+        </header>
+
+        {/* ===== TABS ===== */}
+        <nav className="relative">
+          {/* Mobile */}
+          <div className="flex md:hidden gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {tabs.map(tab => (
+              <Button
+                key={tab.id}
+                size="sm"
+                variant={activeTab === tab.id ? "default" : "outline"}
+                onClick={() => changeTab(tab.id)}
+                aria-current={activeTab === tab.id}
+                className="shrink-0"
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </Button>
+            ))}
+          </div>
+
+          {/* Desktop */}
+          <div className="hidden md:flex border-b border-slate-200 dark:border-slate-800">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => changeTab(tab.id)}
+                aria-current={activeTab === tab.id}
+                className={`relative px-4 py-3 text-sm font-medium transition
+                  ${
+                    activeTab === tab.id
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  }
+                `}
+              >
+                <div className="flex items-center gap-2">
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
                 </div>
-                
-                <div className="flex bg-muted/50 p-1.5 rounded-xl border border-border/50 backdrop-blur-sm relative">
-                     {/* Tab Background Pill Animation could go here */}
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => handleTabChange(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring ${activeTab === tab.id
-                                    ? 'bg-background text-foreground shadow-sm ring-1 ring-border'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
-                                }`}
-                        >
-                            <tab.icon size={16} className={activeTab === tab.id ? 'text-indigo-600' : ''} />
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
-            {/* Content Area */}
-            <div className="relative min-h-[500px]">
-                {activeTab === 'overview' && (
-                    <div className="space-y-8">
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <StatCard
-                                title="Active Students"
-                                value={stats.activeStudents.toString()}
-                                icon={Users}
-                                iconClassName="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                trend={{ value: 0, label: "active in current batch", positive: true }}
-                            />
-                            <StatCard
-                                title="Total Assignments"
-                                value={stats.assignmentsCount.toString()}
-                                icon={FileCheck}
-                                iconClassName="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            />
-                            <StatCard
-                                title="Scheduled Sessions"
-                                value={stats.sessionsCount.toString()}
-                                icon={Calendar}
-                                iconClassName="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                            />
-                            <StatCard
-                                title="Avg Attendance"
-                                value="85%" // Placeholder
-                                icon={Activity}
-                                iconClassName="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                                trend={{ value: 2, label: "vs last month", positive: true }}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <Card className="lg:col-span-2 border-none shadow-xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white overflow-hidden relative group">
-                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
-                                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-500" />
-                                
-                                <CardHeader className="relative z-10 pb-2">
-                                    <CardTitle className="text-xl flex items-center gap-2">
-                                        <Presentation className="w-5 h-5 text-indigo-200" />
-                                        Cohort Overview
-                                    </CardTitle>
-                                    <CardDescription className="text-indigo-100">
-                                        Manage your curriculum delivery and student engagement.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="relative z-10 pt-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <button
-                                            onClick={() => handleTabChange('assignments')}
-                                            className="group/btn bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 p-5 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                        >
-                                            <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-4 group-hover/btn:bg-white/30 transition-colors">
-                                                <FileCheck className="w-5 h-5 text-white" />
-                                            </div>
-                                            <p className="font-semibold text-lg">Grade Assignments</p>
-                                            <p className="text-sm text-indigo-100/70 mt-1">Review pending submissions and provide feedback.</p>
-                                        </button>
-                                        <button
-                                            onClick={() => handleTabChange('sessions')}
-                                            className="group/btn bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 p-5 rounded-xl text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                        >
-                                            <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-4 group-hover/btn:bg-white/30 transition-colors">
-                                                <Clock className="w-5 h-5 text-white" />
-                                            </div>
-                                            <p className="font-semibold text-lg">Schedule Session</p>
-                                            <p className="text-sm text-indigo-100/70 mt-1">Plan upcoming mentorship classes.</p>
-                                        </button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="border-border/60 shadow-md h-full">
-                                <CardHeader className="pb-4 border-b border-border/40">
-                                    <CardTitle className="text-lg text-foreground">Action Items</CardTitle>
-                                </CardHeader>
-                                <CardContent className="pt-6 space-y-4">
-                                    <div className="flex gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer border border-transparent hover:border-border/50">
-                                        <div className="mt-1">
-                                            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm text-foreground">3 Pending Approvals</p>
-                                            <p className="text-xs text-muted-foreground mt-0.5">Attendance requests waiting</p>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto self-center" />
-                                    </div>
-                                    
-                                    <div className="flex gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer border border-transparent hover:border-border/50">
-                                        <div className="mt-1">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm text-foreground">Upcoming Session</p>
-                                            <p className="text-xs text-muted-foreground mt-0.5">React Patterns • Today, 4:00 PM</p>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto self-center" />
-                                    </div>
-
-                                    <div className="mt-6 pt-4 border-t border-border/40">
-                                        <Button variant="outline" className="w-full text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={() => handleTabChange('attendance')}>
-                                            View All Activity
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
+                {activeTab === tab.id && (
+                  <span className="absolute inset-x-0 -bottom-px h-0.5 bg-indigo-600 dark:bg-indigo-400" />
                 )}
+              </button>
+            ))}
+          </div>
+        </nav>
 
-                <div className={activeTab === 'overview' ? 'hidden' : 'block'}>
-                    {activeTab === 'assignments' && <AssignmentsTab />}
-                    {activeTab === 'attendance' && <AttendanceTab />}
-                    {activeTab === 'sessions' && <SessionsTab />}
-                </div>
+        {/* ===== CONTENT ===== */}
+        {activeTab === "overview" && (
+          <section className="space-y-8">
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Students"
+                value={stats.students.toString()}
+                icon={Users}
+              />
+              <StatCard
+                title="Assignments"
+                value={stats.assignments.toString()}
+                icon={FileCheck}
+              />
+              <StatCard
+                title="Sessions"
+                value={stats.sessions.toString()}
+                icon={Calendar}
+              />
+              <StatCard
+                title="Attendance"
+                value="85%"
+                icon={Activity}
+              />
             </div>
-        </div>
-    );
-};
 
-export default MentorDashboard;
+            {/* Main Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+              {/* Cohort */}
+              <Card className="lg:col-span-2 bg-indigo-600 text-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Presentation className="w-5 h-5" />
+                    Cohort Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid sm:grid-cols-2 gap-4">
+                  <ActionButton
+                    icon={FileCheck}
+                    title="Grade Assignments"
+                    subtitle="Review student submissions"
+                    onClick={() => changeTab("assignments")}
+                  />
+                  <ActionButton
+                    icon={Clock}
+                    title="Schedule Session"
+                    subtitle="Plan upcoming class"
+                    onClick={() => changeTab("sessions")}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Action Items</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <ActionRow
+                    title="Pending Attendance"
+                    subtitle="3 requests waiting"
+                  />
+                  <ActionRow
+                    title="Upcoming Session"
+                    subtitle="React Patterns · Today 4PM"
+                  />
+                  <Button
+                    variant="outline"
+                    className="w-full mt-4"
+                    onClick={() => changeTab("attendance")}
+                  >
+                    View All Activity
+                  </Button>
+                </CardContent>
+              </Card>
+
+            </div>
+          </section>
+        )}
+
+        {activeTab === "assignments" && <AssignmentsTab />}
+        {activeTab === "attendance" && <AttendanceTab />}
+        {activeTab === "sessions" && <SessionsTab />}
+      </div>
+    </div>
+  );
+}
+
+/* ===== Reusable Components ===== */
+
+function ActionButton({
+  icon: Icon,
+  title,
+  subtitle,
+  onClick,
+}: any) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-xl bg-white/10 p-4 text-left transition active:scale-95"
+    >
+      <Icon className="w-6 h-6 mb-3" />
+      <p className="font-semibold">{title}</p>
+      <p className="text-sm opacity-80">{subtitle}</p>
+      <ChevronRight className="mt-3 w-4 h-4 opacity-80" />
+    </button>
+  );
+}
+
+function ActionRow({ title, subtitle }: any) {
+  return (
+    <div className="flex items-center justify-between rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+      <div>
+        <p className="font-medium text-sm">{title}</p>
+        <p className="text-xs text-slate-500">{subtitle}</p>
+      </div>
+      <ChevronRight className="w-4 h-4 text-slate-400" />
+    </div>
+  );
+}
