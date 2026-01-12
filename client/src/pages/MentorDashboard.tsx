@@ -8,8 +8,12 @@ import {
   Calendar,
   Activity,
   ChevronRight,
-  Presentation,
+  Monitor,
   Clock,
+  FileText,
+  Bell,
+  ArrowRight,
+  List,
 } from "lucide-react";
 
 import StatCard from "@/components/dashboard/StatCard";
@@ -162,52 +166,99 @@ export default function MentorDashboard() {
               />
             </div>
 
-            {/* Main Cards */}
+            {/* Main Cards - New Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-              {/* Cohort */}
-              <Card className="lg:col-span-2 bg-indigo-600 text-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Presentation className="w-5 h-5" />
+              {/* Cohort Overview - Left Side */}
+              <Card className="lg:col-span-2 bg-white border border-gray-200">
+                <CardHeader className="border-b border-gray-100 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                    <div className="p-2 bg-indigo-50 rounded-lg">
+                      <Monitor className="w-5 h-5 text-indigo-600" />
+                    </div>
                     Cohort Overview
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid sm:grid-cols-2 gap-4">
-                  <ActionButton
-                    icon={FileCheck}
-                    title="Grade Assignments"
-                    subtitle="Review student submissions"
-                    onClick={() => changeTab("assignments")}
-                  />
-                  <ActionButton
-                    icon={Clock}
-                    title="Schedule Session"
-                    subtitle="Plan upcoming class"
-                    onClick={() => changeTab("sessions")}
-                  />
+                <CardContent className="pt-6">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/mentor/assignments')}>
+                      <CardContent className="p-6">
+                        <div className="p-3 bg-indigo-50 rounded-lg w-fit mb-4">
+                          <FileText className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-1">Grade Assignments</h3>
+                        <p className="text-sm text-gray-500 mb-4">Review student submissions</p>
+                        <button className="text-indigo-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+                          Go to assignments <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/mentor/sessions')}>
+                      <CardContent className="p-6">
+                        <div className="p-3 bg-indigo-50 rounded-lg w-fit mb-4">
+                          <Calendar className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-1">Schedule Session</h3>
+                        <p className="text-sm text-gray-500 mb-4">Plan upcoming class</p>
+                        <button className="text-indigo-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+                          Go to sessions <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Action Items</CardTitle>
+              {/* Action Items - Right Side */}
+              <Card className="bg-white border border-gray-200">
+                <CardHeader className="border-b border-gray-100 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-900">Action Items</CardTitle>
+                    <span className="text-sm font-medium text-gray-600">3 pending</span>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <ActionRow
-                    title="Pending Attendance"
-                    subtitle="3 requests waiting"
-                  />
-                  <ActionRow
-                    title="Upcoming Session"
-                    subtitle="React Patterns · Today 4PM"
-                  />
+                <CardContent className="pt-6">
+                  <div className="space-y-1">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                      <div className="mt-0.5">
+                        <Clock className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm">Pending Attendance</p>
+                        <p className="text-xs text-gray-500 mt-0.5">3 requests waiting</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                      <div className="mt-0.5">
+                        <Calendar className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm">Upcoming Session</p>
+                        <p className="text-xs text-gray-500 mt-0.5">React Patterns · Today 4PM</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                      <div className="mt-0.5">
+                        <FileText className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm">New Submissions</p>
+                        <p className="text-xs text-gray-500 mt-0.5">5 assignments to grade</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
+
                   <Button
-                    variant="outline"
-                    className="w-full mt-4"
+                    className="w-full mt-6 bg-gray-900 hover:bg-gray-800 text-white"
                     onClick={() => changeTab("attendance")}
                   >
+                    <List className="w-4 h-4 mr-2" />
                     View All Activity
                   </Button>
                 </CardContent>

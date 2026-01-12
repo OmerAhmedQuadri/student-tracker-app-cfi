@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Calendar, Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar, Loader2, CheckCircle, XCircle, Clock, AlertCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -138,15 +138,19 @@ const MentorAttendance = () => {
 
     const getStatusBadge = (status: 'present' | 'absent' | 'late') => {
         const variants = {
-            present: { color: 'bg-green-50 text-green-600 border-green-100', icon: CheckCircle },
-            absent: { color: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
-            late: { color: 'bg-yellow-50 text-yellow-600 border-yellow-100', icon: Clock }
+            present: { color: 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200 transition-colors', icon: CheckCircle },
+            absent: { color: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200 transition-colors', icon: XCircle },
+            late: { color: 'bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-200 transition-colors', icon: Clock }
         };
         const config = variants[status];
         const Icon = config.icon;
         return (
-            <Badge variant="outline" className={config.color}>
-                <Icon className="w-3 h-3 mr-1" />
+            <Badge 
+                variant="outline" 
+                className={config.color}
+                aria-label={`Status: ${status}`}
+            >
+                <Icon className="w-3 h-3 mr-1" aria-hidden="true" />
                 {status.charAt(0).toUpperCase() + status.slice(1)}
             </Badge>
         );
@@ -160,186 +164,280 @@ const MentorAttendance = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-96">
-                <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            <div 
+                className="flex items-center justify-center h-96"
+                role="status"
+                aria-label="Loading attendance data"
+            >
+                <Loader2 className="w-10 h-10 animate-spin text-slate-400" aria-hidden="true" />
+                <span className="sr-only">Loading...</span>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold mb-2">Mark Attendance</h1>
-                        <p className="text-purple-100">Record student attendance for sessions</p>
-                    </div>
-                    <div className="bg-white/20 p-4 rounded-lg backdrop-blur-sm">
-                        <Calendar className="w-8 h-8" />
-                    </div>
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Mark Attendance</h1>
+                    <p className="text-gray-600">Record student attendance for scheduled sessions</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
+                        <HelpCircle className="w-5 h-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+                        <Calendar className="w-5 h-5" />
+                    </Button>
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="border-green-100 bg-green-50">
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <Card className="border-2 border-green-200 bg-white">
+                    <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-green-600">Present</p>
-                                <p className="text-3xl font-bold text-green-700">{stats.present}</p>
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">PRESENT</p>
+                                <p className="text-5xl font-bold text-gray-900 mb-2">{stats.present}</p>
+                                <p className="text-sm text-green-600 font-medium flex items-center gap-1">
+                                    <CheckCircle className="w-4 h-4" />
+                                    On time
+                                </p>
                             </div>
-                            <CheckCircle className="w-8 h-8 text-green-600" />
+                            <div className="bg-green-100 p-3 rounded-lg">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-yellow-100 bg-yellow-50">
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
+
+                <Card className="border-2 border-orange-200 bg-white">
+                    <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-yellow-600">Late</p>
-                                <p className="text-3xl font-bold text-yellow-700">{stats.late}</p>
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">LATE</p>
+                                <p className="text-5xl font-bold text-gray-900 mb-2">{stats.late}</p>
+                                <p className="text-sm text-orange-600 font-medium flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    After start time
+                                </p>
                             </div>
-                            <Clock className="w-8 h-8 text-yellow-600" />
+                            <div className="bg-orange-100 p-3 rounded-lg">
+                                <Clock className="w-6 h-6 text-orange-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-red-100 bg-red-50">
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
+
+                <Card className="border-2 border-red-200 bg-white">
+                    <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-medium text-red-600">Absent</p>
-                                <p className="text-3xl font-bold text-red-700">{stats.absent}</p>
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">ABSENT</p>
+                                <p className="text-5xl font-bold text-gray-900 mb-2">{stats.absent}</p>
+                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                    <XCircle className="w-4 h-4" />
+                                    Did not attend
+                                </p>
                             </div>
-                            <XCircle className="w-8 h-8 text-red-600" />
+                            <div className="bg-red-100 p-3 rounded-lg">
+                                <XCircle className="w-6 h-6 text-red-600" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Session Selection */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Select Session</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card className="border border-gray-200 bg-white mb-8">
+                <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="w-5 h-5 text-gray-400" />
+                        <h2 className="text-lg font-semibold text-gray-900">Select Session</h2>
+                    </div>
+                    
                     {sessions.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                            <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>No scheduled sessions available</p>
-                            <p className="text-sm mt-1">Create a session first to mark attendance</p>
+                            <div className="bg-gray-50 p-4 rounded-full inline-flex mb-4">
+                                <Calendar className="w-12 h-12 text-gray-400" />
+                            </div>
+                            <p className="text-lg font-medium text-gray-900">No scheduled sessions</p>
+                            <p className="text-sm mt-1 text-gray-500">
+                                Create a session first to mark attendance
+                            </p>
                         </div>
                     ) : (
-                        <Select value={selectedSession} onValueChange={setSelectedSession}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Choose a session" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {sessions.map(session => (
-                                    <SelectItem key={session._id} value={session._id}>
-                                        {session.topic} - {new Date(session.date).toLocaleDateString()} {new Date(session.date).toLocaleTimeString()}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Choose a scheduled session
+                            </label>
+                            <Select 
+                                value={selectedSession} 
+                                onValueChange={setSelectedSession}
+                            >
+                                <SelectTrigger className="w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500">
+                                    <SelectValue placeholder="Select a session" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sessions.map(session => (
+                                        <SelectItem key={session._id} value={session._id}>
+                                            {session.topic} - {new Date(session.date).toLocaleDateString()} {new Date(session.date).toLocaleTimeString()}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     )}
                 </CardContent>
             </Card>
 
-            {/* Attendance Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Student List</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Batch</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {students.map(student => {
-                                const attendanceRecord = attendance.find(a => a.studentId === student._id);
-                                const currentStatus = attendanceRecord?.status;
-                                
-                                return (
-                                    <TableRow key={student._id}>
-                                        <TableCell className="font-medium">{student.name}</TableCell>
-                                        <TableCell className="text-gray-600">{student.email}</TableCell>
-                                        <TableCell>
-                                            {student.batchId ? (
-                                                <Badge variant="outline">{student.batchId}</Badge>
-                                            ) : (
-                                                <span className="text-gray-400">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {currentStatus ? (
-                                                getStatusBadge(currentStatus)
-                                            ) : (
-                                                <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200">
-                                                    Not marked
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant={currentStatus === 'present' ? 'default' : 'outline'}
-                                                    onClick={() => handleStatusChange(student._id, 'present')}
-                                                    className={currentStatus === 'present' ? 'bg-green-600 hover:bg-green-700' : ''}
-                                                >
-                                                    Present
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant={currentStatus === 'late' ? 'default' : 'outline'}
-                                                    onClick={() => handleStatusChange(student._id, 'late')}
-                                                    className={currentStatus === 'late' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
-                                                >
-                                                    Late
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant={currentStatus === 'absent' ? 'default' : 'outline'}
-                                                    onClick={() => handleStatusChange(student._id, 'absent')}
-                                                    className={currentStatus === 'absent' ? 'bg-red-600 hover:bg-red-700' : ''}
-                                                >
-                                                    Absent
-                                                </Button>
-                                            </div>
-                                        </TableCell>
+            {/* Attendance Table - Only show if session is selected */}
+            {selectedSession && (
+                <Card className="border border-gray-200 bg-white">
+                    <CardHeader className="border-b border-gray-100 pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <CardTitle className="text-lg font-semibold text-gray-900">
+                                Student Attendance
+                            </CardTitle>
+                            <p className="text-sm text-gray-500">
+                                {attendance.filter(a => a.status).length} of {students.length} students marked
+                            </p>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-gray-50 border-b border-gray-100">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                            Name
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                            Email
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                            Batch
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                            Mark Attendance
+                                        </TableHead>
                                     </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {students.map(student => {
+                                        const attendanceRecord = attendance.find(a => a.studentId === student._id);
+                                        const currentStatus = attendanceRecord?.status;
+                                        
+                                        return (
+                                            <TableRow 
+                                                key={student._id} 
+                                                className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                                            >
+                                                <TableCell className="font-medium text-gray-900">
+                                                    {student.name}
+                                                </TableCell>
+                                                <TableCell className="text-gray-600">
+                                                    {student.email}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {student.batchId ? (
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className="bg-gray-100 text-gray-700 border-gray-200"
+                                                        >
+                                                            {student.batchId}
+                                                        </Badge>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-sm">-</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {currentStatus ? (
+                                                        getStatusBadge(currentStatus)
+                                                    ) : (
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className="bg-gray-100 text-gray-500 border-gray-200"
+                                                        >
+                                                            Not marked
+                                                        </Badge>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant={currentStatus === 'present' ? 'default' : 'outline'}
+                                                            onClick={() => handleStatusChange(student._id, 'present')}
+                                                            className={`transition-all ${
+                                                                currentStatus === 'present' 
+                                                                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                                                    : 'text-green-600 hover:bg-green-50 border-green-200'
+                                                            }`}
+                                                        >
+                                                            Present
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant={currentStatus === 'late' ? 'default' : 'outline'}
+                                                            onClick={() => handleStatusChange(student._id, 'late')}
+                                                            className={`transition-all ${
+                                                                currentStatus === 'late' 
+                                                                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                                                                    : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                                            }`}
+                                                        >
+                                                            Late
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant={currentStatus === 'absent' ? 'default' : 'outline'}
+                                                            onClick={() => handleStatusChange(student._id, 'absent')}
+                                                            className={`transition-all ${
+                                                                currentStatus === 'absent' 
+                                                                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                                                    : 'text-red-600 hover:bg-red-50 border-red-200'
+                                                            }`}
+                                                        >
+                                                            Absent
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </div>
 
-                    <div className="mt-6 flex justify-end">
-                        <Button
-                            onClick={handleSubmit}
-                            disabled={!selectedSession || submitting}
-                            className="bg-purple-600 hover:bg-purple-700"
-                            size="lg"
-                        >
-                            {submitting ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Submitting...
-                                </>
-                            ) : (
-                                'Submit Attendance'
-                            )}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <p className="text-sm text-gray-500">
+                                Mark attendance for all students before submitting
+                            </p>
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={!selectedSession || submitting}
+                                className="bg-gray-900 hover:bg-gray-800 text-white transition-all"
+                                size="lg"
+                            >
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    'Submit Attendance'
+                                )}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 };
