@@ -82,6 +82,8 @@ router.patch(
 
 // Skills
 router.get("/skills", skillController.getAllSkills);
+router.post("/skills", skillController.createSkill);
+router.delete("/skills/:id", skillController.deleteSkill);
 router.post("/skills/topics", skillController.createSkillTopic);
 router.get("/skills/topics/:skillId", skillController.getSkillTopics);
 router.patch("/skills/topics/:id", skillController.updateSkillTopic);

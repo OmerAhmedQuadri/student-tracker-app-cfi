@@ -17,8 +17,8 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: { type: String, enum: ["student", "mentor", "admin"], required: true, default: "student" },
-    batchId: { type: String, ref: "Batch" }, // For students
-    batchIds: [{ type: String, ref: "Batch" }], // For mentors - array of batches
+    batchId: { type: String }, // For students
+    batchIds: [{ type: String }], // For mentors - array of batches
     status: { type: String, enum: ["pending", "active", "suspended"], default: "pending" },
     isActive: { type: Boolean, default: true },
   },

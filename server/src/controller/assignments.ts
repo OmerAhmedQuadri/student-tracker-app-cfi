@@ -5,15 +5,22 @@ import { StudentAssignment } from "../models/StudentAssignment";
 
 // Create Assignment
 export const createAssignment = asyncHandler(async (req: Request, res: Response) => {
-  const { title, skillId, dueDate, maxScore } = req.body;
-  const assignment = new Assignment({ title, skillId, dueDate, maxScore });
+  const { title, skillId, dueDate, maxScore, batchId } = req.body;
+  
+  if (!batchId) {
+    return res.status(400).json({ message: "Batch ID is required" });
+  }
+  
+  const assignment = new Assignment({ title, skillId, dueDate, maxScore, batchId });
   await assignment.save();
   res.status(201).json(assignment);
 });
 
 // Get All Assignments
 export const getAllAssignments = asyncHandler(async (req: Request, res: Response) => {
-  const assignments = await Assignment.find().populate("skillId");
+  const { batchId } = req.query;
+  const filter = batchId ? { batchId } : {};
+  const assignments = await Assignment.find(filter).populate("skillId");
   res.json(assignments);
 });
 
