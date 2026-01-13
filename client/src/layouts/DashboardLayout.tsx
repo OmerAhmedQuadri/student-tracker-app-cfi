@@ -16,7 +16,7 @@ const DashboardLayout = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
-                <main className="flex-1 overflow-y-auto scroll-smooth will-change-scroll">
+                <main className="flex-1 overflow-y-auto bg-gray-50">
                     <Outlet />
                 </main>
             </div>

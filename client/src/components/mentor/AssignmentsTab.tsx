@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash, ChevronRight, Search, FileCode, Calendar, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import * as mentorApi from '@/api/mentorApis';
+import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,9 +28,35 @@ interface Submission {
     timeTakenMinutes?: number;
 }
 
+interface Skill {
+    _id: string;
+    name: string;
+    order?: number;
+    batchId?: string;
+}
+
+interface SkillTopic {
+    _id: string;
+    skillId: string;
+    title: string;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    estimatedMinutes?: number;
+}
+
+interface Batch {
+    _id?: string;
+    id?: string;
+    name?: string;
+}
+
 export const AssignmentsTab = () => {
     const [assignments, setAssignments] = useState<Assignment[]>([]);
+    const [skills, setSkills] = useState<Skill[]>([]);
+    const [topics, setTopics] = useState<SkillTopic[]>([]);
+    const [batches, setBatches] = useState<Batch[]>([]);
+    const [selectedBatch, setSelectedBatch] = useState<string>('');
     const [loading, setLoading] = useState(true);
+    const [loadingBatches, setLoadingBatches] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -40,25 +67,82 @@ export const AssignmentsTab = () => {
     const [formData, setFormData] = useState({
         title: '',
         skillId: '',
+        topicId: '',
         dueDate: '',
-        maxScore: 100
+        maxScore: 100,
+        batchId: ''
     });
 
     // Score input state for each submission row
     const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        loadAssignments();
+        loadBatches();
     }, []);
 
+    useEffect(() => {
+        if (selectedBatch) {
+            loadAssignments();
+            loadSkills();
+        }
+    }, [selectedBatch]);
+
+    useEffect(() => {
+        if (formData.skillId) {
+            loadTopics(formData.skillId);
+        } else {
+            setTopics([]);
+            setFormData(prev => ({ ...prev, topicId: '' }));
+        }
+    }, [formData.skillId]);
+
+    const loadBatches = async () => {
+        setLoadingBatches(true);
+        try {
+            const response = await api.get('/mentor/batches');
+            const batchData = response.data.map((id: string) => ({ id }));
+            setBatches(batchData);
+            if (batchData.length > 0) {
+                setSelectedBatch(batchData[0].id);
+            }
+        } catch (error) {
+            console.error("Failed to load batches", error);
+        } finally {
+            setLoadingBatches(false);
+        }
+    };
+
+    const loadSkills = async () => {
+        if (!selectedBatch) return;
+        try {
+            console.log('Fetching skills for batch:', selectedBatch);
+            const response = await api.get(`/mentor/skills?batchId=${selectedBatch}`);
+            console.log('Skills fetched:', response.data);
+            setSkills(response.data);
+        } catch (error) {
+            console.error("Failed to load skills", error);
+        }
+    };
+
+    const loadTopics = async (skillId: string) => {
+        try {
+            const response = await api.get(`/mentor/skills/topics/${skillId}`);
+            setTopics(response.data);
+        } catch (error) {
+            console.error("Failed to load topics", error);
+        }
+    };
+
     const loadAssignments = async () => {
+        if (!selectedBatch) return;
         setLoading(true);
         try {
             const data = await mentorApi.getAllAssignments();
-            setAssignments(data);
-            if (data.length > 0 && !selectedAssignment) {
+            const filtered = data.filter((a: any) => a.batchId === selectedBatch);
+            setAssignments(filtered);
+            if (filtered.length > 0 && !selectedAssignment) {
                 // Optionally select the first one, or wait for user interaction
-                // setSelectedAssignment(data[0]); 
+                // setSelectedAssignment(filtered[0]); 
             }
         } catch (error) {
             console.error("Failed to load assignments", error);
@@ -70,9 +154,12 @@ export const AssignmentsTab = () => {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await mentorApi.createAssignment(formData);
+            await mentorApi.createAssignment({
+                ...formData,
+                batchId: selectedBatch
+            });
             setIsCreating(false);
-            setFormData({ title: '', skillId: '', dueDate: '', maxScore: 100 });
+            setFormData({ title: '', skillId: '', topicId: '', dueDate: '', maxScore: 100, batchId: '' });
             loadAssignments();
         } catch (error) {
             console.error("Failed to create assignment", error);
@@ -108,7 +195,7 @@ export const AssignmentsTab = () => {
     const handleGrade = async (submissionId: string) => {
         const scoreVal = scoreInputs[submissionId];
         if (!scoreVal) return;
-        
+
         const score = Number(scoreVal);
         if (isNaN(score)) return;
 
@@ -128,278 +215,340 @@ export const AssignmentsTab = () => {
         }
     };
 
-    const filteredAssignments = assignments.filter(a => 
+    const filteredAssignments = assignments.filter(a =>
         a.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)]">
-            {/* Left Sidebar: List of Assignments */}
-            <Card className="lg:col-span-4 h-full flex flex-col border-border/50 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-border/50 bg-muted/20">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-lg flex items-center gap-2">
-                            <FileCode className="w-5 h-5 text-indigo-600" />
-                            Assignments
-                        </h2>
-                        <Button size="sm" onClick={() => setIsCreating(true)} className="bg-indigo-600 hover:bg-indigo-700">
-                            <Plus className="w-4 h-4 mr-2" /> New
-                        </Button>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search..."
-                            className="pl-9 bg-background border-border/50"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
+        <div className="space-y-4">
+            {/* Batch Selector */}
+            {loadingBatches ? (
+                <div className="flex items-center justify-center p-4">
+                    <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
                 </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="p-3 space-y-2">
-                        {loading ? (
-                             <div className="flex flex-col items-center justify-center p-8 space-y-4">
-                                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-                                <p className="text-sm text-muted-foreground">Loading assignments...</p>
-                            </div>
-                        ) : filteredAssignments.length === 0 ? (
-                            <div className="text-center p-8 text-muted-foreground">
-                                <p>No assignments found.</p>
-                                {assignments.length === 0 && <p className="text-xs mt-1">Create one to get started.</p>}
-                            </div>
-                        ) : (
-                            filteredAssignments.map(assignment => (
-                                <div
-                                    key={assignment._id}
-                                    onClick={() => handleSelectAssignment(assignment)}
-                                    className={`group flex items-start justify-between p-4 rounded-xl cursor-pointer border transition-all duration-200 ${
-                                        selectedAssignment?._id === assignment._id
-                                            ? 'bg-indigo-50 border-indigo-200 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-800'
-                                            : 'bg-card border-transparent hover:bg-muted/50 hover:border-border/50'
-                                    }`}
-                                >
-                                    <div className="space-y-1">
-                                        <h3 className={`font-medium text-sm ${selectedAssignment?._id === assignment._id ? 'text-indigo-700 dark:text-indigo-300' : 'text-foreground'}`}>
-                                            {assignment.title}
-                                        </h3>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(assignment.dueDate).toLocaleDateString()}
-                                            <span>•</span>
-                                            <span>max: {assignment.maxScore}</span>
-                                        </div>
-                                    </div>
-                                    <ChevronRight className={`w-4 h-4 transition-transform ${selectedAssignment?._id === assignment._id ? 'text-indigo-600 rotate-90' : 'text-muted-foreground group-hover:text-foreground'}`} />
-                                </div>
-                            ))
-                        )}
-                    </div>
+            ) : (
+                <div className="flex items-center gap-2 sm:gap-3 px-4">
+                    <Label htmlFor="assignmentBatchSelect" className="text-xs sm:text-sm font-medium whitespace-nowrap">Batch:</Label>
+                    <select
+                        id="assignmentBatchSelect"
+                        value={selectedBatch}
+                        onChange={(e) => {
+                            setSelectedBatch(e.target.value);
+                            setSelectedAssignment(null);
+                        }}
+                        className="flex-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border border-gray-200 text-xs sm:text-sm"
+                    >
+                        {batches.map((batch) => (
+                            <option key={batch.id} value={batch.id}>
+                                {batch.name || batch.id}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-            </Card>
+            )}
 
-            {/* Right Side: Details or Create Form */}
-            <div className="lg:col-span-8 h-full flex flex-col">
-                {isCreating ? (
-                    <Card className="flex-1 border-border/50 shadow-md animate-in fade-in slide-in-from-right-4">
-                        <CardHeader>
-                            <CardTitle>Create New Assignment</CardTitle>
-                            <CardDescription>Define the task details for your students.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleCreate} className="space-y-6 max-w-xl">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title">Title</Label>
-                                    <Input
-                                        id="title"
-                                        placeholder="e.g., React Component Lifecycle"
-                                        required
-                                        value={formData.title}
-                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                    />
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                     <div className="space-y-2">
-                                        <Label htmlFor="dueDate">Due Date</Label>
-                                        <Input
-                                            id="dueDate"
-                                            type="datetime-local"
-                                            required
-                                            value={formData.dueDate}
-                                            onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="maxScore">Max Score</Label>
-                                        <Input
-                                            id="maxScore"
-                                            type="number"
-                                            required
-                                            value={formData.maxScore}
-                                            onChange={e => setFormData({ ...formData, maxScore: Number(e.target.value) })}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="skillId">Associated Skill ID</Label>
-                                    <Input
-                                        id="skillId"
-                                        placeholder="Enter Mongo ID of skill"
-                                        value={formData.skillId}
-                                        onChange={e => setFormData({ ...formData, skillId: e.target.value })}
-                                    />
-                                    <p className="text-[10px] text-muted-foreground">Future update: will be a dropdown.</p>
-                                </div>
-
-                                <div className="flex gap-4 pt-4">
-                                    <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
-                                    <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">Create Assignment</Button>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
-                ) : selectedAssignment ? (
-                    <Card className="flex-1 border-border/50 shadow-md flex flex-col overflow-hidden animate-in fade-in">
-                        <div className="p-6 border-b border-border/50 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-background">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-foreground mb-1">{selectedAssignment.title}</h2>
-                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                        <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            Due {new Date(selectedAssignment.dueDate).toLocaleString()}
-                                        </span>
-                                        <span className="flex items-center gap-1.5">
-                                            <CheckCircle className="w-3.5 h-3.5" />
-                                            {selectedAssignment.maxScore} points
-                                        </span>
-                                    </div>
-                                </div>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={() => handleDelete(selectedAssignment._id)}
-                                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                                >
-                                    <Trash className="w-4 h-4 mr-2" /> Delete
-                                </Button>
-                            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+                {/* Left Sidebar: List of Assignments */}
+                <Card className="lg:col-span-4 h-full flex flex-col border-border/50 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-border/50 bg-muted/20">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="font-semibold text-lg flex items-center gap-2">
+                                <FileCode className="w-5 h-5 text-indigo-600" />
+                                Assignments
+                            </h2>
+                            <Button
+                                size="sm"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Create button clicked');
+                                    setIsCreating(true);
+                                }}
+                                className="bg-indigo-600 hover:bg-indigo-700"
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> New
+                            </Button>
                         </div>
+                        <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search..."
+                                className="pl-9 bg-background border-border/50"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
 
-                        <div className="flex-1 overflow-auto p-6">
-                            <div className="mb-4 flex items-center justify-between">
-                                <h3 className="font-semibold text-foreground">Submissions ({submissions.length})</h3>
-                                {/* Add filter controls or export buttons here if needed */}
-                            </div>
-
-                            {loadingSubmissions ? (
-                                <div className="flex justify-center py-12">
-                                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="p-3 space-y-2">
+                            {loading ? (
+                                <div className="flex flex-col items-center justify-center p-8 space-y-4">
+                                    <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                                    <p className="text-sm text-muted-foreground">Loading assignments...</p>
                                 </div>
-                            ) : submissions.length === 0 ? (
-                                <div className="text-center py-12 border-2 border-dashed border-border/50 rounded-xl bg-muted/20">
-                                    <FileCode className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-                                    <p className="text-muted-foreground">No students have submitted this assignment yet.</p>
+                            ) : filteredAssignments.length === 0 ? (
+                                <div className="text-center p-8 text-muted-foreground">
+                                    <p>No assignments found.</p>
+                                    {assignments.length === 0 && <p className="text-xs mt-1">Create one to get started.</p>}
                                 </div>
                             ) : (
-                                <div className="rounded-md border border-border/50 overflow-hidden">
-                                     <Table>
-                                        <TableHeader className="bg-muted/50">
-                                            <TableRow>
-                                                <TableHead>Student</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead>Time Taken</TableHead>
-                                                <TableHead>Submitted</TableHead>
-                                                <TableHead className="text-right">Grade</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {submissions.map((sub) => (
-                                                <TableRow key={sub._id}>
-                                                    <TableCell className="font-medium">
-                                                        <div className="flex flex-col">
-                                                            <span>{sub.userId?.name}</span>
-                                                            <span className="text-xs text-muted-foreground">{sub.userId?.email}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {sub.status === 'graded' ? (
-                                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                                                Graded
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                                                                Pending
-                                                            </Badge>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="text-muted-foreground text-sm">
-                                                        {sub.timeTakenMinutes ? `${sub.timeTakenMinutes}m` : '-'}
-                                                    </TableCell>
-                                                    <TableCell className="text-muted-foreground text-sm">
-                                                        {new Date(sub.submittedAt).toLocaleDateString()}
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {sub.status === 'graded' ? (
-                                                            <div className="flex items-center justify-end gap-2 group/edit">
-                                                                <span className="font-bold text-green-700">{sub.score}</span>
-                                                                <span className="text-muted-foreground text-sm">/ {selectedAssignment.maxScore}</span>
-                                                                <Button 
-                                                                    variant="ghost" 
-                                                                    size="icon" 
-                                                                    className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity"
-                                                                    onClick={() => setSubmissions(prev => prev.map(p => p._id === sub._id ? {...p, status: 'pending_regrade'} : p))}
-                                                                >
-                                                                    <span className="sr-only">Edit</span>
-                                                                    <FileCode className="w-3 h-3" />
-                                                                </Button>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                <Input 
-                                                                    className="w-20 h-8 font-medium text-right" 
-                                                                    placeholder="0"
-                                                                    type="number"
-                                                                    value={scoreInputs[sub._id] || ''}
-                                                                    onChange={(e) => setScoreInputs(prev => ({...prev, [sub._id]: e.target.value}))}
-                                                                    onKeyDown={(e) => e.key === 'Enter' && handleGrade(sub._id)}
-                                                                />
-                                                                <Button 
-                                                                    size="sm" 
-                                                                    disabled={!scoreInputs[sub._id]}
-                                                                    onClick={() => handleGrade(sub._id)}
-                                                                    className='h-8'
-                                                                >
-                                                                    Save
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                filteredAssignments.map(assignment => (
+                                    <div
+                                        key={assignment._id}
+                                        onClick={() => handleSelectAssignment(assignment)}
+                                        className={`group flex items-start justify-between p-4 rounded-xl cursor-pointer border transition-all duration-200 ${selectedAssignment?._id === assignment._id
+                                            ? 'bg-indigo-50 border-indigo-200 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-800'
+                                            : 'bg-card border-transparent hover:bg-muted/50 hover:border-border/50'
+                                            }`}
+                                    >
+                                        <div className="space-y-1">
+                                            <h3 className={`font-medium text-sm ${selectedAssignment?._id === assignment._id ? 'text-indigo-700 dark:text-indigo-300' : 'text-foreground'}`}>
+                                                {assignment.title}
+                                            </h3>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(assignment.dueDate).toLocaleDateString()}
+                                                <span>•</span>
+                                                <span>max: {assignment.maxScore}</span>
+                                            </div>
+                                        </div>
+                                        <ChevronRight className={`w-4 h-4 transition-transform ${selectedAssignment?._id === assignment._id ? 'text-indigo-600 rotate-90' : 'text-muted-foreground group-hover:text-foreground'}`} />
+                                    </div>
+                                ))
                             )}
                         </div>
-                    </Card>
-                ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-border/50 rounded-xl bg-muted/10 m-4 lg:m-0">
-                        <div className="bg-indigo-50 p-4 rounded-full mb-4">
-                            <FileCode className="w-8 h-8 text-indigo-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground">Select an Assignment</h3>
-                        <p className="text-muted-foreground max-w-sm mt-2">
-                            Choose an assignment from the list to view submissions, grade students, or edit details.
-                        </p>
-                        <Button className="mt-6 bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsCreating(true)}>
-                            Create New Assignment
-                        </Button>
                     </div>
-                )}
+                </Card>
+
+                {/* Right Side: Details or Create Form */}
+                <div className="lg:col-span-8 h-full flex flex-col">
+                    {isCreating ? (
+                        <Card className="flex-1 border-border/50 shadow-md animate-in fade-in slide-in-from-right-4">
+                            <CardHeader>
+                                <CardTitle>Create New Assignment</CardTitle>
+                                <CardDescription>Define the task details for your students.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleCreate} className="space-y-6 max-w-xl">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title">Title</Label>
+                                        <Input
+                                            id="title"
+                                            placeholder="e.g., React Component Lifecycle"
+                                            required
+                                            value={formData.title}
+                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="dueDate">Due Date</Label>
+                                            <Input
+                                                id="dueDate"
+                                                type="datetime-local"
+                                                required
+                                                value={formData.dueDate}
+                                                onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="maxScore">Max Score</Label>
+                                            <Input
+                                                id="maxScore"
+                                                type="number"
+                                                required
+                                                value={formData.maxScore}
+                                                onChange={e => setFormData({ ...formData, maxScore: Number(e.target.value) })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="skillId">Associated Skill</Label>
+                                        <select
+                                            id="skillId"
+                                            value={formData.skillId}
+                                            onChange={e => setFormData({ ...formData, skillId: e.target.value })}
+                                            className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm"
+                                            required
+                                        >
+                                            <option value="">Select a skill</option>
+                                            {skills.map(skill => (
+                                                <option key={skill._id} value={skill._id}>
+                                                    {skill.name || 'Unnamed Skill'}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {formData.skillId && topics.length > 0 && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="topicId">Skill Topic (Optional)</Label>
+                                            <select
+                                                id="topicId"
+                                                value={formData.topicId}
+                                                onChange={e => setFormData({ ...formData, topicId: e.target.value })}
+                                                className="w-full h-9 px-3 rounded-md border border-gray-200 text-sm"
+                                            >
+                                                <option value="">No specific topic</option>
+                                                {topics.map(topic => (
+                                                    <option key={topic._id} value={topic._id}>
+                                                        {topic.title} ({topic.difficulty})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-4 pt-4">
+                                        <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
+                                        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">Create Assignment</Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    ) : selectedAssignment ? (
+                        <Card className="flex-1 border-border/50 shadow-md flex flex-col overflow-hidden animate-in fade-in">
+                            <div className="p-6 border-b border-border/50 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-background">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground mb-1">{selectedAssignment.title}</h2>
+                                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                Due {new Date(selectedAssignment.dueDate).toLocaleString()}
+                                            </span>
+                                            <span className="flex items-center gap-1.5">
+                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                {selectedAssignment.maxScore} points
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDelete(selectedAssignment._id)}
+                                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                    >
+                                        <Trash className="w-4 h-4 mr-2" /> Delete
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-auto p-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="font-semibold text-foreground">Submissions ({submissions.length})</h3>
+                                    {/* Add filter controls or export buttons here if needed */}
+                                </div>
+
+                                {loadingSubmissions ? (
+                                    <div className="flex justify-center py-12">
+                                        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                                    </div>
+                                ) : submissions.length === 0 ? (
+                                    <div className="text-center py-12 border-2 border-dashed border-border/50 rounded-xl bg-muted/20">
+                                        <FileCode className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                                        <p className="text-muted-foreground">No students have submitted this assignment yet.</p>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-md border border-border/50 overflow-hidden">
+                                        <Table>
+                                            <TableHeader className="bg-muted/50">
+                                                <TableRow>
+                                                    <TableHead>Student</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>Time Taken</TableHead>
+                                                    <TableHead>Submitted</TableHead>
+                                                    <TableHead className="text-right">Grade</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {submissions.map((sub) => (
+                                                    <TableRow key={sub._id}>
+                                                        <TableCell className="font-medium">
+                                                            <div className="flex flex-col">
+                                                                <span>{sub.userId?.name}</span>
+                                                                <span className="text-xs text-muted-foreground">{sub.userId?.email}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {sub.status === 'graded' ? (
+                                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                                    Graded
+                                                                </Badge>
+                                                            ) : (
+                                                                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                                                    Pending
+                                                                </Badge>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-muted-foreground text-sm">
+                                                            {sub.timeTakenMinutes ? `${sub.timeTakenMinutes}m` : '-'}
+                                                        </TableCell>
+                                                        <TableCell className="text-muted-foreground text-sm">
+                                                            {new Date(sub.submittedAt).toLocaleDateString()}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            {sub.status === 'graded' ? (
+                                                                <div className="flex items-center justify-end gap-2 group/edit">
+                                                                    <span className="font-bold text-green-700">{sub.score}</span>
+                                                                    <span className="text-muted-foreground text-sm">/ {selectedAssignment.maxScore}</span>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity"
+                                                                        onClick={() => setSubmissions(prev => prev.map(p => p._id === sub._id ? { ...p, status: 'pending_regrade' } : p))}
+                                                                    >
+                                                                        <span className="sr-only">Edit</span>
+                                                                        <FileCode className="w-3 h-3" />
+                                                                    </Button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <Input
+                                                                        className="w-20 h-8 font-medium text-right"
+                                                                        placeholder="0"
+                                                                        type="number"
+                                                                        value={scoreInputs[sub._id] || ''}
+                                                                        onChange={(e) => setScoreInputs(prev => ({ ...prev, [sub._id]: e.target.value }))}
+                                                                        onKeyDown={(e) => e.key === 'Enter' && handleGrade(sub._id)}
+                                                                    />
+                                                                    <Button
+                                                                        size="sm"
+                                                                        disabled={!scoreInputs[sub._id]}
+                                                                        onClick={() => handleGrade(sub._id)}
+                                                                        className='h-8'
+                                                                    >
+                                                                        Save
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-border/50 rounded-xl bg-muted/10 m-4 lg:m-0">
+                            <div className="bg-indigo-50 p-4 rounded-full mb-4">
+                                <FileCode className="w-8 h-8 text-indigo-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-foreground">Select an Assignment</h3>
+                            <p className="text-muted-foreground max-w-sm mt-2">
+                                Choose an assignment from the list to view submissions, grade students, or edit details.
+                            </p>
+                            <Button className="mt-6 bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsCreating(true)}>
+                                Create New Assignment
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

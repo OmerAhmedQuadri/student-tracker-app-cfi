@@ -22,6 +22,7 @@ import {
   Layers,
   ChevronRight,
   Settings,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: History,
     },
     { name: "Sessions", path: "/mentor/sessions", icon: Calendar },
+    { name: "Skills", path: "/mentor/skills", icon: GraduationCap },
     {
       name: "External Activities",
       path: "/mentor/external-activities",
@@ -125,26 +127,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-full w-60 bg-white border-r border-gray-200 shadow-lg md:shadow-none transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto flex flex-col",
+          "fixed top-0 left-0 z-50 h-full w-56 bg-white border-r border-gray-100 transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
         aria-label="Main navigation"
       >
         {/* Logo and Header */}
-        <div className="flex items-center justify-between px-2 py-4 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-              <BookOpen className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-              EduTrack
-            </span>
-          </div>
+        <div className="flex items-center justify-end px-3 py-2.5 border-b border-gray-100 flex-shrink-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="md:hidden h-7 w-7 rounded-full"
+            className="md:hidden h-8 w-8 rounded-full"
             aria-label="Close sidebar"
           >
             <X className="w-4 h-4" />
@@ -152,8 +146,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* User Profile Section */}
-        <div className="px-2 py-3 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50">
+        <div className="px-3 py-3 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50">
             <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
               <AvatarImage src={/* user?.avatar */ ""} alt={user?.name} />
               <AvatarFallback className="bg-indigo-100 text-indigo-700 font-medium text-sm">
@@ -164,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <p className="text-xs font-semibold text-gray-900 truncate">
                 {user?.name}
               </p>
-              <p className="text-[10px] text-gray-500 truncate">
+              <p className="text-[11px] text-gray-500 truncate">
                 {user?.email}
               </p>
             </div>
@@ -182,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <nav
-          className="px-1.5 py-3 space-y-1 overflow-y-auto flex-1"
+          className="px-2.5 py-3 space-y-1 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
           aria-label="Navigation"
         >
           {navItems.map((item) => (
@@ -196,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               onClick={() => onClose()} // Close sidebar on mobile when link is clicked
               className={({ isActive }) =>
                 cn(
-                  "flex items-center justify-between px-2 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium group",
+                  "flex items-center justify-between px-2.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium group",
                   isActive
                     ? "bg-indigo-50 text-indigo-700 shadow-sm"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -205,10 +199,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             >
               {({ isActive }) => (
                 <>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2.5">
                     <item.icon
                       className={cn(
-                        "w-4 h-4 transition-colors flex-shrink-0",
+                        "w-[17px] h-[17px] transition-colors flex-shrink-0",
                         isActive
                           ? "text-indigo-600"
                           : "text-gray-500 group-hover:text-gray-700"
@@ -226,24 +220,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </nav>
 
         {/* Footer Actions */}
-        <div className="px-2 py-3 border-t border-gray-100 flex-shrink-0 space-y-1.5">
-          <Button
-            variant="outline"
-            className="w-full justify-start border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 h-9 text-sm"
-            onClick={() => {
-              // In a real app, this would navigate to settings
-              // console.log('Navigate to settings');
-            }}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </Button>
+        <div className="px-3 py-2.5 border-t border-gray-100 flex-shrink-0">
           <Button
             variant="ghost"
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 h-9 text-sm"
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 h-9 text-sm font-medium rounded-xl"
             onClick={logout}
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="w-[17px] h-[17px] mr-2.5" />
             Logout
           </Button>
         </div>

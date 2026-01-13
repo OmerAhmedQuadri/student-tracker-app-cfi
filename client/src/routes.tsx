@@ -129,6 +129,10 @@ export const router = createBrowserRouter([
                                 element: <MentorDashboard />,
                             },
                             {
+                                path: 'skills',
+                                element: <MentorDashboard />,
+                            },
+                            {
                                 path: 'external-activities',
                                 element: <MentorExternalActivities />,
                             },

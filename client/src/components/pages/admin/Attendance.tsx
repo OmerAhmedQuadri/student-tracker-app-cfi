@@ -127,6 +127,12 @@ const AdminAttendance = () => {
         {
           method: "PATCH",
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            approved: true,
+          }),
         }
       );
       if (res.ok) {
@@ -135,9 +141,13 @@ const AdminAttendance = () => {
             a._id === attendanceId ? { ...a, isApproved: true } : a
           )
         );
+        // Reset filters to show all approved records
+        setApprovalFilter("approved");
+        setStatusFilter("all");
         toast.success("Attendance approved");
       } else {
-        toast.error("Failed to approve attendance");
+        const error = await res.json();
+        toast.error(error.message || "Failed to approve attendance");
       }
     } catch (error) {
       console.error("Failed to approve attendance:", error);

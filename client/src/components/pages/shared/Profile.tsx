@@ -171,7 +171,7 @@ const Profile = () => {
 
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   <Badge
-                    className={`px-3 py-1 capitalize font-medium ${
+                    className={`px-3 py-1 capitalize font-medium pointer-events-none ${
                       isMentor
                         ? "bg-purple-100 text-purple-700"
                         : isAdmin
@@ -183,41 +183,10 @@ const Profile = () => {
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="px-3 py-1 bg-green-50 text-green-700 border-green-200"
+                    className="px-3 py-1 bg-green-50 text-green-700 border-green-200 pointer-events-none"
                   >
                     Active
                   </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Role Specific Info Card */}
-            <Card className="shadow-sm border border-gray-200 bg-gradient-to-br from-indigo-50 to-purple-50">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`p-3 rounded-xl ${
-                      isMentor
-                        ? "bg-purple-500 text-white"
-                        : "bg-indigo-500 text-white"
-                    } shadow-sm`}
-                  >
-                    {isMentor ? (
-                      <Briefcase className="w-6 h-6" />
-                    ) : (
-                      <GraduationCap className="w-6 h-6" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {isMentor ? "Mentor Access" : "Student Account"}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {isMentor
-                        ? "You have full access to manage assignments, view student progress, and schedule sessions."
-                        : "You are enrolled in the full-stack development track. Keep up the great work!"}
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -257,26 +226,6 @@ const Profile = () => {
                       value={user?.email || ""}
                       disabled
                       className="bg-gray-50 border-gray-200 text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      User ID
-                    </Label>
-                    <Input
-                      value={user?.id || ""}
-                      disabled
-                      className="font-mono text-xs bg-gray-50 border-gray-200 text-gray-700"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      Role
-                    </Label>
-                    <Input
-                      value={user?.role?.toUpperCase() || ""}
-                      disabled
-                      className="bg-gray-50 border-gray-200 text-gray-900 font-semibold"
                     />
                   </div>
                 </div>
@@ -441,29 +390,6 @@ const Profile = () => {
                     >
                       <LogIn className="w-4 h-4 mr-2" />
                       Change
-                    </Button>
-                  </div>
-
-                  <div className="p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Shield className="w-5 h-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Two-Factor Authentication
-                        </p>
-                        <p className="text-sm text-gray-500 mt-0.5">
-                          Add an extra layer of security
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full border-gray-300 hover:bg-gray-50"
-                    >
-                      Enable
                     </Button>
                   </div>
                 </div>
