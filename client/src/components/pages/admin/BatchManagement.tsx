@@ -318,7 +318,7 @@ const BatchManagement = () => {
           </Card>
         </div>
 
-        {/* Batch Cards */}
+        {/* Batch Cards - Redesigned for Better UX */}
         {batches.length === 0 ? (
           <Card className="shadow-sm border border-gray-200">
             <CardContent className="p-12 text-center">
@@ -338,111 +338,131 @@ const BatchManagement = () => {
             {batches.map((batch) => (
               <Card
                 key={batch.batchId}
-                className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-indigo-200 bg-white"
+                className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl border-2 border-gray-200 hover:border-indigo-400 bg-white cursor-pointer"
+                onClick={() => navigate(`/admin/batch/${batch.batchId}`)}
               >
-                <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-indigo-50/50 rounded-full transition-transform group-hover:scale-150" />
-
-                <CardHeader className="pb-4 relative z-10">
+                {/* Header Section - Improved Visual Hierarchy */}
+                <CardHeader className="pb-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-b-2 border-indigo-100">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <div className="mb-2">
-                        <Badge
-                          variant="secondary"
-                          className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
-                        >
-                          Active Cohort
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-xl font-bold text-gray-900 tracking-tight">
-                        Batch {batch.batchId}
-                      </CardTitle>
-                      <CardDescription className="text-xs font-medium text-gray-500 mt-1">
-                        {getDuration(batch.startDate, batch.endDate)} Program
-                        {batch.description && (
-                          <span className="block mt-1 text-gray-400 font-normal line-clamp-1">
-                            {batch.description}
-                          </span>
-                        )}
-                      </CardDescription>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex -space-x-2 overflow-hidden mb-2">
-                        <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
-                          {batch.studentCount > 0 ? batch.studentCount : 0}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="p-2 bg-indigo-600 rounded-lg shadow-md">
+                          <Layers className="w-5 h-5 text-white" />
                         </div>
+                        <CardTitle className="text-2xl font-bold text-gray-900">
+                          {batch.batchId}
+                        </CardTitle>
                       </div>
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-700 border-green-300 px-3 py-1 text-xs font-bold"
+                      >
+                        ● ACTIVE
+                      </Badge>
+                      {batch.description && (
+                        <CardDescription className="text-sm text-gray-600 mt-2 line-clamp-2 font-medium">
+                          {batch.description}
+                        </CardDescription>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-4 relative z-10 bg-white/50 backdrop-blur-sm">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg h-fit">
-                        <Calendar className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Start Date
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {batch.startDate
-                            ? formatDate(batch.startDate)
-                            : "N/A"}
-                        </p>
-                      </div>
+                {/* Stats Grid - Improved Information Architecture */}
+                <CardContent className="p-5 space-y-4">
+                  {/* Duration */}
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
+                    <div className="p-2 bg-blue-600 rounded-lg shadow-sm">
+                      <Calendar className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-0.5">
+                        Duration
+                      </p>
+                      <p className="text-sm font-bold text-gray-900 truncate">
+                        {getDuration(batch.startDate, batch.endDate)} Program
+                      </p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        {batch.startDate
+                          ? `Started ${formatMonthYear(batch.startDate)}`
+                          : "Start date TBD"}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className="p-2 bg-green-50 rounded-lg h-fit">
-                        <Users className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Instructor
+                  {/* Instructors */}
+                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
+                    <div className="p-2 bg-purple-600 rounded-lg shadow-sm">
+                      <GraduationCap className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide mb-0.5">
+                        Instructor{batch.mentors.length > 1 ? "s" : ""}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900 truncate">
+                        {batch.mentors.length > 0
+                          ? batch.mentors[0].name
+                          : "Not Assigned"}
+                      </p>
+                      {batch.mentors.length > 1 && (
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          +{batch.mentors.length - 1} more instructor{batch.mentors.length - 1 > 1 ? "s" : ""}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          {batch.mentors.length > 0
-                            ? batch.mentors[0].name
-                            : "Not Assigned"}
-                          {batch.mentors.length > 1 &&
-                            ` +${batch.mentors.length - 1}`}
-                        </p>
-                      </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className="p-2 bg-purple-50 rounded-lg h-fit">
-                        <Users className="w-5 h-5 text-purple-600" />
+                  {/* Students - Enhanced Visual Prominence */}
+                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
+                    <div className="p-2 bg-green-600 rounded-lg shadow-sm">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-green-900 uppercase tracking-wide mb-0.5">
+                        Enrolled Students
+                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-bold text-gray-900">
+                          {batch.studentCount}
+                        </p>
+                        <p className="text-sm text-gray-600 font-medium">
+                          / 30 capacity
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Capacity
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {batch.studentCount}/30
-                        </p>
+                      <div className="mt-2 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-green-600 h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(
+                              (batch.studentCount / 30) * 100,
+                              100
+                            )}%`,
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
                 </CardContent>
 
-                <div className="px-5 pb-5 pt-0 space-y-2">
+                {/* Action Footer - Clearer CTAs */}
+                <div className="px-5 pb-5 pt-2 space-y-2 border-t-2 border-gray-100">
                   <Button
                     variant="ghost"
-                    className="w-full justify-between hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-t border-gray-100 pt-4 rounded-none h-auto"
-                    onClick={() => navigate(`/admin/batch/${batch.batchId}`)}
+                    className="w-full justify-between hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-semibold h-11 group-hover:bg-indigo-50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/admin/batch/${batch.batchId}`);
+                    }}
                   >
-                    Click to view details
-                    <ChevronRight className="w-4 h-4" />
+                    <span className="flex items-center gap-2">
+                      <School className="w-4 h-4" />
+                      View Full Details
+                    </span>
+                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                   <Button
-                    variant="ghost"
-                    className="w-full justify-center hover:bg-red-50 text-red-600 hover:text-red-700 h-auto py-2"
+                    variant="outline"
+                    className="w-full justify-center border-2 border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 hover:border-red-300 font-semibold h-11"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteBatch(batch.batchId, batch.studentCount);
