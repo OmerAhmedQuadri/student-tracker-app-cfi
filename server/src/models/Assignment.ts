@@ -2,7 +2,6 @@ import { Schema, model, Types } from "mongoose";
 
 export interface IAssignment {
   title: string;
-  skillId: Types.ObjectId;
   dueDate: Date;
   maxScore: number;
   batchId: string;
@@ -10,7 +9,6 @@ export interface IAssignment {
 
 const AssignmentSchema = new Schema<IAssignment>({
   title: String,
-  skillId: { type: Schema.Types.ObjectId, ref: "Skill" },
   dueDate: Date,
   maxScore: Number,
   batchId: { type: String, required: true, ref: "Batch" },
