@@ -132,42 +132,6 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   res.json({ message: "User deleted successfully" });
 });
 
-// get all skills of the single student
-export const getStudentSkills = asyncHandler(
-  async (req: Request, res: Response) => {
-    const studentProfile = await StudentProfile.findOne({
-      userId: req.user!.id,
-    }).populate("skills");
-
-    if (!studentProfile) {
-      return res.status(404).json({
-        message: "Student profile not found",
-      });
-    }
-
-    res.status(200).json({
-      skills: studentProfile.skills,
-    });
-  }
-);
-
-// get all students with their skills
-export const getAllStudentsWithSkills = asyncHandler(
-  async (req: Request, res: Response) => {
-    const students = await StudentProfile.find().populate("skills");
-
-    if (students.length === 0) {
-      return res.status(404).json({
-        message: "There are no students with skills available",
-      });
-    }
-
-    res.status(200).json({
-      students,
-    });
-  }
-);
-
 // assign batch to user
 export const assignBatch = asyncHandler(
   async (req: Request, res: Response) => {

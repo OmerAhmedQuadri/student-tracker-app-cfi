@@ -2,14 +2,12 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { StudentProfile } from "../models/StudentProfile";
 import { StudentAssignment } from "../models/StudentAssignment";
-import { StudentSkillProgress } from "../models/StudentSkillProgress";
 
 // Dashboard for Student
 export const getStudentDashboard = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
 
-    const profile = await StudentProfile.findOne({ userId }).populate("skills");
-    const skillProgress = await StudentSkillProgress.find({ userId }).populate("skillId");
+    const profile = await StudentProfile.findOne({ userId });
     
     // Recent assignments
     const recentAssignments = await StudentAssignment.find({ userId })
@@ -19,7 +17,6 @@ export const getStudentDashboard = asyncHandler(async (req: Request, res: Respon
 
     res.json({
         profile,
-        skillProgress,
         recentAssignments
     });
 });
@@ -28,7 +25,6 @@ export const getStudentDashboard = asyncHandler(async (req: Request, res: Respon
 export const getMentorDashboard = asyncHandler(async (req: Request, res: Response) => {
     // 1. Batch-level performance
     // 2. Students falling behind (low streak, missed assignments)
-    // 3. Weak topics (aggregated from StudentSkillProgress low levels)
     
     const students = await StudentProfile.find().populate("userId", "name email");
     

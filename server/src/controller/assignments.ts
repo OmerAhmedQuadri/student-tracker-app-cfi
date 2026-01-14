@@ -5,13 +5,13 @@ import { StudentAssignment } from "../models/StudentAssignment";
 
 // Create Assignment
 export const createAssignment = asyncHandler(async (req: Request, res: Response) => {
-  const { title, skillId, dueDate, maxScore, batchId } = req.body;
+  const { title, dueDate, maxScore, batchId } = req.body;
   
   if (!batchId) {
     return res.status(400).json({ message: "Batch ID is required" });
   }
   
-  const assignment = new Assignment({ title, skillId, dueDate, maxScore, batchId });
+  const assignment = new Assignment({ title, dueDate, maxScore, batchId });
   await assignment.save();
   res.status(201).json(assignment);
 });
@@ -20,13 +20,13 @@ export const createAssignment = asyncHandler(async (req: Request, res: Response)
 export const getAllAssignments = asyncHandler(async (req: Request, res: Response) => {
   const { batchId } = req.query;
   const filter = batchId ? { batchId } : {};
-  const assignments = await Assignment.find(filter).populate("skillId");
+  const assignments = await Assignment.find(filter);
   res.json(assignments);
 });
 
 // Get Assignment By ID
 export const getAssignmentById = asyncHandler(async (req: Request, res: Response) => {
-  const assignment = await Assignment.findById(req.params.id).populate("skillId");
+  const assignment = await Assignment.findById(req.params.id);
   if (!assignment) {
     return res.status(404).json({ message: "Assignment not found" });
   }

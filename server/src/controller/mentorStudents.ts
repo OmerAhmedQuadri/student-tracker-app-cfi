@@ -71,7 +71,7 @@ export const getBatchAttendanceHistory = asyncHandler(
     const attendance = await StudentAttendance.find({
       userId: { $in: studentIds }
     })
-      .populate('userId', 'name email')
+      .populate('userId', 'name email batchId')
       .populate('sessionId', 'topic scheduledAt')
       .sort({ date: -1 });
     
@@ -128,5 +128,41 @@ export const getBatchAttendanceByBatch = asyncHandler(
       .sort({ date: -1 });
     
     res.json(attendance);
+  }
+);
+
+// Get students by specific batch ID
+export const getStudentsByBatch = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { batchId } = req.params;
+    const mentorId = req.user!.id;
+    
+    // Verify mentor has access to this batch
+    const mentor = await User.findById(mentorId);
+    
+    if (!mentor) {
+      return res.status(404).json({ 
+        message: "Mentor not found" 
+      });
+    }
+
+    const mentorBatches = mentor.batchIds && mentor.batchIds.length > 0 
+      ? mentor.batchIds 
+      : (mentor.batchId ? [mentor.batchId] : []);
+
+    // Check if mentor has access to this batch
+    if (mentorBatches.length > 0 && !mentorBatches.includes(batchId)) {
+      return res.status(403).json({ 
+        message: "You don't have access to this batch" 
+      });
+    }
+    
+    // Get students from the specified batch
+    const students = await User.find({ 
+      role: "student", 
+      batchId: batchId
+    }).select('-password');
+    
+    res.json(students);
   }
 );

@@ -30,6 +30,12 @@ export const updateMentorshipSession = asyncHandler(async (req: Request, res: Re
     res.json(session);
 });
 
+export const deleteMentorshipSession = asyncHandler(async (req: Request, res: Response) => {
+    const session = await MentorshipSession.findByIdAndDelete(req.params.id);
+    if (!session) return res.status(404).json({ message: "Session not found" });
+    res.json({ message: "Session deleted successfully" });
+});
+
 // --- Learning Sessions ---
 
 export const logLearningSession = asyncHandler(async (req: Request, res: Response) => {

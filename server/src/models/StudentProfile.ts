@@ -3,7 +3,6 @@ import { Schema, model, Types } from "mongoose";
 export interface IStudentProfile {
   userId: Types.ObjectId;
   stage: "beginner" | "intermediate" | "advanced";
-  skills: Types.ObjectId[];
   currentStreak: number;
   longestStreak: number;
   totalPoints: number;
@@ -19,7 +18,6 @@ const StudentProfileSchema = new Schema<IStudentProfile>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", unique: true },
     stage: { type: String, enum: ["beginner", "intermediate", "advanced"] },
-    skills: [{ type: Schema.Types.ObjectId, ref: "Skill" }],
     currentStreak: { type: Number, default: 0 },
     longestStreak: { type: Number, default: 0 },
     totalPoints: { type: Number, default: 0 },

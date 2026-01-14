@@ -6,9 +6,8 @@ import * as attendanceController from "../controller/attendance";
 import * as sessionController from "../controller/sessions";
 import * as notificationController from "../controller/notifications";
 import * as externalActivityController from "../controller/externalActivities";
-import * as skillController from "../controller/skills";
 import { getAllStudents } from "../controller/admin";
-import { getMyBatchStudents, getBatchAttendanceHistory, getMentorBatches, getBatchAttendanceByBatch } from "../controller/mentorStudents";
+import { getMyBatchStudents, getBatchAttendanceHistory, getMentorBatches, getBatchAttendanceByBatch, getStudentsByBatch } from "../controller/mentorStudents";
 
 const router: Router = Router();
 
@@ -18,6 +17,7 @@ router.use(requireRole("mentor"));
 // Students - batch-specific
 router.get("/students", getMyBatchStudents);
 router.get("/students/all", getAllStudents); // All students (for reference)
+router.get("/students/batch/:batchId", getStudentsByBatch); // Get students by specific batch
 router.get("/attendance/history", getBatchAttendanceHistory);
 router.get("/batches", getMentorBatches); // Get all batches taught by mentor
 router.get("/attendance/by-batch", getBatchAttendanceByBatch); // Get attendance filtered by batch
@@ -58,6 +58,10 @@ router.patch(
   "/sessions/mentorship/:id",
   sessionController.updateMentorshipSession
 );
+router.delete(
+  "/sessions/mentorship/:id",
+  sessionController.deleteMentorshipSession
+);
 router.get(
   "/sessions/learning/:userId",
   sessionController.getStudentLearningSessions
@@ -79,15 +83,5 @@ router.patch(
   "/external-activities/:activityId",
   externalActivityController.updateActivityStatus
 );
-
-// Skills
-router.get("/skills", skillController.getAllSkills);
-router.post("/skills", skillController.createSkill);
-router.delete("/skills/:id", skillController.deleteSkill);
-router.post("/skills/topics", skillController.createSkillTopic);
-router.get("/skills/topics/:skillId", skillController.getSkillTopics);
-router.patch("/skills/topics/:id", skillController.updateSkillTopic);
-router.delete("/skills/topics/:id", skillController.deleteSkillTopic);
-router.get("/skills/progress/:userId", skillController.getStudentSkillProgress);
 
 export default router;

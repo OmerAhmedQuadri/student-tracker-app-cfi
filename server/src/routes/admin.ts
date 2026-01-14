@@ -13,7 +13,7 @@ import {
   assignBatch,
   updateMentorBatches,
 } from "../controller/admin";
-import { getAllBatchDetails, getBatchById } from "../controller/batch";
+import { getAllBatchDetails, getBatchById, createBatch, deleteBatch } from "../controller/batch";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { requireRole } from "../middleware/role.middleware";
 import * as assignmentController from "../controller/assignments";
@@ -21,7 +21,6 @@ import * as attendanceController from "../controller/attendance";
 import * as sessionController from "../controller/sessions";
 import * as notificationController from "../controller/notifications";
 import * as externalActivityController from "../controller/externalActivities";
-import * as skillController from "../controller/skills";
 
 const router: Router = Router();
 
@@ -71,7 +70,9 @@ router.delete("/delete/:id", authMiddleware, requireRole("admin"), deleteUser);
 
 // Batch Management
 router.get("/batches", authMiddleware, requireRole("admin"), getAllBatchDetails);
+router.post("/batches", authMiddleware, requireRole("admin"), createBatch);
 router.get("/batches/:batchId", authMiddleware, requireRole("admin"), getBatchById);
+router.delete("/batches/:batchId", authMiddleware, requireRole("admin"), deleteBatch);
 
 // Assignments
 router.post(
@@ -157,46 +158,6 @@ router.post(
   authMiddleware,
   requireRole("admin"),
   notificationController.createNotification
-);
-
-
-
-// Skills
-router.get(
-  "/skills",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.getAllSkills
-);
-router.post(
-  "/skills/topics",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.createSkillTopic
-);
-router.get(
-  "/skills/topics/:skillId",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.getSkillTopics
-);
-router.patch(
-  "/skills/topics/:id",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.updateSkillTopic
-);
-router.delete(
-  "/skills/topics/:id",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.deleteSkillTopic
-);
-router.get(
-  "/skills/progress/:userId",
-  authMiddleware,
-  requireRole("admin"),
-  skillController.getStudentSkillProgress
 );
 
 export default router;

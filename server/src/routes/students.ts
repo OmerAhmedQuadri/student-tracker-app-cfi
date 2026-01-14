@@ -7,7 +7,6 @@ import * as attendanceController from "../controller/attendance";
 import * as sessionController from "../controller/sessions";
 import * as notificationController from "../controller/notifications";
 import * as externalActivityController from "../controller/externalActivities";
-import * as skillController from "../controller/skills";
 
 const router: Router = Router();
 
@@ -99,26 +98,6 @@ router.get(
   authMiddleware,
   requireRole("student"),
   externalActivityController.getMyExternalActivities
-);
-
-// Skills
-router.get("/skills", authMiddleware, skillController.getAllSkills);
-router.get(
-  "/skills/topics/:skillId",
-  authMiddleware,
-  skillController.getSkillTopics
-);
-router.post(
-  "/skills/progress",
-  authMiddleware,
-  requireRole("student"),
-  skillController.updateSkillProgress
-);
-router.get(
-  "/skills/progress/my",
-  authMiddleware,
-  requireRole("student"),
-  skillController.getMySkillProgress
 );
 
 export default router;
