@@ -138,6 +138,8 @@ const AdminAttendance = () => {
   };
 
   const filteredAttendance = attendance.filter((record) => {
+    if (!record.userId) return false;
+    
     const matchesSearch =
       record.userId.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.userId.email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -163,36 +165,13 @@ const AdminAttendance = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Attendance Management
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Monitor student attendance by session
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button
-                onClick={() => {
-                  if (selectedSession) fetchAttendance(selectedSession);
-                }}
-                className="bg-indigo-600 hover:bg-indigo-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Refreshing...
-                  </>
-                ) : (
-                  <>
-                    <ClipboardCheck className="w-4 h-4 mr-2" />
-                    Refresh
-                  </>
-                )}
-              </Button>
-            </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Attendance Management
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Monitor student attendance by session
+            </p>
           </div>
         </div>
       </div>
@@ -404,13 +383,13 @@ const AdminAttendance = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                         Student
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell align-middle">
                         Marked At
                       </th>
                     </tr>
@@ -421,7 +400,7 @@ const AdminAttendance = () => {
                         key={record._id}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 align-middle">
                           <div>
                             <p className="font-medium text-gray-900">
                               {record.userId.name}
@@ -431,8 +410,8 @@ const AdminAttendance = () => {
                             </p>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex items-center justify-center gap-2">
                             {getStatusIcon(record.finalStatus)}
                             <Badge
                               variant="outline"
@@ -443,7 +422,7 @@ const AdminAttendance = () => {
                             </Badge>
                           </div>
                         </td>
-                        <td className="px-6 py-4 hidden sm:table-cell">
+                        <td className="px-6 py-4 hidden sm:table-cell align-middle text-center">
                           <p className="text-sm text-gray-600">
                             {record.date ? new Date(record.date).toLocaleString("en-US", {
                               month: "short",

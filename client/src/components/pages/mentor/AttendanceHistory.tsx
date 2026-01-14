@@ -335,17 +335,17 @@ const AttendanceHistory = () => {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-gray-50 border-b border-gray-100">
-                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Student</TableHead>
-                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden md:table-cell">Session</TableHead>
-                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden lg:table-cell">Date & Time</TableHead>
-                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Status</TableHead>
-                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden sm:table-cell">Approval</TableHead>
+                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 text-left">Student</TableHead>
+                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden md:table-cell text-left">Session</TableHead>
+                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden lg:table-cell text-left">Date & Time</TableHead>
+                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 text-left">Status</TableHead>
+                                            <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden sm:table-cell text-left">Approval</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {paginatedAttendance.map((record, index) => (
                                             <TableRow key={record._id} className="border-b border-gray-100 hover:bg-gray-50">
-                                                <TableCell className="py-2 sm:py-3 md:py-4">
+                                                <TableCell className="py-2 sm:py-3 md:py-4 text-left">
                                                     <div className="flex items-center gap-2 sm:gap-3">
                                                         <Avatar className={`w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 ${getAvatarColor(index)} flex-shrink-0`}>
                                                             <AvatarFallback className="bg-transparent text-white font-semibold text-[10px] sm:text-xs md:text-sm">
@@ -358,20 +358,20 @@ const AttendanceHistory = () => {
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden md:table-cell">
+                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden md:table-cell text-left">
                                                     <div className="min-w-0">
                                                         <p className="font-medium text-sm md:text-base text-gray-900 truncate">{record.sessionId?.topic || 'Unknown Session'}</p>
                                                         <p className="text-xs md:text-sm text-gray-500 truncate">{record.userId?.batchId ? `Batch ${record.userId.batchId}` : '-'}</p>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden lg:table-cell">
+                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden lg:table-cell text-left">
                                                     <div>
                                                         <p className="text-sm md:text-base text-gray-900">{new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                                                         <p className="text-xs md:text-sm text-gray-500">{new Date(record.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="py-2 sm:py-3 md:py-4">{getStatusBadge(record.finalStatus)}</TableCell>
-                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden sm:table-cell">
+                                                <TableCell className="py-2 sm:py-3 md:py-4 text-left">{getStatusBadge(record.finalStatus)}</TableCell>
+                                                <TableCell className="py-2 sm:py-3 md:py-4 hidden sm:table-cell text-left">
                                                     {record.approvedByMentor ? (
                                                         <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs">
                                                             Approved

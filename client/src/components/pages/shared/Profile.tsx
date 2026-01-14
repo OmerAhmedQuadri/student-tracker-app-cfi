@@ -174,131 +174,138 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
+      {/* Header Section - Centered & Simplified */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Profile Settings
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage your account information and preferences
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button
-                variant="outline"
-                onClick={() => logout()}
-                className="border-gray-300 hover:bg-gray-50 text-gray-700"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Profile Settings
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Manage your account information and preferences
+            </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Identity Card */}
+          {/* Left Column: Identity Card - Enhanced Visual Hierarchy */}
           <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-sm border border-gray-200 overflow-hidden">
-              <CardContent className="p-6 text-center">
-                <div className="mx-auto w-24 h-24 mb-6 relative">
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg ring-4 ring-white ring-offset-2 ring-offset-gray-100 uppercase">
-                    {user?.name?.charAt(0) || <User className="w-12 h-12" />}
+              <CardContent className="p-8 text-center">
+                <div className="mx-auto w-28 h-28 mb-6 relative">
+                  <div className="w-full h-full rounded-full bg-indigo-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg ring-4 ring-white uppercase">
+                    {user?.name?.charAt(0) || <User className="w-14 h-14" />}
                   </div>
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
                 </div>
 
-                <div className="space-y-3">
-                  <h2 className="text-xl font-bold text-gray-900">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
                     {user?.name}
                   </h2>
-                  <div className="flex items-center justify-center gap-2 text-gray-600">
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm">{user?.email}</span>
+                  <div className="flex items-center justify-center gap-2 text-gray-600 bg-gray-50 rounded-lg py-2 px-4">
+                    <Mail className="w-4 h-4 text-indigo-500" />
+                    <span className="text-sm font-medium">{user?.email}</span>
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  <Badge
-                    className={`px-3 py-1 capitalize font-medium pointer-events-none ${isMentor
-                      ? "bg-purple-100 text-purple-700"
-                      : isAdmin
-                        ? "bg-red-100 text-red-700"
-                        : "bg-indigo-100 text-indigo-700"
-                      }`}
-                  >
-                    {user?.role}
-                  </Badge>
-                  <Badge
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex flex-wrap justify-center gap-2 mb-6">
+                    <Badge
+                      className={`px-4 py-1.5 capitalize font-semibold text-sm pointer-events-none ${isMentor
+                        ? "bg-purple-600 text-white"
+                        : isAdmin
+                          ? "bg-red-600 text-white"
+                          : "bg-indigo-600 text-white"
+                        }`}
+                    >
+                      {user?.role}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="px-4 py-1.5 bg-green-50 text-green-700 border-green-300 pointer-events-none font-semibold text-sm shadow-sm"
+                    >
+                      ● Active
+                    </Badge>
+                  </div>
+
+                  <Button
                     variant="outline"
-                    className="px-3 py-1 bg-green-50 text-green-700 border-green-200 pointer-events-none"
+                    onClick={() => logout()}
+                    className="w-full border-2 border-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-600 text-gray-700 font-semibold transition-all duration-200 h-11"
                   >
-                    Active
-                  </Badge>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Column: Settings & Forms */}
+          {/* Right Column: Settings & Forms - Enhanced Visual Design */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 1. Account Details */}
-            <Card className="shadow-sm border border-gray-200">
-              <CardHeader className="border-b border-gray-100 bg-gray-50/50">
+            {/* 1. Account Details - Improved Readability */}
+            <Card className="shadow-sm border border-gray-200 overflow-hidden">
+              <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <LayoutDashboard className="w-5 h-5 text-indigo-600" />
+                  <div className="p-2.5 bg-indigo-600 rounded-xl">
+                    <User className="w-5 h-5 text-white" />
                   </div>
-                  <CardTitle className="text-lg font-semibold">
-                    Account Information
-                  </CardTitle>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">
+                      Account Information
+                    </CardTitle>
+                    <CardDescription className="text-xs text-gray-600 mt-0.5">
+                      Your registered account details
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 pb-6 px-6">
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
+                    <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <User className="w-4 h-4 text-indigo-500" />
                       Full Name
                     </Label>
                     <Input
                       value={user?.name || ""}
                       disabled
-                      className="bg-gray-50 border-gray-200 text-gray-900 font-medium"
+                      className="bg-gray-100 border-gray-300 text-gray-900 font-semibold h-11 cursor-not-allowed"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
+                    <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-indigo-500" />
                       Email Address
                     </Label>
                     <Input
                       value={user?.email || ""}
                       disabled
-                      className="bg-gray-50 border-gray-200 text-gray-900 font-medium"
+                      className="bg-gray-100 border-gray-300 text-gray-900 font-semibold h-11 cursor-not-allowed"
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 2. Social Presence (STUDENT ONLY) */}
+            {/* 2. Social Presence (STUDENT ONLY) - Enhanced UX */}
             {isStudent && (
               <form onSubmit={handleSaveSocials}>
-                <Card className="shadow-sm border border-gray-200">
-                  <CardHeader className="border-b border-gray-100 bg-gray-50/50">
+                <Card className="shadow-sm border border-gray-200 overflow-hidden">
+                  <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-6">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 rounded-lg">
-                          <Globe className="w-5 h-5 text-indigo-600" />
+                        <div className="p-2.5 bg-indigo-600 rounded-xl">
+                          <Globe className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-lg font-semibold">
+                          <CardTitle className="text-lg font-bold text-gray-900">
                             Social Presence
                           </CardTitle>
-                          <CardDescription className="mt-0.5 text-sm">
+                          <CardDescription className="text-xs text-gray-600 mt-0.5">
                             Update your external profile links
                           </CardDescription>
                         </div>
@@ -306,7 +313,7 @@ const Profile = () => {
                       <Button
                         type="submit"
                         disabled={saving}
-                        className="bg-indigo-600 hover:bg-indigo-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-10 px-6 font-semibold"
                       >
                         {saving ? (
                           <>
@@ -322,23 +329,23 @@ const Profile = () => {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-5 pt-6">
+                  <CardContent className="space-y-6 pt-6 pb-6 px-6">
                     {/* GitHub */}
                     <div className="space-y-2">
                       <Label
                         htmlFor="github"
-                        className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                        className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-                        <Github className="w-4 h-4" /> GitHub Profile
+                        <Github className="w-4 h-4 text-gray-900" /> GitHub Profile
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
                           https://github.com/
                         </span>
                         <Input
                           id="github"
                           placeholder="username"
-                          className="pl-[9rem] h-10 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                          className="pl-[9rem] h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium"
                           value={socials.githubUrl.replace(
                             "https://github.com/",
                             ""
@@ -358,18 +365,18 @@ const Profile = () => {
                     <div className="space-y-2">
                       <Label
                         htmlFor="linkedin"
-                        className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                        className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-                        <Linkedin className="w-4 h-4" /> LinkedIn Profile
+                        <Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn Profile
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
                           https://linkedin.com/in/
                         </span>
                         <Input
                           id="linkedin"
                           placeholder="username"
-                          className="pl-[11rem] h-10 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                          className="pl-[11rem] h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium"
                           value={socials.linkedinUrl.replace(
                             "https://linkedin.com/in/",
                             ""
@@ -389,14 +396,14 @@ const Profile = () => {
                     <div className="space-y-2">
                       <Label
                         htmlFor="medium"
-                        className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                        className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-                        <Globe className="w-4 h-4" /> Portfolio / Blog
+                        <Globe className="w-4 h-4 text-purple-600" /> Portfolio / Blog
                       </Label>
                       <Input
                         id="medium"
                         placeholder="https://yourwebsite.com"
-                        className="h-10 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                        className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium"
                         value={socials.mediumUrl}
                         onChange={(e) =>
                           setSocials({ ...socials, mediumUrl: e.target.value })
@@ -409,28 +416,33 @@ const Profile = () => {
               </form>
             )}
 
-            {/* 3. Security */}
-            <Card className="shadow-sm border border-gray-200">
-              <CardHeader className="border-b border-gray-100 bg-gray-50/50">
+            {/* 3. Security - Enhanced Visual Design */}
+            <Card className="shadow-sm border border-gray-200 overflow-hidden">
+              <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <Shield className="w-5 h-5 text-indigo-600" />
+                  <div className="p-2.5 bg-red-600 rounded-xl">
+                    <Shield className="w-5 h-5 text-white" />
                   </div>
-                  <CardTitle className="text-lg font-semibold">
-                    Security
-                  </CardTitle>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">
+                      Security Settings
+                    </CardTitle>
+                    <CardDescription className="text-xs text-gray-600 mt-0.5">
+                      Manage your account security
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 pb-6 px-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors">
+                  <div className="flex items-center justify-between p-5 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
                     <div className="flex items-center gap-4">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Lock className="w-5 h-5 text-gray-700" />
+                      <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-indigo-100 transition-all duration-200">
+                        <Lock className="w-6 h-6 text-gray-700 group-hover:text-indigo-600 transition-colors duration-200" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">Password</p>
-                        <p className="text-sm text-gray-500 mt-0.5">
+                        <p className="font-bold text-gray-900 text-base">Password</p>
+                        <p className="text-sm text-gray-500 mt-1">
                           Last changed 30 days ago
                         </p>
                       </div>
@@ -438,11 +450,11 @@ const Profile = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-gray-300 hover:bg-gray-50"
+                      className="border-2 border-gray-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 font-semibold transition-all duration-200 h-10 px-4"
                       onClick={() => setShowPasswordModal(true)}
                     >
                       <LogIn className="w-4 h-4 mr-2" />
-                      Change
+                      Change Password
                     </Button>
                   </div>
                 </div>
@@ -456,23 +468,16 @@ const Profile = () => {
       {showPasswordModal && (
         <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <CardHeader className="border-b border-gray-100 bg-gray-50/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <Lock className="w-5 h-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Change Password</CardTitle>
-                    <CardDescription className="text-xs">
-                      Enter your current password to set a new one
-                    </CardDescription>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setShowPasswordModal(false)} className="h-8 w-8 p-0">
-                  <X className="w-4 h-4" />
-                </Button>
+            <CardHeader className="border-b border-gray-100 bg-gray-50/50 relative">
+              <div className="text-center pr-8">
+                <CardTitle className="text-lg">Change Password</CardTitle>
+                <CardDescription className="text-xs mt-1">
+                  Enter your current password to set a new one
+                </CardDescription>
               </div>
+              <Button variant="ghost" size="sm" onClick={() => setShowPasswordModal(false)} className="h-8 w-8 p-0 absolute right-2 top-2">
+                <X className="w-4 h-4" />
+              </Button>
             </CardHeader>
             <CardContent className="p-6">
               {passwordError && (
@@ -483,7 +488,7 @@ const Profile = () => {
               )}
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="old-password">Current Password</Label>
+                  <Label htmlFor="old-password" className="text-left block">Current Password</Label>
                   <div className="relative">
                     <Input
                       id="old-password"
@@ -510,7 +515,7 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
+                  <Label htmlFor="new-password" className="text-left block">New Password</Label>
                   <div className="relative">
                     <Input
                       id="new-password"
@@ -538,7 +543,7 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Label htmlFor="confirm-password" className="text-left block">Confirm New Password</Label>
                   <div className="relative">
                     <Input
                       id="confirm-password"

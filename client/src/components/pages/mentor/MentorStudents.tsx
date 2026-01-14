@@ -296,16 +296,16 @@ const MentorStudents = () => {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow className="bg-gray-50 border-b border-gray-100">
-                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Student</TableHead>
-                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden sm:table-cell">Batch</TableHead>
-                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Status</TableHead>
-                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden md:table-cell">Joined</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 text-left">Student</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden sm:table-cell text-left">Batch</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 text-left">Status</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden md:table-cell text-left">Joined</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {paginatedStudents.map((student, index) => (
                                                     <TableRow key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                                                        <TableCell className="py-2 sm:py-3 md:py-4">
+                                                        <TableCell className="py-2 sm:py-3 md:py-4 text-left">
                                                             <div className="flex items-center gap-2 sm:gap-3">
                                                                 <Avatar className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex-shrink-0 ${getAvatarColor(index)}`}>
                                                                     <AvatarFallback className="bg-transparent text-white font-semibold text-xs sm:text-sm">
@@ -318,11 +318,11 @@ const MentorStudents = () => {
                                                                 </div>
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-gray-900 font-medium text-xs sm:text-sm hidden sm:table-cell">
+                                                        <TableCell className="text-gray-900 font-medium text-xs sm:text-sm hidden sm:table-cell text-left">
                                                             {student.batchId || <span className="text-gray-400 italic">Unassigned</span>}
                                                         </TableCell>
-                                                        <TableCell className="py-2 sm:py-3 md:py-4">{getStatusBadge(student.status)}</TableCell>
-                                                        <TableCell className="text-gray-600 text-xs sm:text-sm hidden md:table-cell">
+                                                        <TableCell className="py-2 sm:py-3 md:py-4 text-left">{getStatusBadge(student.status)}</TableCell>
+                                                        <TableCell className="text-gray-600 text-xs sm:text-sm hidden md:table-cell text-left">
                                                             {new Date(student.createdAt).toLocaleDateString('en-US', { 
                                                                 month: 'short', 
                                                                 day: 'numeric', 

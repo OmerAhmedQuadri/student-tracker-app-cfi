@@ -21,7 +21,6 @@ import StatCard from "@/components/dashboard/StatCard";
 import { AssignmentsTab } from "@/components/mentor/AssignmentsTab";
 import { AttendanceTab } from "@/components/mentor/AttendanceTab";
 import { SessionsTab } from "@/components/mentor/SessionsTab";
-import { SkillsTab } from "@/components/mentor/SkillsTab";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ const tabs = [
   { id: "assignments", label: "Assignments", icon: FileCheck },
   { id: "attendance", label: "Attendance", icon: Users },
   { id: "sessions", label: "Sessions", icon: Calendar },
-  { id: "skills", label: "Skills", icon: GraduationCap },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -274,7 +272,6 @@ export default function MentorDashboard() {
         {activeTab === "assignments" && <AssignmentsTab />}
         {activeTab === "attendance" && <AttendanceTab />}
         {activeTab === "sessions" && <SessionsTab />}
-        {activeTab === "skills" && <SkillsTab />}
       </div>
     </div>
   );

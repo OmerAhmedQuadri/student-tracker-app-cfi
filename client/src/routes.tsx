@@ -4,7 +4,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Assignments from './components/pages/shared/Assignments';
 import Attendance from './components/pages/shared/Attendance';
 import Learning from './components/pages/shared/Learning';
-import Skills from './components/pages/shared/Skills';
 import Activities from './components/pages/shared/Activities';
 import Profile from './components/pages/shared/Profile';
 import Login from './components/pages/shared/Login';
@@ -13,6 +12,7 @@ import StudentDashboard from './components/pages/student/StudentDashboard';
 import MentorDashboard from './components/pages/mentor/MentorDashboard';
 import MentorAttendance from './components/pages/mentor/MentorAttendance';
 import MentorStudents from './components/pages/mentor/MentorStudents';
+import MentorBatches from './components/pages/mentor/MentorBatches';
 import AttendanceHistory from './components/pages/mentor/AttendanceHistory';
 import UsersManagement from './components/pages/admin/Users';
 import AdminSessions from './components/pages/admin/Sessions';
@@ -115,6 +115,10 @@ export const router = createBrowserRouter([
                                 element: <MentorStudents />,
                             },
                             {
+                                path: 'batches',
+                                element: <MentorBatches />,
+                            },
+                            {
                                 path: 'assignments',
                                 element: <MentorDashboard />,
                             },
@@ -128,10 +132,6 @@ export const router = createBrowserRouter([
                             },
                             {
                                 path: 'sessions',
-                                element: <MentorDashboard />,
-                            },
-                            {
-                                path: 'skills',
                                 element: <MentorDashboard />,
                             },
                             {
@@ -168,10 +168,6 @@ export const router = createBrowserRouter([
                             {
                                 path: 'learning',
                                 element: <Learning />,
-                            },
-                            {
-                                path: 'skills',
-                                element: <Skills />,
                             },
                             {
                                 path: 'activities',

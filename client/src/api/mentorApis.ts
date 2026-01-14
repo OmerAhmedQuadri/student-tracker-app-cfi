@@ -7,11 +7,20 @@ export const getAllStudents = async () => {
     return response.data;
 };
 
+export const getMentorBatches = async () => {
+    const response = await api.get("/mentor/batches");
+    return response.data;
+};
+
+export const getStudentsByBatch = async (batchId: string) => {
+    const response = await api.get(`/mentor/students/batch/${batchId}`);
+    return response.data;
+};
+
 // --- Assignments ---
 
 export const createAssignment = async (data: { 
     title: string; 
-    skillId: string; 
     topicId?: string;
     dueDate: string; 
     maxScore: number;
@@ -84,6 +93,11 @@ export const updateMentorshipSession = async (id: string, data: any) => {
     return response.data;
 };
 
+export const deleteMentorshipSession = async (id: string) => {
+    const response = await api.delete(`/mentor/sessions/mentorship/${id}`);
+    return response.data;
+};
+
 export const getStudentLearningSessions = async (userId: string) => {
     const response = await api.get(`/mentor/sessions/learning/${userId}`);
     return response.data;
@@ -100,37 +114,5 @@ export const createNotification = async (data: { userId: string; type: "info" | 
 
 export const getUserExternalActivities = async (userId: string) => {
     const response = await api.get(`/mentor/external-activities/${userId}`);
-    return response.data;
-};
-
-// --- Skills ---
-
-export const getAllSkills = async () => {
-    const response = await api.get("/mentor/skills");
-    return response.data;
-};
-
-export const createSkillTopic = async (data: { skillId: string; title: string; difficulty: "beginner" | "intermediate" | "advanced"; estimatedMinutes: number }) => {
-    const response = await api.post("/mentor/skills/topics", data);
-    return response.data;
-};
-
-export const getSkillTopics = async (skillId: string) => {
-    const response = await api.get(`/mentor/skills/topics/${skillId}`);
-    return response.data;
-};
-
-export const updateSkillTopic = async (id: string, data: any) => {
-    const response = await api.patch(`/mentor/skills/topics/${id}`, data);
-    return response.data;
-};
-
-export const deleteSkillTopic = async (id: string) => {
-    const response = await api.delete(`/mentor/skills/topics/${id}`);
-    return response.data;
-};
-
-export const getStudentSkillProgress = async (userId: string) => {
-    const response = await api.get(`/mentor/skills/progress/${userId}`);
     return response.data;
 };
