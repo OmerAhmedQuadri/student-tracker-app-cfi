@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Layers,
   Users,
   GraduationCap,
   School,
   Loader2,
-  ChevronDown,
-  ChevronUp,
-  X,
+  Calendar,
+  Edit2,
+  Trash2,
+  ChevronRight,
+  X
 } from "lucide-react";
 import {
   Card,
@@ -51,11 +54,9 @@ interface Mentor {
 }
 
 const BatchManagement = () => {
+  const navigate = useNavigate();
   const [batches, setBatches] = useState<BatchDetail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedBatches, setExpandedBatches] = useState<
-    Record<string, boolean>
-  >({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newBatchId, setNewBatchId] = useState("");
   const [creating, setCreating] = useState(false);
@@ -96,13 +97,6 @@ const BatchManagement = () => {
   const openCreateModal = () => {
     setShowCreateModal(true);
     fetchMentors();
-  };
-
-  const toggleBatchExpansion = (batchId: string) => {
-    setExpandedBatches((prev) => ({
-      ...prev,
-      [batchId]: !prev[batchId],
-    }));
   };
 
   const handleCreateBatch = async () => {
@@ -282,171 +276,76 @@ const BatchManagement = () => {
             {batches.map((batch) => (
               <Card
                 key={batch.batchId}
-                className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
+                className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden bg-white"
               >
-                <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-4">
-                  <div className="flex items-center justify-between">
-                    <Badge className="bg-indigo-600 hover:bg-indigo-600 text-white text-base px-3 py-1">
-                      {batch.batchId}
-                    </Badge>
-                    <Badge variant="outline" className="bg-white">
-                      {batch.studentCount + batch.mentorCount} users
+                <div className="bg-blue-600 p-4 flex justify-between items-center text-white">
+                  <div>
+                    <h3 className="font-bold text-lg">{batch.batchId}</h3>
+                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none mt-1">
+                      In Progress
                     </Badge>
                   </div>
-                </CardHeader>
+                  <div className="flex space-x-2">
+                     <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                        <Edit2 className="w-4 h-4" />
+                     </button>
+                     <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                     </button>
+                  </div>
+                </div>
+
                 <CardContent className="p-5 space-y-4">
-                  {/* Mentors Section */}
-                  <div>
-                    <div
-                      className="flex items-center justify-between cursor-pointer mb-3"
-                      onClick={() =>
-                        toggleBatchExpansion(`mentors-${batch.batchId}`)
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 bg-purple-50 rounded-lg">
-                          <School className="w-4 h-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">
-                            Mentors
-                          </p>
-                          <p className="text-sm font-bold text-gray-900">
-                            {batch.mentorCount} assigned
-                          </p>
-                        </div>
-                      </div>
-                      {expandedBatches[`mentors-${batch.batchId}`] ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
-                      )}
+                  <div className="flex items-start justify-between">
+                    <div className="flex gap-3">
+                       <div className="p-2 bg-blue-50 rounded-lg h-fit">
+                          <Calendar className="w-5 h-5 text-blue-600" />
+                       </div>
+                       <div>
+                          <p className="text-sm font-semibold text-gray-900">Start Date</p>
+                          <p className="text-sm text-gray-500">1 Jan 2025</p>
+                       </div>
                     </div>
-                    <div
-                      className={`space-y-2 pl-2 ${
-                        expandedBatches[`mentors-${batch.batchId}`]
-                          ? "block"
-                          : "hidden"
-                      }`}
-                    >
-                      {batch.mentors.length === 0 ? (
-                        <p className="text-xs text-gray-400 italic py-2">
-                          No mentors assigned
-                        </p>
-                      ) : (
-                        batch.mentors.map((mentor) => (
-                          <div
-                            key={mentor._id}
-                            className="flex items-center justify-between py-1.5 px-2 bg-purple-50/50 rounded hover:bg-purple-50 transition-colors"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {mentor.name}
-                              </p>
-                              <p className="text-xs text-gray-500 truncate">
-                                {mentor.email}
-                              </p>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={
-                                mentor.isActive
-                                  ? "bg-green-50 text-green-600 border-green-200"
-                                  : "bg-gray-50 text-gray-500"
-                              }
-                            >
-                              {mentor.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                    {!expandedBatches[`mentors-${batch.batchId}`] &&
-                      batch.mentors.length > 0 && (
-                        <p className="text-xs text-gray-400 pl-2">
-                          {batch.mentors.length === 1
-                            ? "1 mentor"
-                            : `${batch.mentors.length} mentors`}
-                        </p>
-                      )}
                   </div>
 
-                  {/* Students Section */}
-                  <div>
-                    <div
-                      className="flex items-center justify-between cursor-pointer mb-3"
-                      onClick={() =>
-                        toggleBatchExpansion(`students-${batch.batchId}`)
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 bg-blue-50 rounded-lg">
-                          <GraduationCap className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">
-                            Students
+                  <div className="flex items-start justify-between">
+                    <div className="flex gap-3">
+                       <div className="p-2 bg-green-50 rounded-lg h-fit">
+                          <Users className="w-5 h-5 text-green-600" />
+                       </div>
+                       <div>
+                          <p className="text-sm font-semibold text-gray-900">Instructor</p>
+                          <p className="text-sm text-gray-500">
+                             {batch.mentors.length > 0 ? batch.mentors[0].name : "Not Assigned"}
+                             {batch.mentors.length > 1 && ` +${batch.mentors.length - 1}`}
                           </p>
-                          <p className="text-sm font-bold text-gray-900">
-                            {batch.studentCount} enrolled
-                          </p>
-                        </div>
-                      </div>
-                      {expandedBatches[`students-${batch.batchId}`] ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
-                      )}
+                       </div>
                     </div>
-                    <div
-                      className={`space-y-2 pl-2 ${
-                        expandedBatches[`students-${batch.batchId}`]
-                          ? "block"
-                          : "hidden"
-                      }`}
-                    >
-                      {batch.students.length === 0 ? (
-                        <p className="text-xs text-gray-400 italic py-2">
-                          No students enrolled
-                        </p>
-                      ) : (
-                        batch.students.map((student) => (
-                          <div
-                            key={student._id}
-                            className="flex items-center justify-between py-1.5 px-2 bg-blue-50/50 rounded hover:bg-blue-50 transition-colors"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {student.name}
-                              </p>
-                              <p className="text-xs text-gray-500 truncate">
-                                {student.email}
-                              </p>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={
-                                student.isActive
-                                  ? "bg-green-50 text-green-600 border-green-200"
-                                  : "bg-gray-50 text-gray-500"
-                              }
-                            >
-                              {student.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </div>
-                        ))
-                      )}
+                  </div>
+
+                  <div className="flex items-start justify-between">
+                     <div className="flex gap-3">
+                       <div className="p-2 bg-purple-50 rounded-lg h-fit">
+                          <Users className="w-5 h-5 text-purple-600" />
+                       </div>
+                       <div>
+                          <p className="text-sm font-semibold text-gray-900">Capacity</p>
+                          <p className="text-sm text-gray-500">{batch.studentCount}/60</p>
+                       </div>
                     </div>
-                    {!expandedBatches[`students-${batch.batchId}`] &&
-                      batch.students.length > 0 && (
-                        <p className="text-xs text-gray-400 pl-2">
-                          {batch.students.length === 1
-                            ? "1 student"
-                            : `${batch.students.length} students`}
-                        </p>
-                      )}
                   </div>
                 </CardContent>
+                
+                <div className="px-5 pb-5 pt-0">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-t border-gray-100 pt-4 rounded-none h-auto"
+                    onClick={() => navigate(`/admin/batch/${batch.batchId}`)}
+                  >
+                    Click to view details
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>

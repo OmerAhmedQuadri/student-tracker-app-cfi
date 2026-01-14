@@ -15,8 +15,29 @@ function useDialog() {
   return context
 }
 
-const Dialog = ({ children }: { children: React.ReactNode }) => {
-  const [open, setOpen] = React.useState(false)
+const Dialog = ({
+  children,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen
+}: {
+  children: React.ReactNode,
+  open?: boolean,
+  onOpenChange?: (open: boolean) => void
+}) => {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false)
+
+  const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
+  console.log('Dialog render:', { controlledOpen, uncontrolledOpen, open })
+
+  const setOpen = React.useCallback((value: React.SetStateAction<boolean>) => {
+    const newState = typeof value === 'function' ? value(open) : value
+    console.log('Dialog setOpen:', newState)
+    if (setControlledOpen) {
+      setControlledOpen(newState)
+    } else {
+      setUncontrolledOpen(newState)
+    }
+  }, [open, setControlledOpen])
 
   return (
     <DialogContext.Provider value={{ open, setOpen }}>
@@ -25,15 +46,15 @@ const Dialog = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-const DialogTrigger = ({ 
-  children, 
-  asChild 
-}: { 
-  children: React.ReactNode, 
-  asChild?: boolean 
+const DialogTrigger = ({
+  children,
+  asChild
+}: {
+  children: React.ReactNode,
+  asChild?: boolean
 }) => {
   const { setOpen } = useDialog()
-  
+
   if (asChild && React.isValidElement(children)) {
     return React.cloneElement(children as React.ReactElement<any>, {
       onClick: (e: React.MouseEvent) => {
@@ -61,24 +82,24 @@ const DialogContent = React.forwardRef<
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 transition-opacity" 
+      <div
+        className="fixed inset-0 bg-black/50 transition-opacity"
         onClick={() => setOpen(false)}
       />
-      
+
       {/* Content */}
       <div
         ref={ref}
         className={cn(
-          "relative z-50 grid w-full max-w-lg scale-100 gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg",
+          "relative z-50 grid w-full max-w-lg scale-100 gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg border-red-500 border-4",
           className
         )}
         {...props}
       >
         {children}
-        <div 
-            className="absolute right-4 top-4 opacity-70 transition-opacity hover:opacity-100 cursor-pointer"
-            onClick={() => setOpen(false)}
+        <div
+          className="absolute right-4 top-4 opacity-70 transition-opacity hover:opacity-100 cursor-pointer"
+          onClick={() => setOpen(false)}
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>

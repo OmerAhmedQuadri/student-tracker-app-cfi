@@ -13,7 +13,6 @@ import {
   Users,
   ClipboardCheck,
   Calendar,
-  Bell,
   Megaphone,
   Trophy,
   Zap,
@@ -21,7 +20,6 @@ import {
   UsersRound,
   Layers,
   ChevronRight,
-  Settings,
   GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -51,8 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       path: "/student/external-activities",
       icon: Megaphone,
     },
-    { name: "Notifications", path: "/student/notifications", icon: Bell },
-    { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
+
     { name: "Profile", path: "/profile", icon: User },
   ];
 

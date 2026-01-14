@@ -160,8 +160,8 @@ const AdminDashboard = () => {
   const openBatchModal = (user: User) => {
     const currentBatch = user.batchId || "";
     const currentBatches = user.batchIds || (user.batchId ? [user.batchId] : []);
-    setEditingBatch({ 
-      userId: user._id, 
+    setEditingBatch({
+      userId: user._id,
       userName: user.name,
       userRole: user.role,
       currentBatch,
@@ -250,45 +250,9 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Active Users Card */}
-          <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Active Users
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {stats.activeUsers}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">Currently active</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <Activity className="w-5 h-5 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Assignments Card */}
-          <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Assignments
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {stats.totalAssignments}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">Total created</p>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <ClipboardCheck className="w-5 h-5 text-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
+
 
           {/* Batches Card */}
           <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
@@ -468,103 +432,7 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Batch Management Section */}
-        <div className="mt-8">
-          <Card className="shadow-sm border border-gray-200">
-            <CardHeader className="border-b border-gray-100 bg-gray-50/50">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                Recent Batches
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Manage batch assignments
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">User</th>
-                      <th className="px-6 py-3 font-medium">Role</th>
-                      <th className="px-6 py-3 font-medium">Current Batch</th>
-                      <th className="px-6 py-3 font-medium">Status</th>
-                      <th className="px-6 py-3 font-medium text-right">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allUsers.slice(0, 5).map((user) => (
-                      <tr
-                        key={user._id}
-                        className="bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          {user.name}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              user.role === "student"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-purple-100 text-purple-700"
-                            }`}
-                          >
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          {user.role === 'mentor' ? (
-                            // Mentor: show multiple batches
-                            user.batchIds && user.batchIds.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
-                                {user.batchIds.map(batch => (
-                                  <span key={batch} className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                                    {batch}
-                                  </span>
-                                ))}
-                              </div>
-                            ) : user.batchId ? (
-                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                                {user.batchId}
-                              </span>
-                            ) : "-"
-                          ) : (
-                            // Student: show single batch
-                            user.batchId || "-"
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`flex items-center gap-1.5 ${
-                              user.isActive ? "text-green-600" : "text-gray-500"
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                user.isActive ? "bg-green-500" : "bg-gray-400"
-                              }`}
-                            ></span>
-                            {user.isActive ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => openBatchModal(user)}
-                            className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
       </div>
 
       {/* Batch Assignment Modal */}
@@ -592,15 +460,14 @@ const AdminDashboard = () => {
                 <p className="text-base font-medium text-gray-900">
                   {editingBatch.userName}
                 </p>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                  editingBatch.userRole === 'mentor' 
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
-                }`}>
+                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${editingBatch.userRole === 'mentor'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-blue-100 text-blue-700'
+                  }`}>
                   {editingBatch.userRole === 'mentor' ? 'Mentor' : 'Student'}
                 </span>
               </div>
-              
+
               {editingBatch.userRole === 'mentor' ? (
                 // Multiple batches for mentor
                 <div className="mb-5">
@@ -612,7 +479,7 @@ const AdminDashboard = () => {
                       ⚠️ <strong>Important:</strong> Edit the list below. Current batches are shown - add or remove as needed.
                     </p>
                   </div>
-                  
+
                   {/* Current Batches Tags */}
                   {batchesInput.filter(b => b).length > 0 && (
                     <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
@@ -636,7 +503,7 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Add New Batch */}
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Add New Batch</label>
@@ -703,7 +570,7 @@ const AdminDashboard = () => {
                   </p>
                 </div>
               )}
-              
+
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"

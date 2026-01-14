@@ -8,7 +8,6 @@ import {
   Clock,
   Search,
   Loader2,
-  Filter,
 } from "lucide-react";
 import {
   Card,
@@ -36,14 +35,9 @@ interface AttendanceRecord {
     name: string;
     email: string;
   };
-  sessionId: {
-    _id: string;
-    topic: string;
-    date: string;
-  };
-  status: "present" | "absent" | "late";
-  isApproved: boolean;
-  markedAt: string;
+  sessionId: string;
+  finalStatus: "present" | "absent" | "late";
+  date: string;
 }
 
 interface Session {
@@ -61,9 +55,6 @@ const AdminAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "present" | "absent" | "late"
-  >("all");
-  const [approvalFilter, setApprovalFilter] = useState<
-    "all" | "approved" | "pending"
   >("all");
 
   useEffect(() => {
@@ -120,41 +111,6 @@ const AdminAttendance = () => {
     }
   };
 
-  const approveAttendance = async (attendanceId: string) => {
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/admin/attendance/approve/${attendanceId}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            approved: true,
-          }),
-        }
-      );
-      if (res.ok) {
-        setAttendance((prev) =>
-          prev.map((a) =>
-            a._id === attendanceId ? { ...a, isApproved: true } : a
-          )
-        );
-        // Reset filters to show all approved records
-        setApprovalFilter("approved");
-        setStatusFilter("all");
-        toast.success("Attendance approved");
-      } else {
-        const error = await res.json();
-        toast.error(error.message || "Failed to approve attendance");
-      }
-    } catch (error) {
-      console.error("Failed to approve attendance:", error);
-      toast.error("Failed to approve attendance");
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "present":
@@ -181,31 +137,20 @@ const AdminAttendance = () => {
     }
   };
 
-  const getApprovalColor = (isApproved: boolean) => {
-    return isApproved
-      ? "bg-green-100 text-green-700 border-green-200"
-      : "bg-yellow-100 text-yellow-700 border-yellow-200";
-  };
-
   const filteredAttendance = attendance.filter((record) => {
     const matchesSearch =
       record.userId.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.userId.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || record.status === statusFilter;
-    const matchesApproval =
-      approvalFilter === "all" ||
-      (approvalFilter === "approved" && record.isApproved) ||
-      (approvalFilter === "pending" && !record.isApproved);
-    return matchesSearch && matchesStatus && matchesApproval;
+      statusFilter === "all" || record.finalStatus === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
   const stats = {
     total: attendance.length,
-    present: attendance.filter((a) => a.status === "present").length,
-    late: attendance.filter((a) => a.status === "late").length,
-    absent: attendance.filter((a) => a.status === "absent").length,
-    pending: attendance.filter((a) => !a.isApproved).length,
+    present: attendance.filter((a) => a.finalStatus === "present").length,
+    late: attendance.filter((a) => a.finalStatus === "late").length,
+    absent: attendance.filter((a) => a.finalStatus === "absent").length,
   };
 
   const attendanceRate =
@@ -224,7 +169,7 @@ const AdminAttendance = () => {
                 Attendance Management
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Monitor and approve student attendance
+                Monitor student attendance by session
               </p>
             </div>
             <div className="mt-4 md:mt-0">
@@ -356,7 +301,7 @@ const AdminAttendance = () => {
                   Attendance Records
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  View and approve attendance for sessions
+                  View attendance for mentorship sessions
                 </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -433,40 +378,6 @@ const AdminAttendance = () => {
               >
                 Absent
               </Badge>
-              <div className="w-px h-6 bg-gray-300 mx-2"></div>
-              <Badge
-                variant={approvalFilter === "all" ? "default" : "outline"}
-                className={
-                  approvalFilter === "all"
-                    ? "bg-indigo-600 hover:bg-indigo-700"
-                    : ""
-                }
-                onClick={() => setApprovalFilter("all")}
-              >
-                All Approval
-              </Badge>
-              <Badge
-                variant={approvalFilter === "approved" ? "default" : "outline"}
-                className={
-                  approvalFilter === "approved"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : ""
-                }
-                onClick={() => setApprovalFilter("approved")}
-              >
-                Approved
-              </Badge>
-              <Badge
-                variant={approvalFilter === "pending" ? "default" : "outline"}
-                className={
-                  approvalFilter === "pending"
-                    ? "bg-yellow-600 hover:bg-yellow-700"
-                    : ""
-                }
-                onClick={() => setApprovalFilter("pending")}
-              >
-                Pending
-              </Badge>
             </div>
           </CardHeader>
 
@@ -482,10 +393,10 @@ const AdminAttendance = () => {
                   <ClipboardCheck className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-gray-900 font-medium">
-                  No attendance records
+                  No attendance records found
                 </p>
                 <p className="text-gray-500 text-sm mt-1">
-                  Records will appear here once marked
+                  Try selecting a different session
                 </p>
               </div>
             ) : (
@@ -501,12 +412,6 @@ const AdminAttendance = () => {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">
                         Marked At
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Approval
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Actions
                       </th>
                     </tr>
                   </thead>
@@ -528,45 +433,25 @@ const AdminAttendance = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            {getStatusIcon(record.status)}
+                            {getStatusIcon(record.finalStatus)}
                             <Badge
                               variant="outline"
-                              className={getStatusColor(record.status)}
+                              className={getStatusColor(record.finalStatus)}
                             >
-                              {(record.status || 'unknown').charAt(0).toUpperCase() + 
-                               (record.status || 'unknown').slice(1)}
+                              {(record.finalStatus || 'unknown').charAt(0).toUpperCase() +
+                                (record.finalStatus || 'unknown').slice(1)}
                             </Badge>
                           </div>
                         </td>
                         <td className="px-6 py-4 hidden sm:table-cell">
                           <p className="text-sm text-gray-600">
-                            {new Date(record.markedAt).toLocaleString("en-US", {
+                            {record.date ? new Date(record.date).toLocaleString("en-US", {
                               month: "short",
                               day: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
-                            })}
+                            }) : "N/A"}
                           </p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <Badge
-                            variant="outline"
-                            className={getApprovalColor(record.isApproved)}
-                          >
-                            {record.isApproved ? "Approved" : "Pending"}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {!record.isApproved && (
-                            <Button
-                              size="sm"
-                              onClick={() => approveAttendance(record._id)}
-                              className="bg-green-600 hover:bg-green-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Approve
-                            </Button>
-                          )}
                         </td>
                       </tr>
                     ))}
