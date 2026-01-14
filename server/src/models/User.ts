@@ -5,7 +5,8 @@ export interface IUser {
   email: string;
   password?: string;
   role: "student" | "mentor" | "admin";
-  batchId?: string;
+  batchId?: string; // For students - single batch
+  batchIds?: string[]; // For mentors - multiple batches
   status: "pending" | "active" | "suspended";
   isActive: boolean;
 }
@@ -16,7 +17,8 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: { type: String, enum: ["student", "mentor", "admin"], required: true, default: "student" },
-    batchId: { type: String, ref: "Batch" },
+    batchId: { type: String }, // For students
+    batchIds: [{ type: String }], // For mentors - array of batches
     status: { type: String, enum: ["pending", "active", "suspended"], default: "pending" },
     isActive: { type: Boolean, default: true },
   },

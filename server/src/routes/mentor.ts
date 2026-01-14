@@ -7,11 +7,20 @@ import * as sessionController from "../controller/sessions";
 import * as notificationController from "../controller/notifications";
 import * as externalActivityController from "../controller/externalActivities";
 import * as skillController from "../controller/skills";
+import { getAllStudents } from "../controller/admin";
+import { getMyBatchStudents, getBatchAttendanceHistory, getMentorBatches, getBatchAttendanceByBatch } from "../controller/mentorStudents";
 
 const router: Router = Router();
 
 router.use(authMiddleware);
 router.use(requireRole("mentor"));
+
+// Students - batch-specific
+router.get("/students", getMyBatchStudents);
+router.get("/students/all", getAllStudents); // All students (for reference)
+router.get("/attendance/history", getBatchAttendanceHistory);
+router.get("/batches", getMentorBatches); // Get all batches taught by mentor
+router.get("/attendance/by-batch", getBatchAttendanceByBatch); // Get attendance filtered by batch
 
 // Assignments
 router.post("/assignments", assignmentController.createAssignment);
@@ -29,6 +38,10 @@ router.get(
 );
 
 // Attendance
+router.post(
+  "/attendance/mark",
+  attendanceController.mentorMarkAttendance
+);
 router.get(
   "/attendance/session/:sessionId",
   attendanceController.getSessionAttendance
@@ -55,12 +68,22 @@ router.post("/notifications", notificationController.createNotification);
 
 // External Activities
 router.get(
+  "/external-activities",
+  externalActivityController.getAllExternalActivities
+);
+router.get(
   "/external-activities/:userId",
   externalActivityController.getUserExternalActivities
+);
+router.patch(
+  "/external-activities/:activityId",
+  externalActivityController.updateActivityStatus
 );
 
 // Skills
 router.get("/skills", skillController.getAllSkills);
+router.post("/skills", skillController.createSkill);
+router.delete("/skills/:id", skillController.deleteSkill);
 router.post("/skills/topics", skillController.createSkillTopic);
 router.get("/skills/topics/:skillId", skillController.getSkillTopics);
 router.patch("/skills/topics/:id", skillController.updateSkillTopic);

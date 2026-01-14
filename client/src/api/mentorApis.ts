@@ -9,7 +9,15 @@ export const getAllStudents = async () => {
 
 // --- Assignments ---
 
-export const createAssignment = async (data: { title: string; skillId: string; dueDate: string; maxScore: number }) => {
+export const createAssignment = async (data: { 
+    title: string; 
+    skillId: string; 
+    topicId?: string;
+    dueDate: string; 
+    maxScore: number;
+    batchId: string;
+    description?: string;
+}) => {
     const response = await api.post("/mentor/assignments", data);
     return response.data;
 };

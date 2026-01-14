@@ -115,92 +115,75 @@ export const SessionsTab = () => {
     );
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6">
             {/* Header - Improved with better spacing and typography */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-1 sm:pb-2">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                         Mentorship Sessions
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 text-xs sm:text-sm">
                         Schedule and manage your upcoming classes
                     </p>
                 </div>
                 <Button 
                     onClick={() => setIsCreating(true)} 
-                    className="bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white shadow-sm hover:shadow-md transition-all"
+                    className="bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white shadow-sm hover:shadow-md transition-all h-8 sm:h-9 text-xs sm:text-sm w-full sm:w-auto"
                 >
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                     Schedule Session
                 </Button>
             </div>
 
             {/* Stats Cards - Added for better overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                 <Card className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="pt-6">
+                    <CardContent className="p-3 sm:p-4 md:pt-6">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                                    Total Sessions
+                            <div className="min-w-0">
+                                <p className="text-[9px] sm:text-[10px] md:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate">
+                                    Total
                                 </p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-0.5 sm:mt-1">
                                     {stats.total}
                                 </p>
                             </div>
-                            <div className="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-full">
-                                <Calendar className="w-5 h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                            <div className="bg-indigo-50 dark:bg-indigo-900/30 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
+                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="pt-6">
+                    <CardContent className="p-3 sm:p-4 md:pt-6">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                                    Upcoming
-                                </p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
-                                    {stats.upcoming}
-                                </p>
-                            </div>
-                            <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-full">
-                                <Clock className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                            <div className="min-w-0">
+                                <p className="text-[9px] sm:text-[10px] md:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate">
                                     Completed
                                 </p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-0.5 sm:mt-1">
                                     {stats.completed}
                                 </p>
                             </div>
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-full">
-                                <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                            <div className="bg-blue-50 dark:bg-blue-900/30 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
+                                <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="pt-6">
+                    <CardContent className="p-3 sm:p-4 md:pt-6">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                            <div className="min-w-0">
+                                <p className="text-[9px] sm:text-[10px] md:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate">
                                     This Month
                                 </p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mt-0.5 sm:mt-1">
                                     {stats.thisMonth}
                                 </p>
                             </div>
-                            <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-full">
-                                <FileCheck className="w-5 h-5 text-purple-600 dark:text-purple-400" aria-hidden="true" />
+                            <div className="bg-purple-50 dark:bg-purple-900/30 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
+                                <FileCheck className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400" aria-hidden="true" />
                             </div>
                         </div>
                     </CardContent>
@@ -209,14 +192,14 @@ export const SessionsTab = () => {
 
             {/* Filters - Improved with search functionality */}
             <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-                <CardContent className="pt-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+                <CardContent className="p-3 sm:p-4 md:pt-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
                             <Button
                                 size="sm"
                                 variant={filterType === 'all' ? 'default' : 'outline'}
                                 onClick={() => setFilterType('all')}
-                                className={`transition-colors ${
+                                className={`transition-colors h-7 sm:h-8 text-xs px-2 sm:px-3 whitespace-nowrap ${
                                     filterType === 'all' 
                                         ? 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600' 
                                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -226,21 +209,9 @@ export const SessionsTab = () => {
                             </Button>
                             <Button
                                 size="sm"
-                                variant={filterType === 'upcoming' ? 'default' : 'outline'}
-                                onClick={() => setFilterType('upcoming')}
-                                className={`transition-colors ${
-                                    filterType === 'upcoming' 
-                                        ? 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                }`}
-                            >
-                                Upcoming
-                            </Button>
-                            <Button
-                                size="sm"
                                 variant={filterType === 'completed' ? 'default' : 'outline'}
                                 onClick={() => setFilterType('completed')}
-                                className={`transition-colors ${
+                                className={`transition-colors h-7 sm:h-8 text-xs px-2 sm:px-3 whitespace-nowrap ${
                                     filterType === 'completed' 
                                         ? 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600' 
                                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -248,26 +219,14 @@ export const SessionsTab = () => {
                             >
                                 Completed
                             </Button>
-                            <Button
-                                size="sm"
-                                variant={filterType === 'week' ? 'default' : 'outline'}
-                                onClick={() => setFilterType('week')}
-                                className={`transition-colors ${
-                                    filterType === 'week' 
-                                        ? 'bg-slate-900 dark:bg-slate-700 text-white hover:bg-slate-800 dark:hover:bg-slate-600' 
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                }`}
-                            >
-                                This Week
-                            </Button>
                         </div>
                         <div className="relative w-full sm:w-64">
-                            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                            <Search className="w-3 h-3 sm:w-4 sm:h-4 absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                             <Input
                                 placeholder="Search sessions..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 w-full"
+                                className="pl-7 sm:pl-9 w-full h-8 sm:h-9 text-xs sm:text-sm"
                             />
                         </div>
                     </div>
@@ -276,30 +235,30 @@ export const SessionsTab = () => {
 
             {/* Create Session Modal - Improved with better form layout */}
             {isCreating && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-3 sm:p-4">
                      <Card className="w-full max-w-lg shadow-2xl border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
-                        <CardHeader className="border-b border-slate-100 dark:border-slate-800">
+                        <CardHeader className="border-b border-slate-100 dark:border-slate-800 p-4 sm:p-6">
                             <div className="flex justify-between items-center">
-                                <CardTitle className="text-xl font-semibold text-slate-900 dark:text-white">Schedule New Session</CardTitle>
+                                <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 dark:text-white">Schedule New Session</CardTitle>
                                 <Button variant="ghost" size="icon" onClick={() => setIsCreating(false)} className="h-8 w-8 rounded-full">
                                     <X className="w-4 h-4" />
                                 </Button>
                             </div>
-                            <CardDescription className="text-slate-500 dark:text-slate-400">
+                            <CardDescription className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                                 Fill in the details for the upcoming mentorship session.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="pt-6">
-                            <form onSubmit={handleCreate} className="space-y-5">
-                                <div className="space-y-2">
-                                    <Label htmlFor="topic" className="text-slate-700 dark:text-slate-300">Topic</Label>
+                        <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6">
+                            <form onSubmit={handleCreate} className="space-y-3 sm:space-y-4 md:space-y-5">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <Label htmlFor="topic" className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Topic</Label>
                                     <Input
                                         id="topic"
                                         placeholder="e.g., Advanced React Hooks"
                                         required
                                         value={formData.topic}
                                         onChange={e => setFormData({ ...formData, topic: e.target.value })}
-                                        className="focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-700"
+                                        className="focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-700 h-9 text-sm"
                                     />
                                 </div>
                                 
@@ -391,12 +350,12 @@ export const SessionsTab = () => {
 
             {/* Sessions Grid - Improved with better visual hierarchy */}
             {filteredSessions.length === 0 ? (
-                 <div className="flex flex-col items-center justify-center p-12 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30 text-center">
-                    <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                        <Calendar className="w-8 h-8 text-slate-400 dark:text-slate-600" />
+                 <div className="flex flex-col items-center justify-center p-6 sm:p-8 md:p-12 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30 text-center">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                        <Calendar className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-slate-400 dark:text-slate-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">No Sessions Found</h3>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-xs mt-2 mb-6">
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">No Sessions Found</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xs mt-1.5 sm:mt-2 mb-4 sm:mb-6">
                         {searchQuery ? 'No sessions match your search criteria.' : 'You haven\'t scheduled any mentorship sessions yet.'}
                     </p>
                     {!searchQuery && (
@@ -406,72 +365,72 @@ export const SessionsTab = () => {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                     {filteredSessions.map((session, idx) => {
                         const sessionDate = new Date(session.date);
                         const isPast = sessionDate < new Date();
                         
                         return (
                             <Card key={session._id} className="group hover:shadow-lg transition-all duration-200 border border-gray-200 bg-white overflow-hidden">
-                                <CardHeader className="pb-3 pt-4">
-                                    <div className="flex justify-between items-start mb-3">
+                                <CardHeader className="pb-2 sm:pb-3 pt-3 sm:pt-4 px-3 sm:px-6">
+                                    <div className="flex justify-between items-start mb-2 sm:mb-3">
                                         <Badge 
                                             variant="secondary" 
                                             className={`${
                                                 isPast 
                                                     ? "bg-gray-100 text-gray-600" 
                                                     : "bg-indigo-100 text-indigo-700"
-                                            } px-3 py-1 text-xs font-medium`}
+                                            } px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium`}
                                         >
                                             {isPast ? 'Completed' : 'Upcoming'}
                                         </Badge>
-                                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded">
+                                        <span className="text-[10px] sm:text-xs font-medium text-gray-600 bg-gray-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded">
                                             {session.batchId}
                                         </span>
                                     </div>
-                                    <CardTitle className="text-base font-semibold text-gray-900 mb-3" title={session.topic}>
+                                    <CardTitle className="text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3 line-clamp-2" title={session.topic}>
                                         {session.topic}
                                     </CardTitle>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>{sessionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
+                                        <span className="truncate">{sessionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="space-y-4 pb-4">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                                            <Clock className="w-5 h-5 text-indigo-600" />
+                                <CardContent className="space-y-2.5 sm:space-y-3 md:space-y-4 pb-3 sm:pb-4 px-3 sm:px-6">
+                                    <div className="flex items-start gap-2 sm:gap-3">
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+                                            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase mb-0.5">TIME</p>
-                                            <p className="text-sm font-medium text-gray-900">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase mb-0.5">TIME</p>
+                                            <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                                                 {sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - {new Date(sessionDate.getTime() + 90 * 60000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
+                                    <div className="flex items-start gap-2 sm:gap-3">
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
                                             {session.platform === 'Offline' ? (
-                                                <MapPin className="w-5 h-5 text-purple-600" />
+                                                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                                             ) : session.platform === 'Google Meet' ? (
-                                                <Video className="w-5 h-5 text-purple-600" />
+                                                <Video className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                                             ) : session.platform === 'Zoom' ? (
-                                                <Video className="w-5 h-5 text-purple-600" />
+                                                <Video className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                                             ) : (
-                                                <Video className="w-5 h-5 text-purple-600" />
+                                                <Video className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                                             )}
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase mb-0.5">PLATFORM</p>
-                                            <p className="text-sm font-medium text-gray-900">{session.platform || 'Online'}</p>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase mb-0.5">PLATFORM</p>
+                                            <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{session.platform || 'Online'}</p>
                                         </div>
                                     </div>
                                 </CardContent>
-                                <CardFooter className="pt-3 pb-4 border-t border-gray-100">
+                                <CardFooter className="pt-2 sm:pt-3 pb-3 sm:pb-4 border-t border-gray-100 px-3 sm:px-6">
                                      <Button 
                                         variant="ghost" 
-                                        className="w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50 h-9 font-medium text-sm"
+                                        className="w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50 h-7 sm:h-8 md:h-9 font-medium text-xs sm:text-sm"
                                         onClick={() => setSelectedSession(session)}
                                      >
                                         View Details
@@ -485,13 +444,13 @@ export const SessionsTab = () => {
 
             {/* Session Details Modal - Improved with better information architecture */}
             {selectedSession && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-3 sm:p-4">
                     <Card className="w-full max-w-2xl shadow-2xl border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
-                        <CardHeader className="border-b border-slate-100 dark:border-slate-800">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-white">{selectedSession.topic}</CardTitle>
-                                    <CardDescription className="mt-2 flex items-center gap-2">
+                        <CardHeader className="border-b border-slate-100 dark:border-slate-800 p-4 sm:p-6">
+                            <div className="flex justify-between items-start gap-3">
+                                <div className="min-w-0 flex-1">
+                                    <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-slate-900 dark:text-white line-clamp-2">{selectedSession.topic}</CardTitle>
+                                    <CardDescription className="mt-1.5 sm:mt-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                         <Badge 
                                             variant={selectedSession.status === 'completed' ? 'secondary' : 'default'} 
                                             className={`${
@@ -517,15 +476,15 @@ export const SessionsTab = () => {
                                 </Button>
                             </div>
                         </CardHeader>
-                        <CardContent className="pt-6 space-y-6">
+                        <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6 space-y-4 sm:space-y-6">
                             {/* Date and Time */}
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
-                                    <Calendar className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                            <div className="flex items-start gap-3 sm:gap-4">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="font-semibold text-sm text-slate-500 dark:text-slate-400 uppercase mb-1">Date & Time</p>
-                                    <p className="text-lg font-medium text-slate-900 dark:text-white">
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-xs sm:text-sm text-slate-500 dark:text-slate-400 uppercase mb-0.5 sm:mb-1">Date & Time</p>
+                                    <p className="text-sm sm:text-base md:text-lg font-medium text-slate-900 dark:text-white">
                                         {new Date(selectedSession.date).toLocaleDateString(undefined, { 
                                             weekday: 'long', 
                                             year: 'numeric', 
@@ -592,16 +551,16 @@ export const SessionsTab = () => {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="border-t border-slate-100 dark:border-slate-800 pt-4 flex justify-end gap-3">
-                            <Button variant="outline" onClick={() => setSelectedSession(null)} className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <CardFooter className="border-t border-slate-100 dark:border-slate-800 p-4 sm:p-6 pt-3 sm:pt-4 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                            <Button variant="outline" onClick={() => setSelectedSession(null)} className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto h-9 text-sm">
                                 Close
                             </Button>
                             {selectedSession.meetingLink && (
                                 <Button 
-                                    className="bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white"
+                                    className="bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white w-full sm:w-auto h-9 text-sm"
                                     onClick={() => window.open(selectedSession.meetingLink, '_blank')}
                                 >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                                     Join Meeting
                                 </Button>
                             )}

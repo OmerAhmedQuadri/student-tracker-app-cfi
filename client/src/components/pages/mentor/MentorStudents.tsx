@@ -135,73 +135,73 @@ const MentorStudents = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+        <div className="min-h-screen bg-gray-50 p-2 sm:p-3 md:p-6 lg:p-8">
             {/* Header */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">My Students</h1>
-                <p className="text-gray-600">Manage your batch, track progress, and monitor status.</p>
+            <div className="mb-3 sm:mb-4 md:mb-6">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">My Students</h1>
+                <p className="text-xs sm:text-sm md:text-base text-gray-600">Manage your batch, track progress, and monitor status.</p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6 lg:mb-8">
                 <Card className="border-2 border-blue-200 bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">TOTAL STUDENTS</p>
-                                <p className="text-4xl font-bold text-gray-900 mb-1">{stats.total}</p>
-                                <p className="text-sm text-green-600 font-medium flex items-center gap-1">
-                                    <TrendingUp className="w-4 h-4" />
-                                    +12% this month
+                    <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 truncate">TOTAL</p>
+                                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-1">{stats.total}</p>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-green-600 font-medium flex items-center gap-0.5 sm:gap-1">
+                                    <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                                    <span>+12%</span>
                                 </p>
                             </div>
-                            <div className="bg-blue-100 p-3 rounded-lg">
-                                <Users className="w-6 h-6 text-blue-600" />
+                            <div className="bg-blue-100 p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-lg flex-shrink-0">
+                                <Users className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card className="border-2 border-green-200 bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">ACTIVE NOW</p>
-                                <p className="text-4xl font-bold text-gray-900 mb-1">{stats.active}</p>
-                                <p className="text-sm text-gray-500">Currently enrolled</p>
+                    <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 truncate">ACTIVE</p>
+                                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-1">{stats.active}</p>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 truncate">Enrolled</p>
                             </div>
-                            <div className="bg-green-100 p-3 rounded-lg">
-                                <Activity className="w-6 h-6 text-green-600" />
+                            <div className="bg-green-100 p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-lg flex-shrink-0">
+                                <Activity className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card className="border-2 border-orange-200 bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">PENDING</p>
-                                <p className="text-4xl font-bold text-gray-900 mb-1">{stats.pending}</p>
-                                <p className="text-sm text-orange-600 font-medium">Awaiting approval</p>
+                    <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 truncate">PENDING</p>
+                                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-1">{stats.pending}</p>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-orange-600 font-medium truncate">Approval</p>
                             </div>
-                            <div className="bg-orange-100 p-3 rounded-lg">
-                                <Clock className="w-6 h-6 text-orange-600" />
+                            <div className="bg-orange-100 p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-lg flex-shrink-0">
+                                <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-orange-600" />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card className="border-2 border-red-200 bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">SUSPENDED</p>
-                                <p className="text-4xl font-bold text-gray-900 mb-1">{stats.suspended}</p>
-                                <p className="text-sm text-red-600 font-medium">Action required</p>
+                    <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 truncate">SUSPENDED</p>
+                                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-1">{stats.suspended}</p>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-red-600 font-medium truncate">Required</p>
                             </div>
-                            <div className="bg-red-100 p-3 rounded-lg">
-                                <AlertCircle className="w-6 h-6 text-red-600" />
+                            <div className="bg-red-100 p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-lg flex-shrink-0">
+                                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-red-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -209,7 +209,7 @@ const MentorStudents = () => {
             </div>
 
             {/* Main Content Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {/* Left Sidebar - Filters and Quick Actions */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Filters Card */}
@@ -260,60 +260,34 @@ const MentorStudents = () => {
                             </Button>
                         </CardContent>
                     </Card>
-
-                    {/* Quick Actions Card */}
-                    <Card className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white">
-                        <CardContent className="p-6">
-                            <h3 className="text-lg font-bold mb-2">Quick Actions</h3>
-                            <p className="text-sm text-indigo-100 mb-6">Send announcements or review pending requests.</p>
-                            <div className="space-y-3">
-                                <Button 
-                                    variant="secondary" 
-                                    className="w-full bg-white/20 hover:bg-white/30 text-white border-0"
-                                    onClick={() => toast.success('Message all functionality')}
-                                >
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Message All
-                                </Button>
-                                <Button 
-                                    variant="secondary" 
-                                    className="w-full bg-white hover:bg-gray-50 text-indigo-600 border-0"
-                                    onClick={() => toast.success('Add student functionality')}
-                                >
-                                    <UserPlus className="w-4 h-4 mr-2" />
-                                    Add Student
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 {/* Right Main Content - Student List */}
                 <div className="lg:col-span-3">
                     <Card className="bg-white">
-                        <CardHeader className="border-b border-gray-100 pb-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <CardTitle className="text-xl font-bold">Student List</CardTitle>
-                                <div className="relative w-full sm:w-64">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <CardHeader className="border-b border-gray-100 pb-2 sm:pb-3 md:pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 md:gap-4">
+                                <CardTitle className="text-base sm:text-lg md:text-xl font-bold">Student List</CardTitle>
+                                <div className="relative w-full sm:w-48 md:w-64">
+                                    <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                                     <Input
-                                        placeholder="Search by name or email..."
+                                        placeholder="Search..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="pl-8 sm:pl-10 text-xs sm:text-sm border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 h-8 sm:h-10"
                                     />
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
                             {paginatedStudents.length === 0 ? (
-                                <div className="text-center py-12 text-gray-500">
-                                    <Users className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                                    <p className="text-lg font-medium">No students found</p>
-                                    <p className="text-sm mt-1">
+                                <div className="text-center py-8 sm:py-10 md:py-12 px-3 text-gray-500">
+                                    <Users className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 opacity-30" />
+                                    <p className="text-sm sm:text-base md:text-lg font-medium">No students found</p>
+                                    <p className="text-xs sm:text-sm mt-1">
                                         {filterStatus === 'all' && filterBatch === 'all' && !searchQuery
-                                            ? 'No students assigned to your batch yet'
-                                            : 'No students match your current filters'}
+                                            ? 'No students assigned yet'
+                                            : 'No students match filters'}
                                     </p>
                                 </div>
                             ) : (
@@ -322,59 +296,38 @@ const MentorStudents = () => {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow className="bg-gray-50 border-b border-gray-100">
-                                                    <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">Student</TableHead>
-                                                    <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">Batch</TableHead>
-                                                    <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">Status</TableHead>
-                                                    <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">Joined</TableHead>
-                                                    <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-right">Actions</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Student</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden sm:table-cell">Batch</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3">Status</TableHead>
+                                                    <TableHead className="font-semibold text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider py-2 sm:py-3 hidden md:table-cell">Joined</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {paginatedStudents.map((student, index) => (
                                                     <TableRow key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-3">
-                                                                <Avatar className={`w-10 h-10 ${getAvatarColor(index)}`}>
-                                                                    <AvatarFallback className="bg-transparent text-white font-semibold">
+                                                        <TableCell className="py-2 sm:py-3 md:py-4">
+                                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                                <Avatar className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex-shrink-0 ${getAvatarColor(index)}`}>
+                                                                    <AvatarFallback className="bg-transparent text-white font-semibold text-xs sm:text-sm">
                                                                         {getInitials(student.name)}
                                                                     </AvatarFallback>
                                                                 </Avatar>
-                                                                <div>
-                                                                    <p className="font-semibold text-gray-900">{student.name}</p>
-                                                                    <p className="text-sm text-gray-500">{student.email}</p>
+                                                                <div className="min-w-0">
+                                                                    <p className="font-semibold text-gray-900 text-xs sm:text-sm truncate">{student.name}</p>
+                                                                    <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 truncate">{student.email}</p>
                                                                 </div>
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-gray-900 font-medium">
+                                                        <TableCell className="text-gray-900 font-medium text-xs sm:text-sm hidden sm:table-cell">
                                                             {student.batchId || <span className="text-gray-400 italic">Unassigned</span>}
                                                         </TableCell>
-                                                        <TableCell>{getStatusBadge(student.status)}</TableCell>
-                                                        <TableCell className="text-gray-600">
+                                                        <TableCell className="py-2 sm:py-3 md:py-4">{getStatusBadge(student.status)}</TableCell>
+                                                        <TableCell className="text-gray-600 text-xs sm:text-sm hidden md:table-cell">
                                                             {new Date(student.createdAt).toLocaleDateString('en-US', { 
                                                                 month: 'short', 
                                                                 day: 'numeric', 
                                                                 year: 'numeric' 
                                                             })}
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                                        <MoreVertical className="h-4 w-4 text-gray-500" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuItem onClick={() => toast.success('View details')}>
-                                                                        View Details
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => toast.success('Send message')}>
-                                                                        Send Message
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => toast.success('View progress')}>
-                                                                        View Progress
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
@@ -384,13 +337,13 @@ const MentorStudents = () => {
 
                                     {/* Pagination */}
                                     {totalPages > 1 && (
-                                        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-                                            <p className="text-sm text-gray-600">
-                                                Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
-                                                <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredStudents.length)}</span> of{' '}
+                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-gray-100">
+                                            <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                                                <span className="hidden sm:inline">Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
+                                                <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredStudents.length)}</span> of{' '}</span>
                                                 <span className="font-medium">{filteredStudents.length}</span> results
                                             </p>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1 sm:gap-2">
                                                 <Button
                                                     variant="outline"
                                                     size="sm"

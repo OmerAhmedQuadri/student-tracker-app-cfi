@@ -7,8 +7,45 @@ import { StudentSkillProgress } from "../models/StudentSkillProgress";
 // --- Skills (Global or per student handled elsewhere, but let's provide get) ---
 
 export const getAllSkills = asyncHandler(async (req: Request, res: Response) => {
-    const skills = await Skill.find().sort({ order: 1 });
+    const { batchId } = req.query;
+    const filter = batchId ? { batchId } : {};
+    const skills = await Skill.find(filter).sort({ order: 1 });
     res.json(skills);
+});
+
+export const createSkill = asyncHandler(async (req: Request, res: Response) => {
+    const { name, order, batchId } = req.body;
+    
+    if (!name) {
+        return res.status(400).json({ message: "Skill name is required" });
+    }
+    
+    if (!batchId) {
+        return res.status(400).json({ message: "Batch ID is required" });
+    }
+
+    // Get the highest order number and increment for this batch
+    const highestOrderSkill = await Skill.findOne({ batchId }).sort({ order: -1 });
+    const newOrder = order !== undefined ? order : (highestOrderSkill?.order || 0) + 1;
+
+    const skill = await Skill.create({
+        name,
+        order: newOrder,
+        batchId
+    });
+
+    res.status(201).json(skill);
+});
+
+export const deleteSkill = asyncHandler(async (req: Request, res: Response) => {
+    const skill = await Skill.findById(req.params.id);
+    if (!skill) return res.status(404).json({ message: "Skill not found" });
+    
+    // Optionally delete all related topics
+    await SkillTopic.deleteMany({ skillId: req.params.id });
+    
+    await skill.deleteOne();
+    res.json({ message: "Skill deleted successfully" });
 });
 
 // --- Skill Topics ---

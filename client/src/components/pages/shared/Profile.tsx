@@ -14,6 +14,10 @@ import {
   Globe,
   LogOut,
   LogIn,
+  X,
+  AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +45,18 @@ const Profile = () => {
     linkedinUrl: "",
     mediumUrl: "",
   });
+
+  // Password Change State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -100,6 +116,43 @@ const Profile = () => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters long");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await api.put("/change-password", {
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      });
+      toast.success("Password changed successfully");
+      setShowPasswordModal(false);
+      setPasswordData({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error: any) {
+      console.error(error);
+      setPasswordError(
+        error.response?.data?.message || "Failed to change password"
+      );
     } finally {
       setSaving(false);
     }
@@ -171,53 +224,21 @@ const Profile = () => {
 
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   <Badge
-                    className={`px-3 py-1 capitalize font-medium ${
-                      isMentor
-                        ? "bg-purple-100 text-purple-700"
-                        : isAdmin
+                    className={`px-3 py-1 capitalize font-medium pointer-events-none ${isMentor
+                      ? "bg-purple-100 text-purple-700"
+                      : isAdmin
                         ? "bg-red-100 text-red-700"
                         : "bg-indigo-100 text-indigo-700"
-                    }`}
+                      }`}
                   >
                     {user?.role}
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="px-3 py-1 bg-green-50 text-green-700 border-green-200"
+                    className="px-3 py-1 bg-green-50 text-green-700 border-green-200 pointer-events-none"
                   >
                     Active
                   </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Role Specific Info Card */}
-            <Card className="shadow-sm border border-gray-200 bg-gradient-to-br from-indigo-50 to-purple-50">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`p-3 rounded-xl ${
-                      isMentor
-                        ? "bg-purple-500 text-white"
-                        : "bg-indigo-500 text-white"
-                    } shadow-sm`}
-                  >
-                    {isMentor ? (
-                      <Briefcase className="w-6 h-6" />
-                    ) : (
-                      <GraduationCap className="w-6 h-6" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {isMentor ? "Mentor Access" : "Student Account"}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {isMentor
-                        ? "You have full access to manage assignments, view student progress, and schedule sessions."
-                        : "You are enrolled in the full-stack development track. Keep up the great work!"}
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -257,26 +278,6 @@ const Profile = () => {
                       value={user?.email || ""}
                       disabled
                       className="bg-gray-50 border-gray-200 text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      User ID
-                    </Label>
-                    <Input
-                      value={user?.id || ""}
-                      disabled
-                      className="font-mono text-xs bg-gray-50 border-gray-200 text-gray-700"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      Role
-                    </Label>
-                    <Input
-                      value={user?.role?.toUpperCase() || ""}
-                      disabled
-                      className="bg-gray-50 border-gray-200 text-gray-900 font-semibold"
                     />
                   </div>
                 </div>
@@ -438,32 +439,10 @@ const Profile = () => {
                       variant="outline"
                       size="sm"
                       className="border-gray-300 hover:bg-gray-50"
+                      onClick={() => setShowPasswordModal(true)}
                     >
                       <LogIn className="w-4 h-4 mr-2" />
                       Change
-                    </Button>
-                  </div>
-
-                  <div className="p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Shield className="w-5 h-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Two-Factor Authentication
-                        </p>
-                        <p className="text-sm text-gray-500 mt-0.5">
-                          Add an extra layer of security
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full border-gray-300 hover:bg-gray-50"
-                    >
-                      Enable
                     </Button>
                   </div>
                 </div>
@@ -472,6 +451,139 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <CardHeader className="border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <Lock className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Change Password</CardTitle>
+                    <CardDescription className="text-xs">
+                      Enter your current password to set a new one
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setShowPasswordModal(false)} className="h-8 w-8 p-0">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {passwordError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {passwordError}
+                </div>
+              )}
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="old-password">Current Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="old-password"
+                      type={showOldPassword ? "text" : "password"}
+                      value={passwordData.oldPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                    >
+                      {showOldPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">Must be at least 8 characters long</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-4 gap-2">
+                  <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Password"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

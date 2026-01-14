@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
-import Dashboard from './components/pages/shared/Dashboard';
+// import Dashboard from './components/pages/shared/Dashboard';
 import Assignments from './components/pages/shared/Assignments';
 import Attendance from './components/pages/shared/Attendance';
 import Learning from './components/pages/shared/Learning';
@@ -19,6 +19,7 @@ import AdminSessions from './components/pages/admin/Sessions';
 import AdminAttendance from './components/pages/admin/Attendance';
 import AdminCreateUsers from './components/pages/admin/CreateUsers';
 import BatchManagement from './components/pages/admin/BatchManagement';
+import BatchDetails from './components/pages/admin/BatchDetails';
 import MentorExternalActivities from './components/pages/mentor/ExternalActivities';
 import Notifications from './components/pages/shared/Notifications';
 import ExternalActivitiesPage from './components/pages/shared/ExternalActivities';
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
                                 element: <BatchManagement />,
                             },
                             {
+                                path: 'batch/:batchId',
+                                element: <BatchDetails />,
+                            },
+                            {
                                 path: 'sessions',
                                 element: <AdminSessions />,
                             },
@@ -85,10 +90,7 @@ export const router = createBrowserRouter([
                                 path: 'dashboard',
                                 element: <StudentDashboard />,
                             },
-                            {
-                                path: 'notifications',
-                                element: <Notifications />,
-                            },
+
                             {
                                 path: 'external-activities',
                                 element: <ExternalActivitiesPage />,
@@ -126,6 +128,10 @@ export const router = createBrowserRouter([
                             },
                             {
                                 path: 'sessions',
+                                element: <MentorDashboard />,
+                            },
+                            {
+                                path: 'skills',
                                 element: <MentorDashboard />,
                             },
                             {
