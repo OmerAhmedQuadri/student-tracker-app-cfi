@@ -10,7 +10,8 @@ import {
   Edit2,
   Trash2,
   ChevronRight,
-  X
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Card,
@@ -23,6 +24,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -30,6 +39,9 @@ interface BatchDetail {
   batchId: string;
   studentCount: number;
   mentorCount: number;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
   students: Array<{
     _id: string;
     name: string;
@@ -59,10 +71,19 @@ const BatchManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newBatchId, setNewBatchId] = useState("");
+  const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [creating, setCreating] = useState(false);
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [selectedMentorIds, setSelectedMentorIds] = useState<string[]>([]);
   const [loadingMentors, setLoadingMentors] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState<{
+    id: string;
+    studentCount: number;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchBatches();
@@ -110,41 +131,93 @@ const BatchManagement = () => {
       return;
     }
 
-    // Check if batch already exists
-    if (
-      batches.some(
-        (b) => b.batchId.toLowerCase() === newBatchId.trim().toLowerCase()
-      )
-    ) {
-      toast.error("Batch ID already exists");
+    if (!startDate || !endDate) {
+      toast.error("Please select start and end dates");
       return;
     }
 
     setCreating(true);
     try {
-      // Assign the batch to each selected mentor
-      const assignmentPromises = selectedMentorIds.map((mentorId) =>
-        api.patch(`/admin/mentors/${mentorId}/batches`, {
-          action: "add",
-          batchId: newBatchId.trim(),
-        })
-      );
+      await api.post("/admin/batches", {
+        batchId: newBatchId.trim(),
+        description: description.trim(),
+        mentorIds: selectedMentorIds,
+        startDate,
+        endDate,
+      });
 
-      await Promise.all(assignmentPromises);
-
-      toast.success(
-        `Batch "${newBatchId}" created and assigned to ${selectedMentorIds.length} mentor(s)!`
-      );
+      toast.success("Batch created successfully");
       setShowCreateModal(false);
       setNewBatchId("");
+      setDescription("");
+      setStartDate("");
+      setEndDate("");
       setSelectedMentorIds([]);
-      // Refresh batches to show the new batch
       fetchBatches();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create batch:", error);
-      toast.error("Failed to create batch");
+      toast.error(error.response?.data?.message || "Failed to create batch");
     } finally {
       setCreating(false);
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g. "Jan 1"
+  };
+
+  const formatMonthYear = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    }); // e.g. "Jan 2025"
+  };
+
+  const getDuration = (start?: string, end?: string) => {
+    if (!start || !end) return "N/A";
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffWeeks = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7));
+    return `${diffWeeks} Weeks`;
+  };
+
+  const handleDeleteBatch = (batchId: string, studentCount: number) => {
+    console.log("Delete batch called:", { batchId, studentCount }); // Debug log
+
+    if (studentCount > 0) {
+      toast.error(
+        `Cannot delete batch with ${studentCount} enrolled students. Please reassign students first.`,
+        {
+          duration: 5000,
+        }
+      );
+      return;
+    }
+
+    setBatchToDelete({ id: batchId, studentCount });
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteBatch = async () => {
+    if (!batchToDelete) return;
+
+    setDeleting(true);
+    try {
+      await api.delete(`/admin/batches/${batchToDelete.id}`);
+      toast.success("Batch deleted successfully");
+      setShowDeleteDialog(false);
+      setBatchToDelete(null);
+      fetchBatches();
+    } catch (error: any) {
+      console.error("Failed to delete batch:", error);
+      toast.error(error.response?.data?.message || "Failed to delete batch");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -164,24 +237,13 @@ const BatchManagement = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Batch Management
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Overview of all batches and user assignments
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button
-                onClick={openCreateModal}
-                className="bg-indigo-600 hover:bg-indigo-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <Layers className="w-4 h-4 mr-2" />
-                Create New Batch
-              </Button>
-            </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Batch Management
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Overview of all batches and user assignments
+            </p>
           </div>
         </div>
       </div>
@@ -276,74 +338,118 @@ const BatchManagement = () => {
             {batches.map((batch) => (
               <Card
                 key={batch.batchId}
-                className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden bg-white"
+                className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-indigo-200 bg-white"
               >
-                <div className="bg-blue-600 p-4 flex justify-between items-center text-white">
-                  <div>
-                    <h3 className="font-bold text-lg">{batch.batchId}</h3>
-                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none mt-1">
-                      In Progress
-                    </Badge>
-                  </div>
-                  <div className="flex space-x-2">
-                     <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
-                        <Edit2 className="w-4 h-4" />
-                     </button>
-                     <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                     </button>
-                  </div>
-                </div>
+                <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-indigo-50/50 rounded-full transition-transform group-hover:scale-150" />
 
-                <CardContent className="p-5 space-y-4">
+                <CardHeader className="pb-4 relative z-10">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="mb-2">
+                        <Badge
+                          variant="secondary"
+                          className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
+                        >
+                          Active Cohort
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-xl font-bold text-gray-900 tracking-tight">
+                        Batch {batch.batchId}
+                      </CardTitle>
+                      <CardDescription className="text-xs font-medium text-gray-500 mt-1">
+                        {getDuration(batch.startDate, batch.endDate)} Program
+                        {batch.description && (
+                          <span className="block mt-1 text-gray-400 font-normal line-clamp-1">
+                            {batch.description}
+                          </span>
+                        )}
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="flex -space-x-2 overflow-hidden mb-2">
+                        <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
+                          {batch.studentCount > 0 ? batch.studentCount : 0}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4 relative z-10 bg-white/50 backdrop-blur-sm">
                   <div className="flex items-start justify-between">
                     <div className="flex gap-3">
-                       <div className="p-2 bg-blue-50 rounded-lg h-fit">
-                          <Calendar className="w-5 h-5 text-blue-600" />
-                       </div>
-                       <div>
-                          <p className="text-sm font-semibold text-gray-900">Start Date</p>
-                          <p className="text-sm text-gray-500">1 Jan 2025</p>
-                       </div>
+                      <div className="p-2 bg-blue-50 rounded-lg h-fit">
+                        <Calendar className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Start Date
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {batch.startDate
+                            ? formatDate(batch.startDate)
+                            : "N/A"}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start justify-between">
                     <div className="flex gap-3">
-                       <div className="p-2 bg-green-50 rounded-lg h-fit">
-                          <Users className="w-5 h-5 text-green-600" />
-                       </div>
-                       <div>
-                          <p className="text-sm font-semibold text-gray-900">Instructor</p>
-                          <p className="text-sm text-gray-500">
-                             {batch.mentors.length > 0 ? batch.mentors[0].name : "Not Assigned"}
-                             {batch.mentors.length > 1 && ` +${batch.mentors.length - 1}`}
-                          </p>
-                       </div>
+                      <div className="p-2 bg-green-50 rounded-lg h-fit">
+                        <Users className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Instructor
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {batch.mentors.length > 0
+                            ? batch.mentors[0].name
+                            : "Not Assigned"}
+                          {batch.mentors.length > 1 &&
+                            ` +${batch.mentors.length - 1}`}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start justify-between">
-                     <div className="flex gap-3">
-                       <div className="p-2 bg-purple-50 rounded-lg h-fit">
-                          <Users className="w-5 h-5 text-purple-600" />
-                       </div>
-                       <div>
-                          <p className="text-sm font-semibold text-gray-900">Capacity</p>
-                          <p className="text-sm text-gray-500">{batch.studentCount}/60</p>
-                       </div>
+                    <div className="flex gap-3">
+                      <div className="p-2 bg-purple-50 rounded-lg h-fit">
+                        <Users className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Capacity
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {batch.studentCount}/30
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
-                
-                <div className="px-5 pb-5 pt-0">
-                  <Button 
-                    variant="ghost" 
+
+                <div className="px-5 pb-5 pt-0 space-y-2">
+                  <Button
+                    variant="ghost"
                     className="w-full justify-between hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-t border-gray-100 pt-4 rounded-none h-auto"
                     onClick={() => navigate(`/admin/batch/${batch.batchId}`)}
                   >
                     Click to view details
                     <ChevronRight className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-center hover:bg-red-50 text-red-600 hover:text-red-700 h-auto py-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteBatch(batch.batchId, batch.studentCount);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Batch
                   </Button>
                 </div>
               </Card>
@@ -364,6 +470,9 @@ const BatchManagement = () => {
                 onClick={() => {
                   setShowCreateModal(false);
                   setNewBatchId("");
+                  setDescription("");
+                  setStartDate("");
+                  setEndDate("");
                   setSelectedMentorIds([]);
                 }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -377,20 +486,69 @@ const BatchManagement = () => {
                   htmlFor="batchId"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Batch ID
+                  Batch ID <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="batchId"
                   placeholder="Enter batch ID (e.g., A26, B27)"
                   value={newBatchId}
                   onChange={(e) => setNewBatchId(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && !creating && handleCreateBatch()
-                  }
                   className="mt-1.5 transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   autoFocus
                   disabled={creating}
                 />
+              </div>
+
+              <div className="mb-5">
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  placeholder="Batch description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-1.5 transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={creating}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                  <Label
+                    htmlFor="startDate"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Start Date <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="mt-1.5"
+                    disabled={creating}
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="endDate"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    End Date <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="mt-1.5"
+                    disabled={creating}
+                  />
+                </div>
               </div>
 
               <div className="mb-5">
@@ -473,6 +631,9 @@ const BatchManagement = () => {
                   onClick={() => {
                     setShowCreateModal(false);
                     setNewBatchId("");
+                    setDescription("");
+                    setStartDate("");
+                    setEndDate("");
                     setSelectedMentorIds([]);
                   }}
                   disabled={creating}
@@ -485,6 +646,8 @@ const BatchManagement = () => {
                   disabled={
                     creating ||
                     !newBatchId.trim() ||
+                    !startDate ||
+                    !endDate ||
                     selectedMentorIds.length === 0
                   }
                   className="bg-indigo-600 hover:bg-indigo-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -503,6 +666,73 @@ const BatchManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <DialogTitle className="text-xl">Delete Batch</DialogTitle>
+            </div>
+            <DialogDescription className="text-base pt-2">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-gray-900">
+                Batch {batchToDelete?.id}
+              </span>
+              ? This action cannot be undone and will remove all batch
+              information.
+              {batchToDelete && batchToDelete.studentCount > 0 && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-700 font-medium">
+                    ⚠️ This batch has {batchToDelete.studentCount} enrolled
+                    student{batchToDelete.studentCount > 1 ? "s" : ""}. Please
+                    reassign students before deleting.
+                  </p>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setBatchToDelete(null);
+              }}
+              disabled={deleting}
+              className="transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteBatch}
+              disabled={
+                deleting ||
+                (batchToDelete ? batchToDelete.studentCount > 0 : false)
+              }
+              className="bg-red-600 hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Batch
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

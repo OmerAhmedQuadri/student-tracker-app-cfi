@@ -21,6 +21,7 @@ interface Session {
     topic: string;
     date: string;
     status: 'scheduled' | 'cancelled' | 'completed';
+    batchId: string;
 }
 
 interface AttendanceStatus {
@@ -90,20 +91,35 @@ const MentorAttendance = () => {
             return;
         }
 
-        // Check if all students have a status selected
-        const unselectedStudents = attendance.filter(a => !a.status);
+        // Get the selected session's batch
+        const selectedSessionData = sessions.find(s => s._id === selectedSession);
+        if (!selectedSessionData) {
+            toast.error('Session not found');
+            return;
+        }
+
+        // Filter students by the selected session's batch
+        const batchStudents = students.filter(student => student.batchId === selectedSessionData.batchId);
+        
+        // Check if all students in the batch have a status selected
+        const batchStudentIds = new Set(batchStudents.map(s => s._id));
+        const unselectedStudents = attendance.filter(a => batchStudentIds.has(a.studentId) && !a.status);
+        
         if (unselectedStudents.length > 0) {
-            toast.error('Please mark attendance for all students');
+            toast.error('Please mark attendance for all students in this batch');
             return;
         }
 
         setSubmitting(true);
         try {
             console.log('Submitting attendance for session:', selectedSession);
-            console.log('Attendance data:', attendance);
             
-            // Submit attendance for each student
-            const promises = attendance.map(a => {
+            // Only submit attendance for students in the selected batch
+            const batchAttendance = attendance.filter(a => batchStudentIds.has(a.studentId) && a.status);
+            console.log('Attendance data:', batchAttendance);
+            
+            // Submit attendance for each student in the batch
+            const promises = batchAttendance.map(a => {
                 console.log('Marking attendance:', {
                     sessionId: selectedSession,
                     studentId: a.studentId,
@@ -161,6 +177,12 @@ const MentorAttendance = () => {
         absent: attendance.filter(a => a.status === 'absent').length,
         late: attendance.filter(a => a.status === 'late').length
     };
+
+    // Filter students based on selected session's batch
+    const selectedSessionData = sessions.find(s => s._id === selectedSession);
+    const filteredStudents = selectedSessionData 
+        ? students.filter(student => student.batchId === selectedSessionData.batchId)
+        : students;
 
     if (loading) {
         return (
@@ -302,7 +324,7 @@ const MentorAttendance = () => {
                                 Student Attendance
                             </CardTitle>
                             <p className="text-sm text-gray-500">
-                                {attendance.filter(a => a.status).length} of {students.length} students marked
+                                {attendance.filter(a => a.status).length} of {filteredStudents.length} students marked
                             </p>
                         </div>
                     </CardHeader>
@@ -311,25 +333,25 @@ const MentorAttendance = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-gray-50 border-b border-gray-100">
-                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-left">
                                             Name
                                         </TableHead>
-                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-left">
                                             Email
                                         </TableHead>
-                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-left">
                                             Batch
                                         </TableHead>
-                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-left">
                                             Status
                                         </TableHead>
-                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                                        <TableHead className="font-semibold text-xs text-gray-500 uppercase tracking-wider text-left">
                                             Mark Attendance
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {students.map(student => {
+                                    {filteredStudents.map(student => {
                                         const attendanceRecord = attendance.find(a => a.studentId === student._id);
                                         const currentStatus = attendanceRecord?.status;
                                         
@@ -338,13 +360,13 @@ const MentorAttendance = () => {
                                                 key={student._id} 
                                                 className="hover:bg-gray-50 transition-colors border-b border-gray-100"
                                             >
-                                                <TableCell className="font-medium text-gray-900">
+                                                <TableCell className="font-medium text-gray-900 text-left">
                                                     {student.name}
                                                 </TableCell>
-                                                <TableCell className="text-gray-600">
+                                                <TableCell className="text-gray-600 text-left">
                                                     {student.email}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-left">
                                                     {student.batchId ? (
                                                         <Badge 
                                                             variant="outline" 
@@ -356,7 +378,7 @@ const MentorAttendance = () => {
                                                         <span className="text-gray-400 text-sm">-</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-left">
                                                     {currentStatus ? (
                                                         getStatusBadge(currentStatus)
                                                     ) : (
@@ -368,7 +390,7 @@ const MentorAttendance = () => {
                                                         </Badge>
                                                     )}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-left">
                                                     <div className="flex flex-wrap gap-2">
                                                         <Button
                                                             size="sm"

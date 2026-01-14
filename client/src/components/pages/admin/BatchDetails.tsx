@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Users, 
-  Clock, 
-  Calendar, 
-  BookOpen, 
-  Video, 
-  MoreVertical, 
-  Search, 
-  Plus, 
-  Edit2, 
-  Trash2,
-  Mail,
-  Phone
+import {
+  Users,
+  Search,
+  ArrowLeft,
+  GraduationCap,
+  School,
+  CalendarDays,
+  Github
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -27,7 +28,6 @@ interface Student {
   name: string;
   email: string;
   phone?: string;
-  parentName?: string;
   isActive: boolean;
 }
 
@@ -43,11 +43,15 @@ interface BatchData {
   mentorCount: number;
   students: Student[];
   mentors: Mentor[];
+  startDate?: string;
+  endDate?: string;
+  description?: string;
 }
 
 const BatchDetails = () => {
   const { batchId } = useParams();
   const navigate = useNavigate();
+
   const [batchData, setBatchData] = useState<BatchData | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,10 +59,9 @@ const BatchDetails = () => {
   useEffect(() => {
     const fetchBatchDetails = async () => {
       try {
-        const response = await api.get(`/admin/batches/${batchId}`);
-        setBatchData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch batch details:", error);
+        const res = await api.get(`/admin/batches/${batchId}`);
+        setBatchData(res.data);
+      } catch (err) {
         toast.error("Failed to load batch details");
         navigate("/admin/batches");
       } finally {
@@ -66,234 +69,268 @@ const BatchDetails = () => {
       }
     };
 
-    if (batchId) {
-      fetchBatchDetails();
-    }
+    if (batchId) fetchBatchDetails();
   }, [batchId, navigate]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
       </div>
     );
   }
 
   if (!batchData) return null;
 
-  const filteredStudents = batchData.students.filter(student => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = batchData.students.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getDuration = () => {
+    if (!batchData.startDate || !batchData.endDate) return "N/A";
+    const start = new Date(batchData.startDate);
+    const end = new Date(batchData.endDate);
+    const weeks = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7)
+    );
+    return `${weeks} Weeks`;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-8 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{batchData.batchId}</h1>
-          <p className="text-gray-500 mt-1">Manage batch information and students</p>
+      <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => navigate("/admin/batches")}
+              className="rounded-full"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Batch {batchData.batchId}
+              </h1>
+              <p className="text-sm text-slate-500">
+                {batchData.description || "Batch overview & management"}
+              </p>
+            </div>
+          </div>
+
+          <Badge className="px-4 py-1 bg-indigo-100 text-indigo-700">
+            Active Batch
+          </Badge>
         </div>
-        <Button onClick={() => navigate("/admin/batches")} variant="outline">
-          Back to Batches
-        </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Students</p>
-              <h3 className="text-2xl font-bold mt-1">{batchData.studentCount}</h3>
-            </div>
-            <div className="h-10 w-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
-              <Users size={20} />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              label: "Students",
+              value: batchData.studentCount,
+              icon: Users,
+              color: "indigo"
+            },
+            {
+              label: "Mentors",
+              value: batchData.mentorCount,
+              icon: School,
+              color: "purple"
+            },
+            {
+              label: "Duration",
+              value: getDuration(),
+              icon: CalendarDays,
+              color: "blue"
+            },
+            {
+              label: "Capacity",
+              value: `${batchData.studentCount}/30`,
+              icon: GraduationCap,
+              color: "green"
+            }
+          ].map((item) => (
+            <Card
+              key={item.label}
+              className="transition-all hover:-translate-y-1 hover:shadow-lg"
+            >
+              <CardContent className="p-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                    {item.label}
+                  </p>
+                  <p className="text-3xl font-bold text-slate-900 mt-1">
+                    {item.value}
+                  </p>
+                </div>
+                <div
+                  className={`h-12 w-12 rounded-xl bg-${item.color}-100 flex items-center justify-center`}
+                >
+                  <item.icon
+                    className={`h-6 w-6 text-${item.color}-600`}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Capacity</p>
-              <h3 className="text-2xl font-bold mt-1">30</h3>
-            </div>
-            <div className="h-10 w-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
-              <Users size={20} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Batch Information */}
-        <Card className="lg:col-span-2 border-none shadow-sm">
-          <CardHeader className="bg-blue-600 text-white rounded-t-xl">
+        {/* Batch Info */}
+        <Card>
+          <CardHeader>
             <CardTitle>Batch Information</CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">Learn CS Engineering in 12 Months</p>
-              </div>
-              
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Instructors</p>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {batchData.mentors.length > 0 ? (
-                    batchData.mentors.map(mentor => (
-                       <span key={mentor._id} className="text-sm font-medium text-gray-900">{mentor.name}</span>
-                    ))
-                  ) : (
-                    <span className="text-sm text-gray-400">No instructors assigned</span>
-                  )}
-                </div>
-              </div>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div>
+              <p className="text-slate-500">Description</p>
+              <p className="font-medium text-slate-900">
+                {batchData.description || "No description"}
+              </p>
+            </div>
 
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Start Date</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">1 January 2025</p>
-              </div>
+            <div>
+              <p className="text-slate-500">Mentors</p>
+              <p className="font-medium text-slate-900">
+                {batchData.mentors.length
+                  ? batchData.mentors.map((m) => m.name).join(", ")
+                  : "Not assigned"}
+              </p>
+            </div>
 
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Current MAT</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">5</p>
-              </div>
+            <div>
+              <p className="text-slate-500">Start Date</p>
+              <p className="font-medium">
+                {batchData.startDate
+                  ? new Date(batchData.startDate).toDateString()
+                  : "Not set"}
+              </p>
+            </div>
 
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">End Date</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">30 December 2025</p>
-              </div>
+            <div>
+              <p className="text-slate-500">End Date</p>
+              <p className="font-medium">
+                {batchData.endDate
+                  ? new Date(batchData.endDate).toDateString()
+                  : "Not set"}
+              </p>
+            </div>
 
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Credits</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">800</p>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Mode</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">Online</p>
-              </div>
-
-               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Remaining Credits</p>
-                <p className="mt-1 text-sm font-medium text-gray-900">300</p>
-              </div>
-              
-               <div className="md:col-span-2 pt-4 border-t border-gray-100">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">GitHub Repository</p>
-                <a href="#" className="mt-1 text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
-                  https://github.com/thehackingschool/CS24_Classwork
-                </a>
-              </div>
+            <div className="md:col-span-2">
+              <p className="text-slate-500">GitHub Repository</p>
+              <a
+                href="https://github.com/thehackingschool/CS24_Classwork"
+                target="_blank"
+                className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+              >
+                https://github.com/thehackingschool/CS24_Classwork
+                <Github className="h-4 w-4" />
+              </a>
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Students Management */}
-      <Card className="border-none shadow-sm">
-        <CardHeader className="bg-purple-600 text-white rounded-t-xl flex flex-row items-center justify-between">
-          <CardTitle>Students Management</CardTitle>
-          <Badge className="bg-white/20 hover:bg-white/30 text-white border-none">
-            {batchData.studentCount} students
-          </Badge>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input 
-                placeholder="Search students by name, email..." 
+        {/* Students */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Students</CardTitle>
+            <CardDescription>
+              {batchData.studentCount} enrolled students
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="mb-6 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
                 className="pl-10"
+                placeholder="Search students..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Student
-            </Button>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-100 text-left">
-                  <th className="pb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider pl-4">Student</th>
-                  <th className="pb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
-                  <th className="pb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="pb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Performance</th>
-                  <th className="pb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filteredStudents.length > 0 ? (
-                  filteredStudents.map((student) => (
-                    <tr key={student._id} className="group hover:bg-gray-50/50">
-                      <td className="py-4 pl-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                              {student.name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium text-gray-900">{student.name}</p>
-                            <p className="text-xs text-gray-500">MAT: 0</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Mail className="h-3 w-3" />
-                            {student.email}
-                          </div>
-                          {student.phone && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Phone className="h-3 w-3" />
-                              {student.phone}
+            <div className="overflow-hidden rounded-lg border">
+              <table className="w-full">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                      Student
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                      Contact
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y">
+                  {filteredStudents.length ? (
+                    filteredStudents.map((s) => (
+                      <tr
+                        key={s._id}
+                        className="group hover:bg-indigo-50/50 transition"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarFallback className="bg-indigo-600 text-white">
+                                {s.name.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-semibold text-slate-900 group-hover:text-indigo-700">
+                                {s.name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {s.email}
+                              </p>
                             </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4">
-                        <Badge variant={student.isActive ? "default" : "secondary"} className={student.isActive ? "bg-green-100 text-green-700 hover:bg-green-100 border-none shadow-none" : "bg-red-100 text-red-700 hover:bg-red-100 border-none shadow-none"}>
-                          {student.isActive ? "Enrolled" : "Inactive"}
-                        </Badge>
-                      </td>
-                      <td className="py-4">
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                          Average
-                        </Badge>
-                      </td>
-                      <td className="py-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {s.phone || "—"}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <Badge
+                            className={
+                              s.isActive
+                                ? "bg-green-100 text-green-700"
+                                : "bg-slate-100 text-slate-600"
+                            }
+                          >
+                            {s.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="py-12 text-center text-slate-500"
+                      >
+                        No students found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-500">
-                      No students found in this batch.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

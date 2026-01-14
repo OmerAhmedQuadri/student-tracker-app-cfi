@@ -3,7 +3,6 @@ import { useAuth } from "@/context/AuthContext";
 import { BookOpen, Clock, CalendarCheck, TrendingUp, CheckCircle2, FileText } from 'lucide-react';
 import StatCard from '@/components/dashboard/StatCard';
 import RecentActivity, { type Activity } from '@/components/dashboard/RecentActivity';
-import SkillsOverview from '@/components/dashboard/SkillsOverview';
 import api from '@/lib/api';
 
 interface DashboardStats {
@@ -23,14 +22,13 @@ const StudentDashboard = () => {
         totalPoints: 0
     });
     const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
-    const [skills, setSkills] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // 1. Fetch Dashboard Data (Profile, Skills, Recent Assignments)
+                // 1. Fetch Dashboard Data (Profile, Recent Assignments)
                 const dashboardRes = await api.get('/dashboard/student');
-                const { profile, skillProgress, recentAssignments } = dashboardRes.data;
+                const { profile, recentAssignments } = dashboardRes.data;
 
                 // 2. Fetch Assignments Data for "Pending" count
                 const [allAssignmentsRes, myAssignmentsRes] = await Promise.all([
@@ -60,15 +58,6 @@ const StudentDashboard = () => {
                     attendanceCount: attendanceCount,
                     totalPoints: profile.totalPoints || 0
                 });
-
-                // Format Skills
-                const formattedSkills = skillProgress.map((sp: any, index: number) => ({
-                    id: sp.skillId?._id || index,
-                    name: sp.skillId?.name || 'Unknown Skill',
-                    progress: sp.level === 'beginner' ? 33 : sp.level === 'intermediate' ? 66 : 100, // or use specific progress field if available
-                    color: ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-orange-600'][index % 4]
-                }));
-                setSkills(formattedSkills);
 
                 // Merge and Format Activity Feed
                 const activities: Activity[] = [];
@@ -180,16 +169,8 @@ const StudentDashboard = () => {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column (2/3 width) */}
-            <div className="lg:col-span-2 space-y-6">
-                <RecentActivity activities={recentActivities} />
-            </div>
-
-            {/* Right Column (1/3 width) */}
-            <div className="space-y-6">
-                <SkillsOverview skills={skills} />
-            </div>
+        <div className="grid grid-cols-1 gap-6">
+            <RecentActivity activities={recentActivities} />
         </div>
     </div>
   );

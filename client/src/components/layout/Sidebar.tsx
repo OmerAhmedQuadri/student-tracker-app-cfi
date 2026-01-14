@@ -42,7 +42,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: "Assignments", path: "/assignments", icon: BookOpen },
     { name: "Attendance", path: "/attendance", icon: CalendarCheck },
     { name: "Learning", path: "/learning", icon: Clock },
-    { name: "Skills", path: "/skills", icon: Award },
     { name: "Activities", path: "/activities", icon: Activity },
     {
       name: "External Work",
@@ -56,6 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const mentorNavItems = [
     { name: "Dashboard", path: "/mentor/dashboard", icon: LayoutDashboard },
     { name: "My Students", path: "/mentor/students", icon: UsersRound },
+    { name: "My Batches", path: "/mentor/batches", icon: Layers },
     { name: "Assignments", path: "/mentor/assignments", icon: ClipboardCheck },
     {
       name: "Mark Attendance",
@@ -68,7 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: History,
     },
     { name: "Sessions", path: "/mentor/sessions", icon: Calendar },
-    { name: "Skills", path: "/mentor/skills", icon: GraduationCap },
     {
       name: "External Activities",
       path: "/mentor/external-activities",

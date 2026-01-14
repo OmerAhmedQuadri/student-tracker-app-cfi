@@ -10,6 +10,8 @@ import {
   Edit,
   X,
   Plus,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -21,6 +23,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -52,6 +62,13 @@ const UsersManagement = () => {
   } | null>(null);
   const [batchInput, setBatchInput] = useState("");
   const [batchesInput, setBatchesInput] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+    role: string;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -136,21 +153,30 @@ const UsersManagement = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
-      )
-    )
-      return;
+  const handleDeleteUser = (
+    userId: string,
+    userName: string,
+    userRole: string
+  ) => {
+    setUserToDelete({ id: userId, name: userName, role: userRole });
+    setShowDeleteDialog(true);
+  };
 
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/admin/delete/${userId}`);
+      await api.delete(`/admin/delete/${userToDelete.id}`);
       toast.success("User deleted successfully");
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
       fetchUsers();
     } catch (error) {
       console.error("Failed to delete user:", error);
       toast.error("Failed to delete user");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -185,21 +211,13 @@ const UsersManagement = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                User Management
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage students and mentors
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Button className="bg-indigo-600 hover:bg-indigo-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <Plus className="w-4 h-4 mr-2" />
-                Add New User
-              </Button>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              User Management
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Manage students and mentors
+            </p>
           </div>
         </div>
       </div>
@@ -330,22 +348,22 @@ const UsersManagement = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       Batch
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       Joined
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">
                       Actions
                     </th>
                   </tr>
@@ -356,15 +374,15 @@ const UsersManagement = () => {
                       key={user._id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-6 py-4">
-                        <div>
+                      <td className="px-6 py-4 align-middle">
+                        <div className="flex flex-col items-center justify-center">
                           <p className="text-sm font-medium text-gray-900">
                             {user.name}
                           </p>
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 align-middle">
                         <Badge
                           className={
                             user.role === "student"
@@ -383,7 +401,7 @@ const UsersManagement = () => {
                           )}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 align-middle">
                         <div className="flex items-center gap-2">
                           {user.role === "mentor" ? (
                             // Mentor: show multiple batches
@@ -434,7 +452,7 @@ const UsersManagement = () => {
                           </Button>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 align-middle">
                         <Badge
                           className={
                             user.isActive
@@ -456,7 +474,7 @@ const UsersManagement = () => {
                           </span>
                         </Badge>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 align-middle">
                         <p className="text-sm text-gray-600">
                           {new Date(user.createdAt).toLocaleDateString(
                             "en-US",
@@ -464,7 +482,7 @@ const UsersManagement = () => {
                           )}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 align-middle">
                         <div className="flex justify-end gap-2">
                           {user.isActive ? (
                             <Button
@@ -490,7 +508,9 @@ const UsersManagement = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDeleteUser(user._id)}
+                            onClick={() =>
+                              handleDeleteUser(user._id, user.name, user.role)
+                            }
                             className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50 transition-all"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -697,6 +717,61 @@ const UsersManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <DialogTitle className="text-xl">Delete User</DialogTitle>
+            </div>
+            <DialogDescription className="text-base pt-2">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-gray-900">
+                {userToDelete?.name}
+              </span>{" "}
+              ({userToDelete?.role})? This action cannot be undone and will
+              permanently remove this user from the system.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setUserToDelete(null);
+              }}
+              disabled={deleting}
+              className="transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteUser}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete User
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

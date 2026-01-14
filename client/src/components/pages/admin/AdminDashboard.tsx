@@ -187,21 +187,13 @@ const AdminDashboard = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Admin Dashboard
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                System overview and management
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-50 text-green-700">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                System Operational
-              </div>
-            </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              System overview and management
+            </p>
           </div>
         </div>
       </div>

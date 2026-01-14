@@ -2,7 +2,6 @@ import React from 'react';
 import { BookOpen, Clock, CalendarCheck, TrendingUp } from 'lucide-react';
 import StatCard from '@/components/dashboard/StatCard';
 import RecentActivity from '@/components/dashboard/RecentActivity';
-import SkillsOverview from '@/components/dashboard/SkillsOverview';
 
 const Dashboard = () => {
     return (
@@ -50,20 +49,8 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column (2/3 width) */}
-                <div className="lg:col-span-2 space-y-6">
-                    <RecentActivity />
-
-                    {/* Ongoing Courses / Assignments Preview could go here */}
-                </div>
-
-                {/* Right Column (1/3 width) */}
-                <div className="space-y-6">
-                    <SkillsOverview />
-
-                    {/* Quick Actions or Calendar could go here */}
-                </div>
+            <div className="grid grid-cols-1 gap-6">
+                <RecentActivity />
             </div>
         </div>
     );
