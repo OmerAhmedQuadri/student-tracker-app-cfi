@@ -5,7 +5,6 @@ import {
   BookOpen,
   CalendarCheck,
   Clock,
-  Award,
   Activity,
   User,
   X,
@@ -20,7 +19,6 @@ import {
   UsersRound,
   Layers,
   ChevronRight,
-  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -61,6 +59,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       name: "Mark Attendance",
       path: "/mentor/attendance",
       icon: CalendarCheck,
+    },
+    {
+      name: "Daily Progress",
+      path: "/mentor/daily-progress",
+      icon: ClipboardCheck,
     },
     {
       name: "Attendance History",
