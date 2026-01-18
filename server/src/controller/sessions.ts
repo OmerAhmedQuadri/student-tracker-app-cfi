@@ -6,14 +6,28 @@ import { LearningSession } from "../models/LearningSession";
 // --- Mentorship Sessions ---
 
 export const createMentorshipSession = asyncHandler(async (req: Request, res: Response) => {
-    const { batchId, date, topic, platform, meetingLink } = req.body;
+    const { batchId, date, startTime, endTime, topic, topics, platform, meetingLink } = req.body;
+    
+    // Handle backward compatibility: convert single topic to topics array
+    let sessionTopics: string[] = topics || [];
+    if (topic && !topics) {
+        sessionTopics = [topic];
+    }
+    
+    // Validate at least one topic
+    if (!sessionTopics || sessionTopics.length === 0) {
+        return res.status(400).json({ message: "At least one topic is required" });
+    }
+    
     const session = await MentorshipSession.create({
         batchId,
         mentorId: req.user!.id,
         date,
-        topic,
+        startTime,
+        endTime,
+        topics: sessionTopics,
         status: "scheduled",
-        platform: platform || "Online",
+        platform: platform || "Offline",
         meetingLink
     });
     res.status(201).json(session);
