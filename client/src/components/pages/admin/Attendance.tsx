@@ -34,6 +34,7 @@ interface AttendanceRecord {
     _id: string;
     name: string;
     email: string;
+    batch?: string;
   };
   sessionId: string;
   finalStatus: "present" | "absent" | "late";
@@ -44,11 +45,13 @@ interface Session {
   _id: string;
   topic: string;
   date: string;
-  batch: string;
+  batchId: string;
 }
 
 const AdminAttendance = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [batches, setBatches] = useState<string[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string>("all");
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,13 +62,37 @@ const AdminAttendance = () => {
 
   useEffect(() => {
     fetchSessions();
+    fetchBatches();
   }, []);
 
   useEffect(() => {
-    if (selectedSession) {
+    if (selectedBatch === "all") {
+      // Fetch attendance for all sessions when All Batches is selected
+      fetchAllAttendance();
+    } else if (selectedSession) {
+      // Fetch attendance for specific session
       fetchAttendance(selectedSession);
     }
-  }, [selectedSession]);
+  }, [selectedSession, selectedBatch]);
+
+  // Filter sessions by selected batch
+  const filteredSessions =
+    selectedBatch === "all"
+      ? sessions
+      : sessions.filter((s) => s.batchId === selectedBatch);
+
+  // Reset selected session when batch filter changes or sessions load
+  useEffect(() => {
+    if (selectedBatch === "all") {
+      // Clear session selection when All Batches is selected
+      setSelectedSession("");
+    } else if (filteredSessions.length > 0) {
+      // Reset to first session when a specific batch is selected
+      setSelectedSession(filteredSessions[0]._id);
+    } else {
+      setSelectedSession("");
+    }
+  }, [selectedBatch]);
 
   const fetchSessions = async () => {
     try {
@@ -85,6 +112,42 @@ const AdminAttendance = () => {
     } catch (error) {
       console.error("Failed to fetch sessions:", error);
       toast.error("Failed to load sessions");
+    }
+  };
+
+  const fetchBatches = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/admin/batches", {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const batchIds = data.map((batch: any) => batch.batchId);
+        setBatches(batchIds);
+      }
+    } catch (error) {
+      console.error("Failed to fetch batches:", error);
+    }
+  };
+
+  const fetchAllAttendance = async () => {
+    setLoading(true);
+    try {
+      // Fetch attendance for all sessions
+      const attendancePromises = sessions.map((session) =>
+        fetch(
+          `http://localhost:5000/api/admin/attendance/session/${session._id}`,
+          { credentials: "include" }
+        ).then((res) => (res.ok ? res.json() : []))
+      );
+      const allAttendanceData = await Promise.all(attendancePromises);
+      const combinedAttendance = allAttendanceData.flat();
+      setAttendance(combinedAttendance);
+    } catch (error) {
+      console.error("Failed to fetch attendance:", error);
+      toast.error("Failed to load attendance records");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -284,16 +347,29 @@ const AdminAttendance = () => {
                 </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
+                <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                  <SelectTrigger className="w-full sm:w-48 h-9">
+                    <SelectValue placeholder="Filter by batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Batches</SelectItem>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch} value={batch}>
+                        {batch}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Select
                   value={selectedSession}
                   onValueChange={setSelectedSession}
-                  disabled={loading}
+                  disabled={loading || filteredSessions.length === 0 || selectedBatch === "all"}
                 >
                   <SelectTrigger className="w-full sm:w-64 h-9">
-                    <SelectValue placeholder="Select a session" />
+                    <SelectValue placeholder={selectedBatch === "all" ? "All Sessions" : "Select a session"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {sessions.map((session) => (
+                    {filteredSessions.map((session) => (
                       <SelectItem key={session._id} value={session._id}>
                         {session.topic} -{" "}
                         {new Date(session.date).toLocaleDateString()}

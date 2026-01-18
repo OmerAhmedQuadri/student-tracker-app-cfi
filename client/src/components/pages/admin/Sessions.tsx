@@ -25,6 +25,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -38,12 +45,15 @@ interface Session {
 
 const AdminSessions = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [batches, setBatches] = useState<string[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSessions();
+    fetchBatches();
   }, []);
 
   const fetchSessions = async () => {
@@ -55,6 +65,16 @@ const AdminSessions = () => {
       toast.error("Failed to load sessions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBatches = async () => {
+    try {
+      const res = await api.get("/admin/batches");
+      const batchIds = res.data.map((batch: any) => batch.batchId);
+      setBatches(batchIds);
+    } catch (error) {
+      console.error("Failed to fetch batches:", error);
     }
   };
 
@@ -78,11 +98,15 @@ const AdminSessions = () => {
     }
   };
 
-  const upcomingSessions = sessions
+  const filteredSessions = selectedBatch === "all" 
+    ? sessions 
+    : sessions.filter((s) => s.batchId === selectedBatch);
+
+  const upcomingSessions = filteredSessions
     .filter((s) => new Date(s.date) > new Date())
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const pastSessions = sessions
+  const pastSessions = filteredSessions
     .filter((s) => new Date(s.date) <= new Date())
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -175,6 +199,28 @@ const AdminSessions = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Batch Filter */}
+        <div className="mb-8">
+          <div className="w-full max-w-xs">
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+              Filter by Batch
+            </label>
+            <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select batch" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Batches</SelectItem>
+                {batches.map((batch) => (
+                  <SelectItem key={batch} value={batch}>
+                    {batch}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

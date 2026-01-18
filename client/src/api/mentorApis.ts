@@ -75,7 +75,7 @@ export const approveAttendance = async (attendanceId: string, data: { approved: 
 
 // --- Sessions ---
 
-export const createMentorshipSession = async (data: { batchId: string; date: string; topic: string }) => {
+export const createMentorshipSession = async (data: { batchId: string; date: string; topics: string[] }) => {
     const response = await api.post("/mentor/sessions/mentorship", data);
     return response.data;
 };

@@ -38,9 +38,9 @@ export const AttendanceTab = () => {
         try {
             const data = await mentorApi.getMentorshipSessions();
             setSessions(data);
-            if(data.length > 0 && !selectedSession) {
-               // Optional: Pre-select first session
-               // handleViewAttendance(data[0]); 
+            if (data.length > 0 && !selectedSession) {
+                // Optional: Pre-select first session
+                // handleViewAttendance(data[0]); 
             }
         } catch (error) {
             console.error("Failed to load sessions", error);
@@ -75,8 +75,8 @@ export const AttendanceTab = () => {
     };
 
     // Filter students
-    const filteredAttendance = attendance.filter(record => 
-        record.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const filteredAttendance = attendance.filter(record =>
+        record.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -88,7 +88,7 @@ export const AttendanceTab = () => {
 
     if (loadingSessions) return (
         <div className="flex justify-center items-center h-64">
-             <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
         </div>
     );
 
@@ -97,26 +97,27 @@ export const AttendanceTab = () => {
             {/* Sessions List */}
             <Card className="lg:col-span-4 h-full flex flex-col border-border/50 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-border/50 bg-muted/20">
-                    <h2 className="font-semibold text-lg flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-indigo-600" />
-                        Sessions History
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">Select a session to manage attendance.</p>
+                    <div>
+                        <h2 className="font-semibold text-lg flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-indigo-600" />
+                            Sessions History
+                        </h2>
+                        <p className="text-xs text-muted-foreground mt-1">Select a session to manage attendance.</p>
+                    </div>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-3">
                     <div className="space-y-2">
                         {sessions.length === 0 ? (
-                             <p className="text-center text-sm text-muted-foreground py-8">No sessions found.</p>
+                            <p className="text-center text-sm text-muted-foreground py-8">No sessions found.</p>
                         ) : (
                             sessions.map(session => (
                                 <div
                                     key={session._id}
                                     onClick={() => handleViewAttendance(session)}
-                                    className={`p-3 rounded-lg cursor-pointer transition-all border duration-200 group ${
-                                        selectedSession?._id === session._id 
-                                        ? 'bg-indigo-50 border-indigo-200 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-800' 
+                                    className={`p-3 rounded-lg cursor-pointer transition-all border duration-200 group ${selectedSession?._id === session._id
+                                        ? 'bg-indigo-50 border-indigo-200 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-800'
                                         : 'hover:bg-muted/50 border-transparent hover:border-border/50'
-                                    }`}
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <h4 className={`font-medium text-sm ${selectedSession?._id === session._id ? 'text-indigo-700 dark:text-indigo-300' : 'text-foreground'}`}>
@@ -129,7 +130,7 @@ export const AttendanceTab = () => {
                                     <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                                         {new Date(session.date).toLocaleDateString()}
                                         <span className="text-muted-foreground/50">•</span>
-                                        {new Date(session.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                        {new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
                             ))
@@ -171,7 +172,7 @@ export const AttendanceTab = () => {
                         </div>
 
                         <div className="flex-1 bg-muted/5 p-4 overflow-y-auto custom-scrollbar">
-                             {loadingAttendance ? (
+                            {loadingAttendance ? (
                                 <div className="flex justify-center items-center h-48">
                                     <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                                 </div>
@@ -200,18 +201,16 @@ export const AttendanceTab = () => {
                                             </div>
 
                                             <div className="flex items-center gap-3 justify-between sm:justify-end w-full sm:w-auto">
-                                                <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${
-                                                    record.finalStatus === 'present' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                                <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${record.finalStatus === 'present' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                                                     record.finalStatus === 'absent' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                }`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${
-                                                         record.finalStatus === 'present' ? 'bg-green-500' : 
-                                                         record.finalStatus === 'absent' ? 'bg-red-500' : 'bg-yellow-500'
-                                                    }`} />
+                                                        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                    }`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${record.finalStatus === 'present' ? 'bg-green-500' :
+                                                        record.finalStatus === 'absent' ? 'bg-red-500' : 'bg-yellow-500'
+                                                        }`} />
                                                     {record.finalStatus ? record.finalStatus.charAt(0).toUpperCase() + record.finalStatus.slice(1) : 'Pending'}
                                                 </div>
-                                                
+
                                                 <div className="h-6 w-px bg-border/50 hidden sm:block"></div>
 
                                                 <div className="flex gap-2">

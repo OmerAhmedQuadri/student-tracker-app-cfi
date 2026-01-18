@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import Topbar from '../components/layout/Topbar';
@@ -16,7 +16,7 @@ const DashboardLayout = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
-                <main className="flex-1 overflow-y-auto bg-gray-50">
+                <main className="flex-1 overflow-y-auto bg-gray-50 no-scrollbar">
                     <Outlet />
                 </main>
             </div>
