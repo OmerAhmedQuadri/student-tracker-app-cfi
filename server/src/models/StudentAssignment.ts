@@ -7,6 +7,7 @@ export interface IStudentAssignment {
   score?: number;
   submittedAt?: Date;
   timeTakenMinutes?: number;
+  assignmentLink?: string;
 }
 
 const StudentAssignmentSchema = new Schema<IStudentAssignment>({
@@ -16,6 +17,7 @@ const StudentAssignmentSchema = new Schema<IStudentAssignment>({
   score: Number,
   submittedAt: Date,
   timeTakenMinutes: Number,
+  assignmentLink: String,
 });
 
 export const StudentAssignment = model<IStudentAssignment>(

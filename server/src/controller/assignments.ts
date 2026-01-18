@@ -54,7 +54,7 @@ export const deleteAssignment = asyncHandler(async (req: Request, res: Response)
 
 // Submit Assignment (Student)
 export const submitAssignment = asyncHandler(async (req: Request, res: Response) => {
-  const { assignmentId, timeTakenMinutes } = req.body;
+  const { assignmentId, timeTakenMinutes, assignmentLink } = req.body;
   
   // Check if assignment exists
   const assignment = await Assignment.findById(assignmentId);
@@ -71,6 +71,7 @@ export const submitAssignment = asyncHandler(async (req: Request, res: Response)
      submission.submittedAt = new Date();
      submission.status = "submitted";
      submission.timeTakenMinutes = timeTakenMinutes;
+     submission.assignmentLink = assignmentLink;
      await submission.save();
   } else {
     submission = await StudentAssignment.create({
@@ -78,7 +79,8 @@ export const submitAssignment = asyncHandler(async (req: Request, res: Response)
       assignmentId,
       status: "submitted",
       submittedAt: new Date(),
-      timeTakenMinutes
+      timeTakenMinutes,
+      assignmentLink
     });
   }
   res.status(200).json(submission);
