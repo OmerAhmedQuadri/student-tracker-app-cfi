@@ -234,16 +234,16 @@ const AdminExternalActivities = () => {
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 text-center relative">
+          <div className="w-full">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 tracking-tight text-center">
               External Activities
             </h1>
-            <p className="text-gray-500 mt-0.5 sm:mt-1 text-xs sm:text-sm">
+            <p className="text-gray-500 mt-0.5 sm:mt-1 text-xs sm:text-sm text-center">
               Review and approve student external work
             </p>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="sm:absolute sm:right-0 sm:top-0 flex items-center gap-2 sm:gap-3">
             <Button
               variant="outline"
               size="icon"
@@ -254,9 +254,6 @@ const AdminExternalActivities = () => {
             >
               <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
             </Button>
-            <div className="bg-purple-100 p-2 sm:p-2.5 rounded-lg">
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-            </div>
           </div>
         </div>
 
@@ -379,11 +376,10 @@ const AdminExternalActivities = () => {
                       <button
                         key={status}
                         onClick={() => setFilter(status)}
-                        className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
-                          filter === status
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                        className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${filter === status
+                          ? "bg-gray-900 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
                       >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                       </button>
@@ -424,11 +420,10 @@ const AdminExternalActivities = () => {
                       setSelectedUserId(student._id);
                       setCurrentPage(1);
                     }}
-                    className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${
-                      selectedUserId === student._id
-                        ? "bg-blue-50"
-                        : "hover:bg-gray-50"
-                    }`}
+                    className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${selectedUserId === student._id
+                      ? "bg-blue-50"
+                      : "hover:bg-gray-50"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -559,8 +554,8 @@ const AdminExternalActivities = () => {
                               {activity.status === "approved"
                                 ? "Approved"
                                 : activity.status === "rejected"
-                                ? "Rejected"
-                                : "Pending"}
+                                  ? "Rejected"
+                                  : "Pending"}
                             </Badge>
                             {activity.status === "approved" &&
                               activity.points > 0 && (

@@ -11,6 +11,7 @@ import {
   Edit2,
   Trash2,
   MoreVertical,
+  X,
 } from "lucide-react";
 import * as mentorApi from "@/api/mentorApis";
 import {
@@ -49,8 +50,10 @@ import { toast } from "react-hot-toast";
 
 interface Session {
   _id: string;
-  topic: string;
+  topics: string[];
   date: string;
+  startTime: string;
+  endTime: string;
   batchId: string;
   status: string;
   platform?: string;
@@ -71,12 +74,25 @@ export const SessionsTab = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    topic: '',
+    topics: [] as string[],
+    currentTopic: '',
     date: '',
+    startTime: '',
+    endTime: '',
     batchId: '',
-    platform: 'Online',
+    platform: 'Offline',
     meetingLink: ''
   });
+
+  // Helper function to format time to 12-hour format with AM/PM
+  const formatTime = (time24: string): string => {
+    if (!time24) return '';
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  };
 
   useEffect(() => {
     loadSessions();
@@ -94,19 +110,39 @@ export const SessionsTab = () => {
     }
   };
 
+  const handleAddTopic = () => {
+    const trimmedTopic = formData.currentTopic.trim();
+    if (trimmedTopic && !formData.topics.includes(trimmedTopic)) {
+      setFormData({ ...formData, topics: [...formData.topics, trimmedTopic], currentTopic: '' });
+    }
+  };
+
+  const handleRemoveTopic = (topicToRemove: string) => {
+    setFormData({ ...formData, topics: formData.topics.filter(t => t !== topicToRemove) });
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate at least one topic
+    if (formData.topics.length === 0) {
+      toast.error('Please add at least one topic');
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     try {
       const sessionData = {
-        topic: formData.topic,
+        topics: formData.topics,
         date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
         batchId: formData.batchId,
         platform: formData.platform,
         meetingLink: formData.meetingLink
       };
-      
+
       if (isEditing && selectedSession) {
         await mentorApi.updateMentorshipSession(selectedSession._id, sessionData);
         toast.success('Session updated successfully');
@@ -115,10 +151,10 @@ export const SessionsTab = () => {
         await mentorApi.createMentorshipSession(sessionData);
         toast.success('Session scheduled successfully');
       }
-      
+
       setIsCreating(false);
       setSelectedSession(null);
-      setFormData({ topic: '', date: '', batchId: '', platform: 'Online', meetingLink: '' });
+      setFormData({ topics: [], currentTopic: '', date: '', startTime: '', endTime: '', batchId: '', platform: 'Offline', meetingLink: '' });
       loadSessions();
     } catch (error: any) {
       console.error("Failed to save session", error);
@@ -132,10 +168,13 @@ export const SessionsTab = () => {
   const handleEdit = (session: Session) => {
     setSelectedSession(session);
     setFormData({
-      topic: session.topic,
+      topics: session.topics || [],
+      currentTopic: '',
       date: session.date,
+      startTime: session.startTime || '',
+      endTime: session.endTime || '',
       batchId: session.batchId,
-      platform: session.platform || 'Online',
+      platform: session.platform || 'Offline',
       meetingLink: session.meetingLink || ''
     });
     setIsEditing(true);
@@ -167,7 +206,7 @@ export const SessionsTab = () => {
 
   const filteredSessions = sessions.filter(
     (s) =>
-      s.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.topics.some(topic => topic.toLowerCase().includes(searchQuery.toLowerCase())) ||
       s.batchId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -223,7 +262,7 @@ export const SessionsTab = () => {
             return (
               <Card
                 key={session._id}
-                className="overflow-hidden rounded-2xl border transition-all hover:shadow-lg"
+                className="overflow-hidden rounded-2xl border"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3 p-4 border-b">
@@ -242,8 +281,8 @@ export const SessionsTab = () => {
 
                     {/* Title */}
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-slate-900 line-clamp-2">
-                        {session.topic}
+                      <h3 className="font-semibold text-slate-900 line-clamp-1">
+                        {session.topics[0]}
                       </h3>
                       <span className="mt-1 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                         {session.batchId}
@@ -272,7 +311,7 @@ export const SessionsTab = () => {
                         <Edit2 className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="text-red-600"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -288,19 +327,22 @@ export const SessionsTab = () => {
 
                 {/* Body */}
                 <CardContent className="p-4 space-y-3">
+                  {/* Topics */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {session.topics.map((topic, idx) => (
+                      <Badge
+                        key={idx}
+                        variant="secondary"
+                        className="rounded-md bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5"
+                      >
+                        {topic}
+                      </Badge>
+                    ))}
+                  </div>
+
                   <div className="flex items-center gap-2 text-sm text-slate-600">
                     <Clock className="h-4 w-4 text-slate-400" />
-                    {sessionDate.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {" – "}
-                    {new Date(
-                      sessionDate.getTime() + 90 * 60000
-                    ).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatTime(session.startTime)} – {formatTime(session.endTime)}
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -309,18 +351,17 @@ export const SessionsTab = () => {
                     ) : (
                       <Video className="h-4 w-4 text-slate-400" />
                     )}
-                    {session.platform || "Online"}
+                    {session.platform || "Offline"}
                   </div>
                 </CardContent>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between border-t p-4">
                   <Badge
-                    className={`rounded-full px-3 py-1 text-xs ${
-                      isPast
-                        ? "bg-slate-100 text-slate-600"
-                        : "bg-indigo-100 text-indigo-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs shadow-none hover:shadow-none ${isPast
+                      ? "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                      : "bg-indigo-100 text-indigo-700 hover:bg-indigo-100"
+                      }`}
                   >
                     {isPast ? "Completed" : "Upcoming"}
                   </Badge>
@@ -351,7 +392,7 @@ export const SessionsTab = () => {
             setIsCreating(false);
             setIsEditing(false);
             setSelectedSession(null);
-            setFormData({ topic: '', date: '', batchId: '', platform: 'Online', meetingLink: '' });
+            setFormData({ topics: [], currentTopic: '', date: '', startTime: '', endTime: '', batchId: '', platform: 'Offline', meetingLink: '' });
           }
         }}>
           <DialogContent className="sm:max-w-[500px]">
@@ -361,45 +402,102 @@ export const SessionsTab = () => {
                 {isEditing ? 'Update the session details below.' : 'Fill in the details for the upcoming mentorship session.'}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleCreate} className="space-y-4 text-left">
               <div className="space-y-2">
-                <Label htmlFor="topic">Topic</Label>
+                <Label htmlFor="topic">Topics</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="topic"
+                    placeholder="e.g., Advanced React Hooks"
+                    value={formData.currentTopic}
+                    onChange={e => setFormData({ ...formData, currentTopic: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTopic();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddTopic}
+                    disabled={!formData.currentTopic.trim()}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {formData.topics.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.topics.map((topic, idx) => (
+                      <Badge
+                        key={idx}
+                        variant="secondary"
+                        className="rounded-md bg-indigo-50 text-indigo-700 px-2 py-1 flex items-center gap-1"
+                      >
+                        {topic}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTopic(topic)}
+                          className="ml-1 hover:bg-indigo-200 rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
                 <Input
-                  id="topic"
-                  placeholder="e.g., Advanced React Hooks"
+                  id="date"
+                  type="date"
                   required
-                  value={formData.topic}
-                  onChange={e => setFormData({ ...formData, topic: e.target.value })}
+                  value={formData.date}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date & Time</Label>
+                  <Label htmlFor="startTime">Class Start Time</Label>
                   <Input
-                    id="date"
-                    type="datetime-local"
+                    id="startTime"
+                    type="time"
                     required
-                    value={formData.date}
-                    onChange={e => setFormData({ ...formData, date: e.target.value })}
+                    value={formData.startTime}
+                    onChange={e => setFormData({ ...formData, startTime: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="batchId">Batch ID</Label>
+                  <Label htmlFor="endTime">Class End Time</Label>
                   <Input
-                    id="batchId"
-                    placeholder="e.g., C24"
+                    id="endTime"
+                    type="time"
                     required
-                    value={formData.batchId}
-                    onChange={e => setFormData({ ...formData, batchId: e.target.value })}
+                    value={formData.endTime}
+                    onChange={e => setFormData({ ...formData, endTime: e.target.value })}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="batchId">Batch ID</Label>
+                <Input
+                  id="batchId"
+                  placeholder="e.g., C24"
+                  required
+                  value={formData.batchId}
+                  onChange={e => setFormData({ ...formData, batchId: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="platform">Platform</Label>
-                <Select 
-                  value={formData.platform} 
+                <Select
+                  value={formData.platform}
                   onValueChange={(value) => setFormData({ ...formData, platform: value })}
                 >
                   <SelectTrigger>
@@ -415,32 +513,34 @@ export const SessionsTab = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="link">Meeting Link (Optional)</Label>
-                <Input
-                  id="link"
-                  placeholder="https://meet.google.com/..."
-                  value={formData.meetingLink}
-                  onChange={e => setFormData({ ...formData, meetingLink: e.target.value })}
-                />
-              </div>
+              {formData.platform !== 'Offline' && (
+                <div className="space-y-2">
+                  <Label htmlFor="link">Meeting Link (Optional)</Label>
+                  <Input
+                    id="link"
+                    placeholder="https://meet.google.com/..."
+                    value={formData.meetingLink}
+                    onChange={e => setFormData({ ...formData, meetingLink: e.target.value })}
+                  />
+                </div>
+              )}
 
               <DialogFooter>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     setIsCreating(false);
                     setIsEditing(false);
                     setSelectedSession(null);
-                    setFormData({ topic: '', date: '', batchId: '', platform: 'Online', meetingLink: '' });
+                    setFormData({ topics: [], currentTopic: '', date: '', startTime: '', endTime: '', batchId: '', platform: 'Offline', meetingLink: '' });
                   }}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -464,7 +564,7 @@ export const SessionsTab = () => {
           <DialogHeader>
             <DialogTitle>Delete Session</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the session <span className="font-semibold text-slate-900">"{sessionToDelete?.topic}"</span>? 
+              Are you sure you want to delete the session <span className="font-semibold text-slate-900">"{sessionToDelete?.topics.join(', ')}"</span>?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

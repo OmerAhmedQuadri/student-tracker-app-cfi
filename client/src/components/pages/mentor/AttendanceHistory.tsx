@@ -46,17 +46,17 @@ const AttendanceHistory = () => {
 
     useEffect(() => {
         let filtered = attendance;
-        
+
         // Filter by status
         if (filterStatus !== 'all') {
             filtered = filtered.filter(a => a.finalStatus === filterStatus);
         }
-        
+
         // Filter by batch
         if (batchFilter !== 'all') {
             filtered = filtered.filter(a => a.userId?.batchId === batchFilter);
         }
-        
+
         // Filter by approval status
         if (approvalFilter !== 'all') {
             if (approvalFilter === 'approved') {
@@ -65,7 +65,7 @@ const AttendanceHistory = () => {
                 filtered = filtered.filter(a => a.approvedByMentor === false);
             }
         }
-        
+
         setFilteredAttendance(filtered);
         setCurrentPage(1); // Reset to first page when filters change
     }, [filterStatus, batchFilter, approvalFilter, attendance]);
@@ -99,12 +99,12 @@ const AttendanceHistory = () => {
             absent: { color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
             late: { color: 'bg-orange-100 text-orange-700 border-orange-200', icon: Clock }
         };
-        
+
         // Default to absent if status is undefined or invalid
         const safeStatus = status && status in variants ? status : 'absent';
         const config = variants[safeStatus];
         const Icon = config.icon;
-        
+
         return (
             <Badge variant="outline" className={`${config.color} px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs`}>
                 {safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)}
@@ -140,8 +140,8 @@ const AttendanceHistory = () => {
         late: attendance.filter(a => a.finalStatus === 'late').length,
     };
 
-    const attendanceRate = stats.total > 0 
-        ? Math.round((stats.present / stats.total) * 100) 
+    const attendanceRate = stats.total > 0
+        ? Math.round((stats.present / stats.total) * 100)
         : 0;
 
     // Pagination
@@ -162,12 +162,12 @@ const AttendanceHistory = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0 mb-4 sm:mb-6 md:mb-8">
-                <div>
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Attendance History</h1>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-600">View and manage attendance records for your batch</p>
+            <div className="flex flex-col items-center justify-center gap-3 mb-4 sm:mb-6 md:mb-8 text-center relative">
+                <div className="w-full">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 text-center">Attendance History</h1>
+                    <p className="text-xs sm:text-sm md:text-base text-gray-600 text-center">View and manage attendance records for your batch</p>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="sm:absolute sm:right-0 sm:top-0 flex items-center gap-2 sm:gap-3">
                     <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
                         <History className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Button>
@@ -247,7 +247,7 @@ const AttendanceHistory = () => {
                         <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                         <h2 className="text-base sm:text-lg font-semibold text-gray-900">Filters</h2>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         <div>
                             <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">Attendance Status</label>

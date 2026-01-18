@@ -338,117 +338,104 @@ const BatchManagement = () => {
             {batches.map((batch) => (
               <Card
                 key={batch.batchId}
-                className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl border-2 border-gray-200 hover:border-indigo-400 bg-white cursor-pointer"
+                className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 bg-white cursor-pointer"
                 onClick={() => navigate(`/admin/batch/${batch.batchId}`)}
               >
-                {/* Header Section - Improved Visual Hierarchy */}
-                <CardHeader className="pb-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-b-2 border-indigo-100">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="p-2 bg-indigo-600 rounded-lg shadow-md">
-                          <Layers className="w-5 h-5 text-white" />
-                        </div>
-                        <CardTitle className="text-2xl font-bold text-gray-900">
-                          {batch.batchId}
-                        </CardTitle>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-100 text-green-700 border-green-300 px-3 py-1 text-xs font-bold"
-                      >
-                        ● ACTIVE
-                      </Badge>
-                      {batch.description && (
-                        <CardDescription className="text-sm text-gray-600 mt-2 line-clamp-2 font-medium">
-                          {batch.description}
-                        </CardDescription>
-                      )}
+                {/* Header Section */}
+                <CardHeader className="pb-3 bg-gradient-to-br from-indigo-50 to-blue-50 border-b border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 bg-indigo-600 rounded-lg">
+                      <Layers className="w-5 h-5 text-white" />
                     </div>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                      {batch.batchId}
+                    </CardTitle>
                   </div>
+                  <Badge
+                    variant="secondary"
+                    className={
+                      batch.endDate && new Date(batch.endDate) < new Date()
+                        ? "bg-gray-100 text-gray-700 border-gray-300 px-2 py-0.5 text-xs font-semibold"
+                        : "bg-green-100 text-green-700 border-green-300 px-2 py-0.5 text-xs font-semibold"
+                    }
+                  >
+                    ●{" "}
+                    {batch.endDate && new Date(batch.endDate) < new Date()
+                      ? "COMPLETED"
+                      : "ACTIVE"}
+                  </Badge>
+                  {batch.description && (
+                    <CardDescription className="text-sm text-gray-600 mt-2 line-clamp-1">
+                      {batch.description}
+                    </CardDescription>
+                  )}
                 </CardHeader>
 
-                {/* Stats Grid - Improved Information Architecture */}
+                {/* Content */}
                 <CardContent className="p-5 space-y-4">
-                  {/* Duration */}
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
-                    <div className="p-2 bg-blue-600 rounded-lg shadow-sm">
-                      <Calendar className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-0.5">
-                        Duration
-                      </p>
-                      <p className="text-sm font-bold text-gray-900 truncate">
-                        {getDuration(batch.startDate, batch.endDate)} Program
-                      </p>
-                      <p className="text-xs text-gray-600 mt-0.5">
-                        {batch.startDate
-                          ? `Started ${formatMonthYear(batch.startDate)}`
-                          : "Start date TBD"}
-                      </p>
-                    </div>
+                  {/* Start Date */}
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="font-medium">
+                      Started:{" "}
+                      {batch.startDate
+                        ? formatMonthYear(batch.startDate)
+                        : "TBD"}
+                    </span>
                   </div>
 
-                  {/* Instructors */}
-                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
-                    <div className="p-2 bg-purple-600 rounded-lg shadow-sm">
-                      <GraduationCap className="w-5 h-5 text-white" />
+                  {/* Instructor */}
+                  <div className="flex items-center justify-between py-2.5 border-y border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-purple-600" />
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Instructor
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide mb-0.5">
-                        Instructor{batch.mentors.length > 1 ? "s" : ""}
-                      </p>
-                      <p className="text-sm font-bold text-gray-900 truncate">
-                        {batch.mentors.length > 0
-                          ? batch.mentors[0].name
-                          : "Not Assigned"}
-                      </p>
-                      {batch.mentors.length > 1 && (
-                        <p className="text-xs text-gray-600 mt-0.5">
-                          +{batch.mentors.length - 1} more instructor{batch.mentors.length - 1 > 1 ? "s" : ""}
-                        </p>
-                      )}
-                    </div>
+                    <span className="text-sm font-bold text-gray-900">
+                      {batch.mentors.length > 0
+                        ? batch.mentors[0].name
+                        : "Not Assigned"}
+                    </span>
                   </div>
 
-                  {/* Students - Enhanced Visual Prominence */}
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
-                    <div className="p-2 bg-green-600 rounded-lg shadow-sm">
-                      <Users className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-green-900 uppercase tracking-wide mb-0.5">
+                  {/* Students */}
+                  <div className="flex items-center justify-between py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                         Enrolled Students
-                      </p>
-                      <div className="flex items-baseline gap-2">
-                        <p className="text-2xl font-bold text-gray-900">
-                          {batch.studentCount}
-                        </p>
-                        <p className="text-sm text-gray-600 font-medium">
-                          / 30 capacity
-                        </p>
-                      </div>
-                      <div className="mt-2 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-green-600 h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.min(
-                              (batch.studentCount / 30) * 100,
-                              100
-                            )}%`,
-                          }}
-                        />
-                      </div>
+                      </span>
                     </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-gray-900">
+                        {batch.studentCount}
+                      </span>
+                      <span className="text-sm text-gray-500 font-medium">
+                        / 30 capacity
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-full rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(
+                          (batch.studentCount / 30) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
                   </div>
                 </CardContent>
 
-                {/* Action Footer - Clearer CTAs */}
-                <div className="px-5 pb-5 pt-2 space-y-2 border-t-2 border-gray-100">
+                {/* Action Footer */}
+                <div className="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
                   <Button
                     variant="ghost"
-                    className="w-full justify-between hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-semibold h-11 group-hover:bg-indigo-50"
+                    className="w-full justify-between hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 font-medium"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/admin/batch/${batch.batchId}`);
@@ -458,11 +445,11 @@ const BatchManagement = () => {
                       <School className="w-4 h-4" />
                       View Full Details
                     </span>
-                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-center border-2 border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 hover:border-red-300 font-semibold h-11"
+                    className="w-full justify-center border border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 hover:border-red-300"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteBatch(batch.batchId, batch.studentCount);

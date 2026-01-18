@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Calendar, Loader2, CheckCircle, XCircle, Clock, AlertCircle, HelpCircle } from 'lucide-react';
+import { Calendar, Loader2, CheckCircle, XCircle, Clock, AlertCircle, HelpCircle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -36,6 +37,7 @@ const MentorAttendance = () => {
     const [attendance, setAttendance] = useState<AttendanceStatus[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [batchFilter, setBatchFilter] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -48,19 +50,19 @@ const MentorAttendance = () => {
                 getAllStudents(),
                 getAllSessions()
             ]);
-            
+
             console.log('Students:', studentsData);
             console.log('Sessions:', sessionsData);
-            
+
             setStudents(studentsData);
-            
+
             // Filter scheduled sessions
-            const scheduledSessions = Array.isArray(sessionsData) 
+            const scheduledSessions = Array.isArray(sessionsData)
                 ? sessionsData.filter((s: Session) => s.status === 'scheduled')
                 : [];
-            
+
             setSessions(scheduledSessions);
-            
+
             // Initialize attendance without default status
             if (studentsData.length > 0) {
                 setAttendance(studentsData.map((student: Student) => ({
@@ -100,11 +102,11 @@ const MentorAttendance = () => {
 
         // Filter students by the selected session's batch
         const batchStudents = students.filter(student => student.batchId === selectedSessionData.batchId);
-        
+
         // Check if all students in the batch have a status selected
         const batchStudentIds = new Set(batchStudents.map(s => s._id));
         const unselectedStudents = attendance.filter(a => batchStudentIds.has(a.studentId) && !a.status);
-        
+
         if (unselectedStudents.length > 0) {
             toast.error('Please mark attendance for all students in this batch');
             return;
@@ -113,11 +115,11 @@ const MentorAttendance = () => {
         setSubmitting(true);
         try {
             console.log('Submitting attendance for session:', selectedSession);
-            
+
             // Only submit attendance for students in the selected batch
             const batchAttendance = attendance.filter(a => batchStudentIds.has(a.studentId) && a.status);
             console.log('Attendance data:', batchAttendance);
-            
+
             // Submit attendance for each student in the batch
             const promises = batchAttendance.map(a => {
                 console.log('Marking attendance:', {
@@ -131,11 +133,11 @@ const MentorAttendance = () => {
                     status: a.status
                 });
             });
-            
+
             await Promise.all(promises);
-            
+
             toast.success('Attendance marked successfully');
-            
+
             // Reset to no status for all
             setAttendance(students.map(student => ({
                 studentId: student._id,
@@ -161,8 +163,8 @@ const MentorAttendance = () => {
         const config = variants[status];
         const Icon = config.icon;
         return (
-            <Badge 
-                variant="outline" 
+            <Badge
+                variant="outline"
                 className={config.color}
                 aria-label={`Status: ${status}`}
             >
@@ -180,13 +182,18 @@ const MentorAttendance = () => {
 
     // Filter students based on selected session's batch
     const selectedSessionData = sessions.find(s => s._id === selectedSession);
-    const filteredStudents = selectedSessionData 
+    const filteredStudents = selectedSessionData
         ? students.filter(student => student.batchId === selectedSessionData.batchId)
         : students;
 
+    // Filter sessions based on batch ID filter
+    const filteredSessions = sessions.filter(session =>
+        !batchFilter || session.batchId.toLowerCase().includes(batchFilter.toLowerCase())
+    );
+
     if (loading) {
         return (
-            <div 
+            <div
                 className="flex items-center justify-center h-96"
                 role="status"
                 aria-label="Loading attendance data"
@@ -279,7 +286,7 @@ const MentorAttendance = () => {
                         <Calendar className="w-5 h-5 text-gray-400" />
                         <h2 className="text-lg font-semibold text-gray-900">Select Session</h2>
                     </div>
-                    
+
                     {sessions.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                             <div className="bg-gray-50 p-4 rounded-full inline-flex mb-4">
@@ -291,25 +298,43 @@ const MentorAttendance = () => {
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Choose a scheduled session
-                            </label>
-                            <Select 
-                                value={selectedSession} 
-                                onValueChange={setSelectedSession}
-                            >
-                                <SelectTrigger className="w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500">
-                                    <SelectValue placeholder="Select a session" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {sessions.map(session => (
-                                        <SelectItem key={session._id} value={session._id}>
-                                            {session.topic} - {new Date(session.date).toLocaleDateString()} {new Date(session.date).toLocaleTimeString()}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                                <Input
+                                    placeholder="Filter by Batch ID..."
+                                    className="pl-9 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                    value={batchFilter}
+                                    onChange={(e) => setBatchFilter(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Choose a scheduled session
+                                </label>
+                                <Select
+                                    value={selectedSession}
+                                    onValueChange={setSelectedSession}
+                                >
+                                    <SelectTrigger className="w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500">
+                                        <SelectValue placeholder="Select a session" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {filteredSessions.length === 0 ? (
+                                            <div className="p-2 text-sm text-gray-500 text-center">
+                                                No sessions found for this batch
+                                            </div>
+                                        ) : (
+                                            filteredSessions.map(session => (
+                                                <SelectItem key={session._id} value={session._id}>
+                                                    {session.topic} - {new Date(session.date).toLocaleDateString()} {new Date(session.date).toLocaleTimeString()}
+                                                </SelectItem>
+                                            ))
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     )}
                 </CardContent>
@@ -354,10 +379,10 @@ const MentorAttendance = () => {
                                     {filteredStudents.map(student => {
                                         const attendanceRecord = attendance.find(a => a.studentId === student._id);
                                         const currentStatus = attendanceRecord?.status;
-                                        
+
                                         return (
-                                            <TableRow 
-                                                key={student._id} 
+                                            <TableRow
+                                                key={student._id}
                                                 className="hover:bg-gray-50 transition-colors border-b border-gray-100"
                                             >
                                                 <TableCell className="font-medium text-gray-900 text-left">
@@ -368,8 +393,8 @@ const MentorAttendance = () => {
                                                 </TableCell>
                                                 <TableCell className="text-left">
                                                     {student.batchId ? (
-                                                        <Badge 
-                                                            variant="outline" 
+                                                        <Badge
+                                                            variant="outline"
                                                             className="bg-gray-100 text-gray-700 border-gray-200"
                                                         >
                                                             {student.batchId}
@@ -382,8 +407,8 @@ const MentorAttendance = () => {
                                                     {currentStatus ? (
                                                         getStatusBadge(currentStatus)
                                                     ) : (
-                                                        <Badge 
-                                                            variant="outline" 
+                                                        <Badge
+                                                            variant="outline"
                                                             className="bg-gray-100 text-gray-500 border-gray-200"
                                                         >
                                                             Not marked
@@ -396,11 +421,10 @@ const MentorAttendance = () => {
                                                             size="sm"
                                                             variant={currentStatus === 'present' ? 'default' : 'outline'}
                                                             onClick={() => handleStatusChange(student._id, 'present')}
-                                                            className={`transition-all ${
-                                                                currentStatus === 'present' 
-                                                                    ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                                                    : 'text-green-600 hover:bg-green-50 border-green-200'
-                                                            }`}
+                                                            className={`transition-all ${currentStatus === 'present'
+                                                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                                                : 'text-green-600 hover:bg-green-50 border-green-200'
+                                                                }`}
                                                         >
                                                             Present
                                                         </Button>
@@ -408,11 +432,10 @@ const MentorAttendance = () => {
                                                             size="sm"
                                                             variant={currentStatus === 'late' ? 'default' : 'outline'}
                                                             onClick={() => handleStatusChange(student._id, 'late')}
-                                                            className={`transition-all ${
-                                                                currentStatus === 'late' 
-                                                                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                                                                    : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                                            }`}
+                                                            className={`transition-all ${currentStatus === 'late'
+                                                                ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                                                                : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                                                }`}
                                                         >
                                                             Late
                                                         </Button>
@@ -420,11 +443,10 @@ const MentorAttendance = () => {
                                                             size="sm"
                                                             variant={currentStatus === 'absent' ? 'default' : 'outline'}
                                                             onClick={() => handleStatusChange(student._id, 'absent')}
-                                                            className={`transition-all ${
-                                                                currentStatus === 'absent' 
-                                                                    ? 'bg-red-600 hover:bg-red-700 text-white' 
-                                                                    : 'text-red-600 hover:bg-red-50 border-red-200'
-                                                            }`}
+                                                            className={`transition-all ${currentStatus === 'absent'
+                                                                ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                                : 'text-red-600 hover:bg-red-50 border-red-200'
+                                                                }`}
                                                         >
                                                             Absent
                                                         </Button>
