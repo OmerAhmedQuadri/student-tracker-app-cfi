@@ -80,7 +80,7 @@ const DailyProgress = () => {
                 setBatches(batchesData);
                 setSessions(sessionsData);
             } catch (error) {
-               // console.error("Failed to fetch initial data", error);
+                // console.error("Failed to fetch initial data", error);
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Failed to load data.",
@@ -133,7 +133,7 @@ const DailyProgress = () => {
                         getAllAssignments(),
                     ]);
 
-               // console.log("RAW attendanceData:", attendanceData);
+                // console.log("RAW attendanceData:", attendanceData);
 
                 /* ===============================
                    ATTENDANCE COUNT (FINAL)
@@ -331,41 +331,50 @@ https://codeforindia.com
     };
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">
-                Daily Progress Update
-            </h1>
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6">
+            {/* Header */}
+            <div className="mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                    Daily Progress Update
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                    Generate daily progress reports for mentorship sessions.
+                </p>
+            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Configuration</CardTitle>
-                    <CardDescription>
+            {/* Configuration Card */}
+            <Card className="border border-gray-200 bg-white shadow-sm">
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-lg sm:text-xl">Configuration</CardTitle>
+                    <CardDescription className="text-sm">
                         Select session details to generate the report.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-6 md:grid-cols-2">
+                <CardContent className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-2">
-                        <Label>Week</Label>
+                        <Label className="text-sm font-medium">Week</Label>
                         <Input
                             value={week}
                             onChange={(e) => setWeek(e.target.value)}
                             placeholder="e.g. 0"
+                            className="h-10"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Day</Label>
+                        <Label className="text-sm font-medium">Day</Label>
                         <Input
                             value={day}
                             onChange={(e) => setDay(e.target.value)}
                             placeholder="e.g. 1"
+                            className="h-10"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Batch</Label>
+                        <Label className="text-sm font-medium">Batch</Label>
                         <Select value={selectedBatchId} onValueChange={setSelectedBatchId}>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-10">
                                 <SelectValue placeholder="Select Batch" />
                             </SelectTrigger>
                             <SelectContent>
@@ -379,20 +388,20 @@ https://codeforindia.com
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Session</Label>
+                        <Label className="text-sm font-medium">Session</Label>
                         <Select
                             value={selectedSessionId}
                             onValueChange={setSelectedSessionId}
                             disabled={!selectedBatchId}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="h-10">
                                 <SelectValue placeholder="Select Session" />
                             </SelectTrigger>
                             <SelectContent>
                                 {filteredSessions.map((session) => (
                                     <SelectItem key={session._id} value={session._id}>
                                         {new Date(session.date).toLocaleDateString()} -{" "}
-                                        {session.topics.join(", ").substring(0, 30)}...
+                                        {session.topics.join(", ").substring(0, 20)}...
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -401,21 +410,27 @@ https://codeforindia.com
                 </CardContent>
             </Card>
 
+            {/* Loading State */}
             {loadingSessionData && (
-                <div className="text-center py-4">Loading session data...</div>
+                <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <span className="ml-3 text-gray-600">Loading session data...</span>
+                </div>
             )}
 
+            {/* Report Preview Card */}
             {currentSession && !loadingSessionData && (
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
+                <Card className="border border-gray-200 bg-white shadow-sm">
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
+                        <CardTitle className="text-lg sm:text-xl">
                             Report Preview
                         </CardTitle>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyToClipboard(generateText(), "Text")}
+                                className="w-full sm:w-auto"
                             >
                                 <Copy className="h-4 w-4 mr-2" />
                                 Copy Text
@@ -424,6 +439,7 @@ https://codeforindia.com
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyToClipboard(generateMarkdown(), "Markdown")}
+                                className="w-full sm:w-auto"
                             >
                                 <Copy className="h-4 w-4 mr-2" />
                                 Copy Markdown
@@ -431,7 +447,7 @@ https://codeforindia.com
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <pre className="whitespace-pre-wrap text-sm bg-muted p-4 rounded-md h-[400px] overflow-auto">
+                        <pre className="whitespace-pre-wrap text-xs sm:text-sm bg-slate-800 text-slate-100 p-4 sm:p-6 rounded-lg min-h-[300px] max-h-[60vh] overflow-auto font-mono text-left leading-relaxed">
                             {generateText()}
                         </pre>
                     </CardContent>
