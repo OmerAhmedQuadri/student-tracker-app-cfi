@@ -21,6 +21,7 @@ import AdminCreateUsers from './components/pages/admin/CreateUsers';
 import BatchManagement from './components/pages/admin/BatchManagement';
 import BatchDetails from './components/pages/admin/BatchDetails';
 import MentorExternalActivities from './components/pages/mentor/ExternalActivities';
+import DailyProgress from './components/pages/mentor/DailyProgress';
 import Notifications from './components/pages/shared/Notifications';
 import ExternalActivitiesPage from './components/pages/shared/ExternalActivities';
 import Leaderboard from './components/pages/shared/Leaderboard';
@@ -137,6 +138,10 @@ export const router = createBrowserRouter([
                             {
                                 path: 'external-activities',
                                 element: <MentorExternalActivities />,
+                            },
+                            {
+                                path: 'daily-progress',
+                                element: <DailyProgress />,
                             },
                             {
                                 path: 'profile',
