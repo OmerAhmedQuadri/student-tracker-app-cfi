@@ -42,7 +42,7 @@ export default function MentorDashboard() {
 
   const getActiveTab = (): TabId => {
     const last = location.pathname.split("/").pop();
-    return tabs.some(t => t.id === last) ? (last as TabId) : "overview";
+    return tabs.some((t) => t.id === last) ? (last as TabId) : "overview";
   };
 
   const activeTab = getActiveTab();
@@ -81,7 +81,6 @@ export default function MentorDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 md:space-y-8">
-
         {/* ===== HEADER ===== */}
         <header className="space-y-1 sm:space-y-2">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
@@ -96,7 +95,7 @@ export default function MentorDashboard() {
         <nav className="relative">
           {/* Mobile */}
           <div className="flex md:hidden gap-2 overflow-x-auto pb-2 no-scrollbar -mx-3 px-3">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <Button
                 key={tab.id}
                 size="sm"
@@ -113,15 +112,16 @@ export default function MentorDashboard() {
 
           {/* Desktop */}
           <div className="hidden md:flex border-b border-slate-200 dark:border-slate-800">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => changeTab(tab.id)}
                 aria-current={activeTab === tab.id}
                 className={`relative px-3 lg:px-4 py-2.5 lg:py-3 text-xs sm:text-sm font-medium transition
-                  ${activeTab === tab.id
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  ${
+                    activeTab === tab.id
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   }
                 `}
               >
@@ -141,7 +141,6 @@ export default function MentorDashboard() {
         {/* ===== CONTENT ===== */}
         {activeTab === "overview" && (
           <section className="space-y-4 sm:space-y-6 md:space-y-8">
-
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <StatCard
@@ -159,16 +158,11 @@ export default function MentorDashboard() {
                 value={stats.sessions.toString()}
                 icon={Calendar}
               />
-              <StatCard
-                title="Attendance"
-                value="85%"
-                icon={Activity}
-              />
+              <StatCard title="Attendance" value="85%" icon={Activity} />
             </div>
 
             {/* Main Cards - New Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-
               {/* Cohort Overview - Left Side */}
               <Card className="lg:col-span-2 bg-white border border-gray-200">
                 <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4">
@@ -181,28 +175,44 @@ export default function MentorDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 sm:pt-6">
                   <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                    <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/mentor/assignments')}>
+                    <Card
+                      className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate("/mentor/assignments")}
+                    >
                       <CardContent className="p-4 sm:p-6">
                         <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg w-fit mb-3 sm:mb-4">
                           <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Grade Assignments</h3>
-                        <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Review student submissions</p>
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
+                          Grade Assignments
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                          Review student submissions
+                        </p>
                         <button className="text-indigo-600 text-xs sm:text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                          Go to assignments <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          Go to assignments{" "}
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/mentor/sessions')}>
+                    <Card
+                      className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate("/mentor/sessions")}
+                    >
                       <CardContent className="p-4 sm:p-6">
                         <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg w-fit mb-3 sm:mb-4">
                           <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Schedule Session</h3>
-                        <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Plan upcoming class</p>
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
+                          Schedule Session
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                          Plan upcoming class
+                        </p>
                         <button className="text-indigo-600 text-xs sm:text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                          Go to sessions <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          Go to sessions{" "}
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       </CardContent>
                     </Card>
@@ -214,8 +224,12 @@ export default function MentorDashboard() {
               <Card className="bg-white border border-gray-200">
                 <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base sm:text-lg font-semibold text-gray-900">Action Items</CardTitle>
-                    <span className="text-xs sm:text-sm font-medium text-gray-600">3 pending</span>
+                    <CardTitle className="text-base sm:text-lg font-semibold text-gray-900">
+                      Action Items
+                    </CardTitle>
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">
+                      3 pending
+                    </span>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 sm:pt-6">
@@ -225,8 +239,12 @@ export default function MentorDashboard() {
                         <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-xs sm:text-sm">Pending Attendance</p>
-                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">3 requests waiting</p>
+                        <p className="font-medium text-gray-900 text-xs sm:text-sm">
+                          Pending Attendance
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+                          3 requests waiting
+                        </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -236,8 +254,12 @@ export default function MentorDashboard() {
                         <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-xs sm:text-sm">Upcoming Session</p>
-                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">React Patterns · Today 4PM</p>
+                        <p className="font-medium text-gray-900 text-xs sm:text-sm">
+                          Upcoming Session
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+                          React Patterns · Today 4PM
+                        </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -247,8 +269,12 @@ export default function MentorDashboard() {
                         <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-xs sm:text-sm">New Submissions</p>
-                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">5 assignments to grade</p>
+                        <p className="font-medium text-gray-900 text-xs sm:text-sm">
+                          New Submissions
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+                          5 assignments to grade
+                        </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -263,7 +289,6 @@ export default function MentorDashboard() {
                   </Button>
                 </CardContent>
               </Card>
-
             </div>
           </section>
         )}
@@ -278,12 +303,7 @@ export default function MentorDashboard() {
 
 /* ===== Reusable Components ===== */
 
-function ActionButton({
-  icon: Icon,
-  title,
-  subtitle,
-  onClick,
-}: any) {
+function ActionButton({ icon: Icon, title, subtitle, onClick }: any) {
   return (
     <button
       onClick={onClick}

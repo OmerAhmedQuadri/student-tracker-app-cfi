@@ -9,7 +9,6 @@ import {
   School,
   Edit,
   X,
-  Plus,
   AlertTriangle,
   Loader2,
 } from "lucide-react";

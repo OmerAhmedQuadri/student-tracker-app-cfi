@@ -108,7 +108,7 @@ const Activities = () => {
 
   const isConnected = (plat: string) =>
     externalActivities.some(
-      (e) => e.platform.toLowerCase() === plat.toLowerCase()
+      (e) => e.platform.toLowerCase() === plat.toLowerCase(),
     );
 
   const getPlatformIcon = (plat: string) => {
@@ -268,7 +268,7 @@ const Activities = () => {
                             <div className="flex items-center gap-3">
                               <div
                                 className={`w-11 h-11 rounded-lg flex items-center justify-center ${getPlatformIconBg(
-                                  plat
+                                  plat,
                                 )}`}
                               >
                                 {plat === "github" && (
@@ -465,7 +465,7 @@ const Activities = () => {
                               <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1.5 shadow-sm border border-slate-100">
                                 <div
                                   className={`w-5 h-5 rounded-full flex items-center justify-center ${getPlatformIconBg(
-                                    post.platform
+                                    post.platform,
                                   )}`}
                                 >
                                   {getPlatformIcon(post.platform)}

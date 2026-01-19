@@ -1,0 +1,203 @@
+Student API Endpoints and Data Requirements
+Base URL: http://localhost:5000/api
+
+Note: All endpoints (except Login) require an httpOnly cookie "accessToken" obtained from the Login endpoint.
+
+--- AUTHENTICATION ---
+
+1. Login
+   - Method: POST
+   - Endpoint: /login
+   - Description: Authenticates a user and sets httpOnly cookies.
+   - Request Body:
+     {
+       "email": "student@example.com",
+       "password": "password123"
+     }
+   - Response:
+     {
+       "message": "Login successful",
+       "user": { "id": "...", "name": "...", "email": "...", "role": "student" }
+     }
+
+2. Get Current User
+   - Method: GET
+   - Endpoint: /me
+   - Description: Returns the currently authenticated user based on cookies.
+   - Request Body: None
+   - Response: { "user": { ... } }
+
+3. Logout
+   - Method: POST
+   - Endpoint: /logout
+   - Description: Clears auth cookies.
+   - Request Body: None
+
+--- STUDENT PROFILE ---
+
+4. Update Social Media Links
+   - Method: PUT
+   - Endpoint: /students/me/socials
+   - Description: Updates the student's social media profile links.
+   - Request Body:
+     {
+       "githubUrl": "https://github.com/username",    // Optional
+       "linkedinUrl": "https://linkedin.com/in/user", // Optional
+       "mediumUrl": "https://medium.com/@user"        // Optional
+     }
+
+--- ASSIGNMENTS ---
+
+5. Get All Assignments (Public/List)
+   - Method: GET
+   - Endpoint: /assignments
+   - Description: Lists all available assignments.
+   - Request Body: None
+
+6. Get My Assignments (Submissions)
+   - Method: GET
+   - Endpoint: /assignments/my
+   - Description: Get assignments submitted by the logged-in student.
+   - Request Body: None
+
+7. Get Assignment By ID
+   - Method: GET
+   - Endpoint: /assignments/:id
+   - Path Param: id (Assignment ID)
+   - Description: Get details of a specific assignment.
+   - Request Body: None
+
+8. Submit Assignment
+   - Method: POST
+   - Endpoint: /assignments/submit
+   - Description: Submit or update a solution for an assignment.
+   - Request Body:
+     {
+       "assignmentId": "65a...",  // Mongo ID of the assignment
+       "timeTakenMinutes": 45     // Number of minutes spent
+     }
+
+--- ATTENDANCE ---
+
+9. Mark Attendance
+   - Method: POST
+   - Endpoint: /attendance/mark
+   - Description: Student marks themselves as present for a session.
+   - Request Body:
+     {
+       "sessionId": "65a..." // Mongo ID of the MentorshipSession
+     }
+
+10. Get My Attendance
+    - Method: GET
+    - Endpoint: /attendance/my
+    - Description: History of attendance records for the student.
+    - Request Body: None
+
+--- SESSIONS (Learning & Mentorship) ---
+
+11. Log Learning Session
+    - Method: POST
+    - Endpoint: /sessions/learning
+    - Description: Log a self-learning session.
+    - Request Body:
+      {
+        "date": "2023-10-27T10:00:00Z", // Optional, defaults to now
+        "minutesSpent": 120,
+        "tasksCompleted": ["Read React docs", "Built Todo App"],
+        "codeSubmissions": ["link to commit", "link to pr"]  // Optional array of strings
+      }
+
+12. Get My Learning Sessions
+    - Method: GET
+    - Endpoint: /sessions/learning/my
+    - Description: Get history of logged learning sessions.
+    - Request Body: None
+
+13. Get Mentorship Sessions (Schedule)
+    - Method: GET
+    - Endpoint: /sessions/mentorship
+    - Description: List scheduled mentorship sessions.
+    - Request Body: None
+
+--- NOTIFICATIONS ---
+
+14. Get My Notifications
+    - Method: GET
+    - Endpoint: /notifications
+    - Description: Get notifications for the user.
+    - Request Body: None
+
+15. Mark Notification as Read
+    - Method: PATCH
+    - Endpoint: /notifications/:id/read
+    - Path Param: id (Notification ID)
+    - Description: Mark a specific notification as read.
+    - Request Body: None
+
+--- EXTERNAL ACTIVITIES (Branding) ---
+
+16. Log External Activity (Platform Stats)
+    - Method: POST
+    - Endpoint: /external-activities
+    - Description: Update stats for a platform (e.g., LeetCode, GitHub).
+    - Request Body:
+      {
+        "platform": "leetcode", // or "github", etc.
+        "metrics": { "solved": 50, "rank": 1000 }, // JSON object of any shape
+        "lastActivityDate": "2023-10-27"
+      }
+
+17. Add Branding Post
+    - Method: POST
+    - Endpoint: /external-activities/post
+    - Description: Log a specific post made on LinkedIn or Medium.
+    - Request Body:
+      {
+        "platform": "linkedin", // 'linkedin' or 'medium'
+        "url": "https://linkedin.com/posts/..."
+      }
+
+18. Get My External Activities
+    - Method: GET
+    - Endpoint: /external-activities/my
+    - Description: Get recorded platform stats.
+    - Request Body: None
+
+19. Get My Branding Posts
+    - Method: GET
+    - Endpoint: /external-activities/posts/my
+    - Description: Get list of logged posts.
+    - Request Body: None
+
+--- SKILLS ---
+
+20. Get All Skills
+    - Method: GET
+    - Endpoint: /skills
+    - Description: List all main skills (e.g., "Frontend", "Backend").
+    - Request Body: None
+
+21. Get Skill Topics
+    - Method: GET
+    - Endpoint: /skills/topics/:skillId
+    - Path Param: skillId
+    - Description: Get lists of topics under a specific skill.
+    - Request Body: None
+
+22. Update Skill Progress
+    - Method: POST
+    - Endpoint: /skills/progress
+    - Description: Update progress on a skill or mark a topic as completed.
+    - Request Body:
+      {
+        "skillId": "65a...",
+        "completedTopicId": "65b...", // Optional: ID of topic just finished
+        "currentLevel": "intermediate" // Optional: "beginner", "intermediate", "advanced"
+      }
+
+23. Get My Skill Progress
+    - Method: GET
+    - Endpoint: /skills/progress/my
+    - Description: Get the student's progress across all skills.
+    - Request Body: None

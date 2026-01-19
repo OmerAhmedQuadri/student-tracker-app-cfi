@@ -53,7 +53,7 @@ export default function Login() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -77,11 +77,7 @@ export default function Login() {
           <h3 className="mb-3 text-4xl font-extrabold text-gray-900">
             Sign In
           </h3>
-          <p className="mb-6 text-gray-700">
-            Enter your email and password
-          </p>
-
-
+          <p className="mb-6 text-gray-700">Enter your email and password</p>
 
           {/* Email */}
           <label className="mb-2 text-sm text-left text-gray-900 font-medium">
@@ -120,8 +116,6 @@ export default function Login() {
               />
               Keep me logged in
             </label>
-
-
           </div>
 
           {/* Submit */}
@@ -139,8 +133,6 @@ export default function Login() {
               "Sign In"
             )}
           </button>
-
-
         </form>
       </div>
     </div>
