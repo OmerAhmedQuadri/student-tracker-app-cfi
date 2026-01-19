@@ -16,7 +16,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -100,7 +99,7 @@ const AdminAttendance = () => {
         "http://localhost:5000/api/admin/sessions/mentorship",
         {
           credentials: "include",
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -137,6 +136,9 @@ const AdminAttendance = () => {
       const attendancePromises = sessions.map((session) =>
         fetch(
           `http://localhost:5000/api/admin/attendance/session/${session._id}`,
+
+          { credentials: "include" },
+        ).then((res) => (res.ok ? res.json() : [])),
           { credentials: "include" }
         ).then((res) => (res.ok ? res.json() : []))
       );
@@ -158,7 +160,7 @@ const AdminAttendance = () => {
         `http://localhost:5000/api/admin/attendance/session/${sessionId}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -202,7 +204,6 @@ const AdminAttendance = () => {
 
   const filteredAttendance = attendance.filter((record) => {
     if (!record.userId) return false;
-    
     const matchesSearch =
       record.userId.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.userId.email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -363,10 +364,27 @@ const AdminAttendance = () => {
                 <Select
                   value={selectedSession}
                   onValueChange={setSelectedSession}
+
+                  disabled={
+                    loading ||
+                    filteredSessions.length === 0 ||
+                    selectedBatch === "all"
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-64 h-9">
+                    <SelectValue
+                      placeholder={
+                        selectedBatch === "all"
+                          ? "All Sessions"
+                          : "Select a session"
+                      }
+                    />
+
                   disabled={loading || filteredSessions.length === 0 || selectedBatch === "all"}
                 >
                   <SelectTrigger className="w-full sm:w-64 h-9">
                     <SelectValue placeholder={selectedBatch === "all" ? "All Sessions" : "Select a session"} />
+
                   </SelectTrigger>
                   <SelectContent>
                     {filteredSessions.map((session) => (
@@ -493,19 +511,23 @@ const AdminAttendance = () => {
                               variant="outline"
                               className={getStatusColor(record.finalStatus)}
                             >
-                              {(record.finalStatus || 'unknown').charAt(0).toUpperCase() +
-                                (record.finalStatus || 'unknown').slice(1)}
+                              {(record.finalStatus || "unknown")
+                                .charAt(0)
+                                .toUpperCase() +
+                                (record.finalStatus || "unknown").slice(1)}
                             </Badge>
                           </div>
                         </td>
                         <td className="px-6 py-4 hidden sm:table-cell align-middle text-center">
                           <p className="text-sm text-gray-600">
-                            {record.date ? new Date(record.date).toLocaleString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }) : "N/A"}
+                            {record.date
+                              ? new Date(record.date).toLocaleString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
                           </p>
                         </td>
                       </tr>

@@ -7,13 +7,16 @@ import {
   GraduationCap,
   School,
   CalendarDays,
+  Github,
   Github
+
 } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
   CardDescription
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +88,7 @@ const BatchDetails = () => {
   const filteredStudents = batchData.students.filter(
     (s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchTerm.toLowerCase()),
       s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -93,6 +97,9 @@ const BatchDetails = () => {
     const start = new Date(batchData.startDate);
     const end = new Date(batchData.endDate);
     const weeks = Math.ceil(
+
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7),
+
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7)
     );
     return `${weeks} Weeks`;
@@ -137,26 +144,42 @@ const BatchDetails = () => {
               label: "Students",
               value: batchData.studentCount,
               icon: Users,
+
+              color: "indigo",
+
               color: "indigo"
+
             },
             {
               label: "Mentors",
               value: batchData.mentorCount,
               icon: School,
+
+              color: "purple",
+
               color: "purple"
+
             },
             {
               label: "Duration",
               value: getDuration(),
               icon: CalendarDays,
+
+              color: "blue",
+
               color: "blue"
+
             },
             {
               label: "Capacity",
               value: `${batchData.studentCount}/30`,
               icon: GraduationCap,
+              color: "green",
+            },
+
               color: "green"
             }
+
           ].map((item) => (
             <Card
               key={item.label}
@@ -174,9 +197,13 @@ const BatchDetails = () => {
                 <div
                   className={`h-12 w-12 rounded-xl bg-${item.color}-100 flex items-center justify-center`}
                 >
+
+                  <item.icon className={`h-6 w-6 text-${item.color}-600`} />
+
                   <item.icon
                     className={`h-6 w-6 text-${item.color}-600`}
                   />
+
                 </div>
               </CardContent>
             </Card>

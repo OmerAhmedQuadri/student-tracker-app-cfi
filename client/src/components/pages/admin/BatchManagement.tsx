@@ -7,7 +7,6 @@ import {
   School,
   Loader2,
   Calendar,
-  Edit2,
   Trash2,
   ChevronRight,
   X,

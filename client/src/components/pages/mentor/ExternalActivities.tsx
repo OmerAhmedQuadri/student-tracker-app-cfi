@@ -99,7 +99,7 @@ const AdminExternalActivities = () => {
       if (res.ok) {
         const data = await res.json();
         const studentUsers = data.filter(
-          (user: any) => user.role === "student"
+          (user: any) => user.role === "student",
         );
         setStudents(studentUsers);
         // Select first student by default
@@ -119,7 +119,7 @@ const AdminExternalActivities = () => {
         `http://localhost:5000/api/mentor/external-activities/${userId}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -135,7 +135,7 @@ const AdminExternalActivities = () => {
   const updateActivityStatus = async (
     activityId: string,
     status: "approved" | "rejected",
-    points?: number
+    points?: number,
   ) => {
     try {
       const res = await fetch(
@@ -145,13 +145,13 @@ const AdminExternalActivities = () => {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({ status, points: points || 10 }),
-        }
+        },
       );
 
       if (res.ok) {
         const updatedActivity = await res.json();
         setActivities((prev) =>
-          prev.map((a) => (a._id === activityId ? updatedActivity : a))
+          prev.map((a) => (a._id === activityId ? updatedActivity : a)),
         );
         toast.success(`Activity ${status}!`);
       } else {
@@ -174,7 +174,7 @@ const AdminExternalActivities = () => {
   const filteredStudents = students.filter(
     (student) =>
       student.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(studentSearchQuery.toLowerCase())
+      student.email.toLowerCase().includes(studentSearchQuery.toLowerCase()),
   );
 
   const filteredActivities = activities
@@ -182,7 +182,7 @@ const AdminExternalActivities = () => {
     .filter(
       (activity) =>
         activity.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        activity.platform?.toLowerCase().includes(searchQuery.toLowerCase())
+        activity.platform?.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .sort((a, b) => {
       const dateA = new Date(a.submittedAt).getTime();
@@ -194,7 +194,7 @@ const AdminExternalActivities = () => {
   const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
   const paginatedActivities = filteredActivities.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const stats = {
@@ -269,7 +269,9 @@ const AdminExternalActivities = () => {
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 sm:mt-1">
                     {stats.total}
                   </p>
-                  <p className="text-[9px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 truncate">All submissions</p>
+                  <p className="text-[9px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 truncate">
+                    All submissions
+                  </p>
                 </div>
                 <div className="bg-blue-100 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
                   <Zap className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-600" />
@@ -287,7 +289,9 @@ const AdminExternalActivities = () => {
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 sm:mt-1">
                     {stats.pending}
                   </p>
-                  <p className="text-[9px] sm:text-xs text-yellow-600 mt-0.5 sm:mt-1 truncate">Needs review</p>
+                  <p className="text-[9px] sm:text-xs text-yellow-600 mt-0.5 sm:mt-1 truncate">
+                    Needs review
+                  </p>
                 </div>
                 <div className="bg-yellow-100 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
                   <Clock className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-yellow-600" />
@@ -305,7 +309,9 @@ const AdminExternalActivities = () => {
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 sm:mt-1">
                     {stats.approved}
                   </p>
-                  <p className="text-[9px] sm:text-xs text-green-600 mt-0.5 sm:mt-1 truncate">Accepted</p>
+                  <p className="text-[9px] sm:text-xs text-green-600 mt-0.5 sm:mt-1 truncate">
+                    Accepted
+                  </p>
                 </div>
                 <div className="bg-green-100 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-600" />
@@ -323,7 +329,9 @@ const AdminExternalActivities = () => {
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 sm:mt-1">
                     {stats.rejected}
                   </p>
-                  <p className="text-[9px] sm:text-xs text-red-600 mt-0.5 sm:mt-1 truncate">Declined</p>
+                  <p className="text-[9px] sm:text-xs text-red-600 mt-0.5 sm:mt-1 truncate">
+                    Declined
+                  </p>
                 </div>
                 <div className="bg-red-100 p-1.5 sm:p-2 md:p-3 rounded-full flex-shrink-0">
                   <XCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-red-600" />
@@ -383,7 +391,7 @@ const AdminExternalActivities = () => {
                       >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                       </button>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -428,7 +436,7 @@ const AdminExternalActivities = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${getAvatarColor(
-                          index
+                          index,
                         )}`}
                       >
                         {getInitials(student.name)}
@@ -446,7 +454,9 @@ const AdminExternalActivities = () => {
                 {filteredStudents.length === 0 && (
                   <div className="px-3 sm:px-4 md:px-6 py-6 sm:py-8 text-center">
                     <User className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-2 sm:mb-3" />
-                    <p className="text-gray-500 text-xs sm:text-sm">No students found</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      No students found
+                    </p>
                   </div>
                 )}
               </div>
@@ -465,7 +475,9 @@ const AdminExternalActivities = () => {
                 activities
               </p>
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xs sm:text-sm text-gray-500">Sort by:</span>
+                <span className="text-xs sm:text-sm text-gray-500">
+                  Sort by:
+                </span>
                 <button
                   onClick={() =>
                     setSortBy(sortBy === "latest" ? "oldest" : "latest")
@@ -509,7 +521,8 @@ const AdminExternalActivities = () => {
                   {paginatedActivities.map((activity) => (
                     <div
                       key={activity._id}
-                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 hover:bg-gray-50 transition-colors">
+                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 hover:bg-gray-50 transition-colors"
+                    >
                       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                         <div className="flex-1 min-w-0">
                           {/* Title and Platform Badge */}
@@ -519,7 +532,7 @@ const AdminExternalActivities = () => {
                             </h3>
                             <Badge
                               className={`${getPlatformColor(
-                                activity.platform
+                                activity.platform,
                               )} text-[10px] sm:text-xs font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full w-fit`}
                             >
                               {activity.platform}
@@ -538,7 +551,7 @@ const AdminExternalActivities = () => {
                             <span>
                               Submitted on{" "}
                               {new Date(
-                                activity.submittedAt
+                                activity.submittedAt,
                               ).toLocaleDateString("en-US", {
                                 month: "short",
                                 day: "numeric",
@@ -548,7 +561,7 @@ const AdminExternalActivities = () => {
                             <span className="text-gray-300">•</span>
                             <Badge
                               className={`${getStatusBadge(
-                                activity.status
+                                activity.status,
                               )} text-xs font-medium px-3 py-1 rounded-full capitalize`}
                             >
                               {activity.status === "approved"
@@ -594,7 +607,7 @@ const AdminExternalActivities = () => {
                                   updateActivityStatus(
                                     activity._id,
                                     "approved",
-                                    15
+                                    15,
                                   )
                                 }
                               >
@@ -630,7 +643,7 @@ const AdminExternalActivities = () => {
                     <span className="font-medium text-gray-700">
                       {Math.min(
                         currentPage * itemsPerPage,
-                        filteredActivities.length
+                        filteredActivities.length,
                       )}
                     </span>{" "}
                     of{" "}

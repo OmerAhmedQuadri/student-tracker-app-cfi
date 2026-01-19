@@ -2,14 +2,12 @@ import { useEffect, useState } from "react";
 import {
   Users,
   GraduationCap,
-  School,
   AlertCircle,
   BookOpen,
   ClipboardCheck,
   TrendingUp,
   Activity,
   Layers,
-  Edit,
   X,
 } from "lucide-react";
 import {
@@ -69,7 +67,7 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>(
-    []
+    [],
   );
   const [editingBatch, setEditingBatch] = useState<{
     userId: string;
@@ -138,7 +136,7 @@ const AdminDashboard = () => {
       if (editingBatch.userRole === "mentor") {
         // For mentors, send the batches array
         await api.patch(`/admin/users/${editingBatch.userId}/batch`, {
-          batchIds: batchesInput.filter(b => b.trim())
+          batchIds: batchesInput.filter((b) => b.trim()),
         });
       } else {
         // For students, send single batchId
@@ -159,13 +157,14 @@ const AdminDashboard = () => {
 
   const openBatchModal = (user: User) => {
     const currentBatch = user.batchId || "";
-    const currentBatches = user.batchIds || (user.batchId ? [user.batchId] : []);
+    const currentBatches =
+      user.batchIds || (user.batchId ? [user.batchId] : []);
     setEditingBatch({
       userId: user._id,
       userName: user.name,
       userRole: user.role,
       currentBatch,
-      currentBatches
+      currentBatches,
     });
     setBatchInput(currentBatch);
     setBatchesInput(currentBatches);
@@ -241,10 +240,6 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-
-
-
-
 
           {/* Batches Card */}
           <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
@@ -423,8 +418,6 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
-
-
       </div>
 
       {/* Batch Assignment Modal */}
@@ -433,7 +426,9 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">
-                {editingBatch.userRole === 'mentor' ? 'Assign Batches' : 'Assign Batch'}
+                {editingBatch.userRole === "mentor"
+                  ? "Assign Batches"
+                  : "Assign Batch"}
               </h3>
               <button
                 onClick={() => {
@@ -452,15 +447,18 @@ const AdminDashboard = () => {
                 <p className="text-base font-medium text-gray-900">
                   {editingBatch.userName}
                 </p>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${editingBatch.userRole === 'mentor'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-blue-100 text-blue-700'
-                  }`}>
-                  {editingBatch.userRole === 'mentor' ? 'Mentor' : 'Student'}
+                <span
+                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                    editingBatch.userRole === "mentor"
+                      ? "bg-purple-100 text-purple-700"
+                      : "bg-blue-100 text-blue-700"
+                  }`}
+                >
+                  {editingBatch.userRole === "mentor" ? "Mentor" : "Student"}
                 </span>
               </div>
 
-              {editingBatch.userRole === 'mentor' ? (
+              {editingBatch.userRole === "mentor" ? (
                 // Multiple batches for mentor
                 <div className="mb-5">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -468,50 +466,67 @@ const AdminDashboard = () => {
                   </label>
                   <div className="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                     <p className="text-xs text-amber-800">
-                      ⚠️ <strong>Important:</strong> Edit the list below. Current batches are shown - add or remove as needed.
+                      ⚠️ <strong>Important:</strong> Edit the list below.
+                      Current batches are shown - add or remove as needed.
                     </p>
                   </div>
 
                   {/* Current Batches Tags */}
-                  {batchesInput.filter(b => b).length > 0 && (
+                  {batchesInput.filter((b) => b).length > 0 && (
                     <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                      <p className="text-xs font-medium text-gray-700 mb-2">Current Batches:</p>
+                      <p className="text-xs font-medium text-gray-700 mb-2">
+                        Current Batches:
+                      </p>
                       <div className="flex flex-wrap gap-2">
-                        {batchesInput.filter(b => b).map((batch, idx) => (
-                          <div key={idx} className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                            <span className="text-sm font-medium">{batch}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newBatches = batchesInput.filter((_, i) => i !== idx || !batchesInput[i]);
-                                setBatchesInput(newBatches);
-                              }}
-                              className="ml-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded-full p-0.5"
+                        {batchesInput
+                          .filter((b) => b)
+                          .map((batch, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded"
                             >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
+                              <span className="text-sm font-medium">
+                                {batch}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newBatches = batchesInput.filter(
+                                    (_, i) => i !== idx || !batchesInput[i],
+                                  );
+                                  setBatchesInput(newBatches);
+                                }}
+                                className="ml-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded-full p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
 
                   {/* Add New Batch */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Add New Batch</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Add New Batch
+                    </label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="Enter batch ID (e.g., A26)"
                         value={batchInput}
                         onChange={(e) => setBatchInput(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && batchInput.trim()) {
+                          if (e.key === "Enter" && batchInput.trim()) {
                             e.preventDefault();
                             if (!batchesInput.includes(batchInput.trim())) {
-                              setBatchesInput([...batchesInput, batchInput.trim()]);
-                              setBatchInput('');
+                              setBatchesInput([
+                                ...batchesInput,
+                                batchInput.trim(),
+                              ]);
+                              setBatchInput("");
                             } else {
-                              toast.error('Batch already added');
+                              toast.error("Batch already added");
                             }
                           }
                         }}
@@ -523,10 +538,13 @@ const AdminDashboard = () => {
                         onClick={() => {
                           if (batchInput.trim()) {
                             if (!batchesInput.includes(batchInput.trim())) {
-                              setBatchesInput([...batchesInput, batchInput.trim()]);
-                              setBatchInput('');
+                              setBatchesInput([
+                                ...batchesInput,
+                                batchInput.trim(),
+                              ]);
+                              setBatchInput("");
                             } else {
-                              toast.error('Batch already added');
+                              toast.error("Batch already added");
                             }
                           }
                         }}
@@ -558,7 +576,7 @@ const AdminDashboard = () => {
                     autoFocus
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    Current: {editingBatch.currentBatch || 'None'}
+                    Current: {editingBatch.currentBatch || "None"}
                   </p>
                 </div>
               )}

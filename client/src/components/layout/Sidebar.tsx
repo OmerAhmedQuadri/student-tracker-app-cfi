@@ -41,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: "Attendance", path: "/attendance", icon: CalendarCheck },
     { name: "Learning", path: "/learning", icon: Clock },
     { name: "Activities", path: "/activities", icon: Activity },
+
     {
       name: "External Work",
       path: "/student/external-activities",

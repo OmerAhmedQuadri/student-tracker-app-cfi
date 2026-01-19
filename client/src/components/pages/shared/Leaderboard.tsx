@@ -43,7 +43,7 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [timeFrame, setTimeFrame] = useState<"all" | "weekly" | "monthly">(
-    "all"
+    "all",
   );
 
   useEffect(() => {
@@ -54,13 +54,13 @@ const Leaderboard = () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/dashboard/leaderboard?timeFrame=${timeFrame}`
+        `/dashboard/leaderboard?timeFrame=${timeFrame}`,
       );
       setLeaderboard(res.data);
 
       // Find current user's rank
       const myRank = res.data.findIndex(
-        (entry: LeaderboardEntry) => entry.userId._id === user?.id
+        (entry: LeaderboardEntry) => entry.userId._id === user?.id,
       );
       if (myRank !== -1) {
         setCurrentUserRank(myRank + 1);
@@ -239,7 +239,7 @@ const Leaderboard = () => {
                             {Math.round(
                               (topThree[1].totalPoints /
                                 topThree[0].totalPoints) *
-                                100
+                                100,
                             )}
                             %
                           </span>
@@ -319,7 +319,7 @@ const Leaderboard = () => {
                             {Math.round(
                               (topThree[2].totalPoints /
                                 topThree[1].totalPoints) *
-                                100
+                                100,
                             )}
                             %
                           </span>
