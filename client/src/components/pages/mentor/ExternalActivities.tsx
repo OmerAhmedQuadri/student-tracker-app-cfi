@@ -384,11 +384,10 @@ const AdminExternalActivities = () => {
                       <button
                         key={status}
                         onClick={() => setFilter(status)}
-                        className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
-                          filter === status
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                        className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${filter === status
+                          ? "bg-gray-900 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
                       >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                       </button>
@@ -429,11 +428,10 @@ const AdminExternalActivities = () => {
                       setSelectedUserId(student._id);
                       setCurrentPage(1);
                     }}
-                    className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${
-                      selectedUserId === student._id
-                        ? "bg-blue-50"
-                        : "hover:bg-gray-50"
-                    }`}
+                    className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${selectedUserId === student._id
+                      ? "bg-blue-50"
+                      : "hover:bg-gray-50"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <div

@@ -136,8 +136,11 @@ const AdminAttendance = () => {
       const attendancePromises = sessions.map((session) =>
         fetch(
           `http://localhost:5000/api/admin/attendance/session/${session._id}`,
+
           { credentials: "include" },
         ).then((res) => (res.ok ? res.json() : [])),
+          { credentials: "include" }
+        ).then((res) => (res.ok ? res.json() : []))
       );
       const allAttendanceData = await Promise.all(attendancePromises);
       const combinedAttendance = allAttendanceData.flat();
@@ -201,7 +204,6 @@ const AdminAttendance = () => {
 
   const filteredAttendance = attendance.filter((record) => {
     if (!record.userId) return false;
-
     const matchesSearch =
       record.userId.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.userId.email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -362,6 +364,7 @@ const AdminAttendance = () => {
                 <Select
                   value={selectedSession}
                   onValueChange={setSelectedSession}
+
                   disabled={
                     loading ||
                     filteredSessions.length === 0 ||
@@ -376,6 +379,12 @@ const AdminAttendance = () => {
                           : "Select a session"
                       }
                     />
+
+                  disabled={loading || filteredSessions.length === 0 || selectedBatch === "all"}
+                >
+                  <SelectTrigger className="w-full sm:w-64 h-9">
+                    <SelectValue placeholder={selectedBatch === "all" ? "All Sessions" : "Select a session"} />
+
                   </SelectTrigger>
                   <SelectContent>
                     {filteredSessions.map((session) => (

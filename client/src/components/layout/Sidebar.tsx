@@ -5,7 +5,7 @@ import {
   BookOpen,
   CalendarCheck,
   Clock,
-
+  Activity,
   User,
   X,
   LogOut,
@@ -40,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: "Assignments", path: "/assignments", icon: BookOpen },
     { name: "Attendance", path: "/attendance", icon: CalendarCheck },
     { name: "Learning", path: "/learning", icon: Clock },
+    { name: "Activities", path: "/activities", icon: Activity },
 
     {
       name: "External Work",

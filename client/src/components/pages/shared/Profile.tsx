@@ -214,6 +214,7 @@ const Profile = () => {
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="flex flex-wrap justify-center gap-2 mb-6">
                     <Badge
+
                       className={`px-4 py-1.5 capitalize font-semibold text-sm pointer-events-none ${
                         isMentor
                           ? "bg-purple-600 text-white"
@@ -221,6 +222,14 @@ const Profile = () => {
                             ? "bg-red-600 text-white"
                             : "bg-indigo-600 text-white"
                       }`}
+
+                      className={`px-4 py-1.5 capitalize font-semibold text-sm pointer-events-none ${isMentor
+                        ? "bg-purple-600 text-white"
+                        : isAdmin
+                          ? "bg-red-600 text-white"
+                          : "bg-indigo-600 text-white"
+                        }`}
+
                     >
                       {user?.role}
                     </Badge>
@@ -337,8 +346,12 @@ const Profile = () => {
                         htmlFor="github"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
+
                         <Github className="w-4 h-4 text-gray-900" /> GitHub
                         Profile
+
+                        <Github className="w-4 h-4 text-gray-900" /> GitHub Profile
+
                       </Label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
@@ -369,8 +382,12 @@ const Profile = () => {
                         htmlFor="linkedin"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
+
                         <Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn
                         Profile
+
+                        <Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn Profile
+
                       </Label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
@@ -401,8 +418,12 @@ const Profile = () => {
                         htmlFor="medium"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
+
                         <Globe className="w-4 h-4 text-purple-600" /> Portfolio
                         / Blog
+
+                        <Globe className="w-4 h-4 text-purple-600" /> Portfolio / Blog
+
                       </Label>
                       <Input
                         id="medium"
@@ -445,9 +466,13 @@ const Profile = () => {
                         <Lock className="w-6 h-6 text-gray-700 group-hover:text-indigo-600 transition-colors duration-200" />
                       </div>
                       <div>
+
                         <p className="font-bold text-gray-900 text-base">
                           Password
                         </p>
+
+                        <p className="font-bold text-gray-900 text-base">Password</p>
+
                         <p className="text-sm text-gray-500 mt-1">
                           Last changed 30 days ago
                         </p>
@@ -481,12 +506,16 @@ const Profile = () => {
                   Enter your current password to set a new one
                 </CardDescription>
               </div>
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowPasswordModal(false)}
                 className="h-8 w-8 p-0 absolute right-2 top-2"
               >
+
+              <Button variant="ghost" size="sm" onClick={() => setShowPasswordModal(false)} className="h-8 w-8 p-0 absolute right-2 top-2">
+
                 <X className="w-4 h-4" />
               </Button>
             </CardHeader>
@@ -499,9 +528,13 @@ const Profile = () => {
               )}
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-2">
+
                   <Label htmlFor="old-password" className="text-left block">
                     Current Password
                   </Label>
+
+                  <Label htmlFor="old-password" className="text-left block">Current Password</Label>
+
                   <div className="relative">
                     <Input
                       id="old-password"
@@ -533,9 +566,12 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
+
                   <Label htmlFor="new-password" className="text-left block">
                     New Password
                   </Label>
+      <Label htmlFor="new-password" className="text-left block">New Password</Label>
+
                   <div className="relative">
                     <Input
                       id="new-password"
@@ -570,9 +606,13 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
+
                   <Label htmlFor="confirm-password" className="text-left block">
                     Confirm New Password
                   </Label>
+
+                  <Label htmlFor="confirm-password" className="text-left block">Confirm New Password</Label>
+
                   <div className="relative">
                     <Input
                       id="confirm-password"

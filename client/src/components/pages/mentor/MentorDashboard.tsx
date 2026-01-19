@@ -118,10 +118,9 @@ export default function MentorDashboard() {
                 onClick={() => changeTab(tab.id)}
                 aria-current={activeTab === tab.id}
                 className={`relative px-3 lg:px-4 py-2.5 lg:py-3 text-xs sm:text-sm font-medium transition
-                  ${
-                    activeTab === tab.id
-                      ? "text-indigo-600 dark:text-indigo-400"
-                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  ${activeTab === tab.id
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   }
                 `}
               >
