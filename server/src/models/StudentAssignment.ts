@@ -4,7 +4,6 @@ export interface IStudentAssignment {
   userId: Types.ObjectId;
   assignmentId: Types.ObjectId;
   status: "pending" | "submitted" | "missed";
-  score?: number;
   submittedAt?: Date;
   timeTakenMinutes?: number;
   assignmentLink?: string;
@@ -14,7 +13,6 @@ const StudentAssignmentSchema = new Schema<IStudentAssignment>({
   userId: { type: Schema.Types.ObjectId, ref: "User" },
   assignmentId: { type: Schema.Types.ObjectId, ref: "Assignment" },
   status: { type: String, enum: ["pending", "submitted", "missed"] },
-  score: Number,
   submittedAt: Date,
   timeTakenMinutes: Number,
   assignmentLink: String,

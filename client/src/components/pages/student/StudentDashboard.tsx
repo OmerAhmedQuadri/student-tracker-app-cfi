@@ -4,9 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { BookOpen, Clock, CalendarCheck, TrendingUp, CheckCircle2, FileText, ArrowUpRight } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 
-import { BookOpen, Clock, CalendarCheck, TrendingUp, CheckCircle2, FileText } from 'lucide-react';
-import StatCard from '@/components/dashboard/StatCard';
-import RecentActivity, { type Activity } from '@/components/dashboard/RecentActivity';
+
 
 import api from '@/lib/api';
 
@@ -296,10 +294,6 @@ const StudentDashboard = () => {
                     </div>
                 </div>
             </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-6">
-            <RecentActivity activities={recentActivities} />
         </div>
     );
 };

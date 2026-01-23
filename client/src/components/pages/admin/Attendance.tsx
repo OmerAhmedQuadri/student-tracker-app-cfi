@@ -136,9 +136,6 @@ const AdminAttendance = () => {
       const attendancePromises = sessions.map((session) =>
         fetch(
           `http://localhost:5000/api/admin/attendance/session/${session._id}`,
-
-          { credentials: "include" },
-        ).then((res) => (res.ok ? res.json() : [])),
           { credentials: "include" }
         ).then((res) => (res.ok ? res.json() : []))
       );
@@ -379,12 +376,6 @@ const AdminAttendance = () => {
                           : "Select a session"
                       }
                     />
-
-                  disabled={loading || filteredSessions.length === 0 || selectedBatch === "all"}
-                >
-                  <SelectTrigger className="w-full sm:w-64 h-9">
-                    <SelectValue placeholder={selectedBatch === "all" ? "All Sessions" : "Select a session"} />
-
                   </SelectTrigger>
                   <SelectContent>
                     {filteredSessions.map((session) => (
@@ -522,11 +513,11 @@ const AdminAttendance = () => {
                           <p className="text-sm text-gray-600">
                             {record.date
                               ? new Date(record.date).toLocaleString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
                               : "N/A"}
                           </p>
                         </td>

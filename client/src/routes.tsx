@@ -4,7 +4,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Assignments from './components/pages/shared/Assignments';
 import Attendance from './components/pages/shared/Attendance';
 import Learning from './components/pages/shared/Learning';
-import Activities from './components/pages/shared/Activities';
+
 import Profile from './components/pages/shared/Profile';
 import Login from './components/pages/shared/Login';
 import AdminDashboard from './components/pages/admin/AdminDashboard';
@@ -174,10 +174,7 @@ export const router = createBrowserRouter([
                                 path: 'learning',
                                 element: <Learning />,
                             },
-                            {
-                                path: 'activities',
-                                element: <Activities />,
-                            },
+
                             {
                                 path: 'profile',
                                 element: <Profile />,

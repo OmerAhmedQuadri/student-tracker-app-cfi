@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import api from "@/lib/api";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
@@ -28,14 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/me", {
-        withCredentials: true,
-        timeout: 5000, // 5 second timeout
-      });
+      const response = await api.get("/me");
       setUser(response.data.user);
     } catch (error) {
       // It's normal to not be authenticated on first load
@@ -51,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = (userData: User) => {
     setUser(userData);
-    
+
     // Redirect logic based on role
     switch (userData.role) {
       case "student":
@@ -70,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+      await api.post("/logout");
       setUser(null);
       navigate("/login");
       toast.success("Logged out successfully");
@@ -81,11 +77,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   if (loading) {
-     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-        </div>
-     );
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+      </div>
+    );
   }
 
   return (

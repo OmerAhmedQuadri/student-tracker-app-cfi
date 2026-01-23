@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import {
   Bell,
   Check,
-  Trash2,
   AlertCircle,
   Info,
   CheckCircle,
-  Calendar,
 } from "lucide-react";
 import {
   Card,

@@ -198,7 +198,7 @@ const ExternalActivitiesPage = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
               <Card className="bg-indigo-50/50 border-indigo-100 shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="p-2 bg-indigo-100/50 rounded-lg">
@@ -281,19 +281,19 @@ const ExternalActivitiesPage = () => {
                   <Card key={post._id} className="hover:shadow-md transition-shadow duration-200 group">
                     <CardContent className="p-5">
                       <div className="flex items-start gap-4">
-                        <div className="p-2.5 bg-gray-50 rounded-xl group-hover:bg-indigo-50 transition-colors">
+                        <div className="p-2.5 bg-gray-50 rounded-xl group-hover:bg-indigo-50 transition-colors flex-shrink-0">
                           {getPlatformIcon(post.platform)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold text-gray-900 capitalize">{post.platform}</p>
-                            <span className="text-xs text-gray-400">{formatDate(post.createdAt)}</span>
+                            <p className="text-sm font-semibold text-gray-900 capitalize truncate pr-2">{post.platform}</p>
+                            <span className="text-xs text-gray-400 flex-shrink-0">{formatDate(post.createdAt)}</span>
                           </div>
                           {post.description && (
                             <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.description}</p>
                           )}
 
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+                          <div className="flex flex-wrap items-center justify-between mt-2 pt-2 border-t border-gray-50 gap-2">
                             <div className="flex items-center gap-2 text-xs text-gray-500">
                               {post.views !== undefined && (
                                 <>
@@ -351,10 +351,10 @@ const ExternalActivitiesPage = () => {
                 activities.map((activity) => (
                   <Card key={activity._id} className="hover:shadow-md transition-shadow duration-200">
                     <CardContent className="p-5">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="space-y-1">
-                          <h3 className="text-base font-semibold text-gray-900">{activity.title}</h3>
-                          <div className="flex items-center gap-2">
+                      <div className="flex items-start justify-between mb-2 gap-3">
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <h3 className="text-base font-semibold text-gray-900 truncate pr-2">{activity.title}</h3>
+                          <div className="flex items-center flex-wrap gap-2">
                             <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-600 capitalize">
                               {activity.platform}
                             </Badge>
@@ -371,7 +371,7 @@ const ExternalActivitiesPage = () => {
                           </div>
                         </div>
                         {activity.status === 'approved' && (
-                          <div className="flex flex-col items-end">
+                          <div className="flex flex-col items-end flex-shrink-0">
                             <span className="text-lg font-bold text-green-600">+{activity.points}</span>
                             <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Points</span>
                           </div>
@@ -380,7 +380,7 @@ const ExternalActivitiesPage = () => {
 
                       <p className="text-sm text-gray-600 line-clamp-2 mt-3 mb-4">{activity.description}</p>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+                      <div className="flex flex-wrap items-center justify-between pt-3 border-t border-gray-50 gap-2">
                         <span className="text-xs text-gray-400">Submitted {formatDate(activity.submittedAt)}</span>
                         <a
                           href={activity.url}

@@ -6,8 +6,8 @@ import {
   Search,
   FileCode,
   Calendar,
-  CheckCircle,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 import * as mentorApi from "@/api/mentorApis";
 import api from "@/lib/api";
@@ -45,7 +45,6 @@ interface Assignment {
   title: string;
   dueDate: string;
   description?: string;
-  maxScore: number;
 }
 
 interface Submission {
@@ -53,8 +52,8 @@ interface Submission {
   userId: { _id: string; name: string; email: string };
   status: string;
   submittedAt: string;
-  score?: number;
   timeTakenMinutes?: number;
+  assignmentLink?: string;
 }
 
 interface Batch {
@@ -84,12 +83,11 @@ export const AssignmentsTab = () => {
   const [formData, setFormData] = useState({
     title: "",
     dueDate: "",
-    maxScore: 100,
     batchId: "",
   });
 
   // Score input state for each submission row
-  const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({});
+  // const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadBatches();
@@ -143,7 +141,7 @@ export const AssignmentsTab = () => {
         batchId: selectedBatch,
       });
       setIsCreating(false);
-      setFormData({ title: "", dueDate: "", maxScore: 100, batchId: "" });
+      setFormData({ title: "", dueDate: "", batchId: "" });
       loadAssignments();
     } catch (error) {
       console.error("Failed to create assignment", error);
@@ -184,7 +182,7 @@ export const AssignmentsTab = () => {
       const data = await mentorApi.getSubmissionsForAssignment(assignment._id);
       setSubmissions(data);
       // Reset score inputs
-      setScoreInputs({});
+
     } catch (error) {
       console.error("Failed to load submissions", error);
     } finally {
@@ -192,30 +190,7 @@ export const AssignmentsTab = () => {
     }
   };
 
-  const handleGrade = async (submissionId: string) => {
-    const scoreVal = scoreInputs[submissionId];
-    if (!scoreVal) return;
 
-    const score = Number(scoreVal);
-    if (isNaN(score)) return;
-
-    try {
-      await mentorApi.gradeAssignment(submissionId, score);
-      setSubmissions((prev) =>
-        prev.map((sub) =>
-          sub._id === submissionId ? { ...sub, score, status: "graded" } : sub
-        )
-      );
-      // Clear input after success
-      setScoreInputs((prev) => {
-        const newState = { ...prev };
-        delete newState[submissionId];
-        return newState;
-      });
-    } catch (error) {
-      console.error("Failed to grade", error);
-    }
-  };
 
   const filteredAssignments = assignments.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -315,19 +290,17 @@ export const AssignmentsTab = () => {
                     <div
                       key={assignment._id}
                       onClick={() => handleSelectAssignment(assignment)}
-                      className={`group flex items-start justify-between p-3 sm:p-4 rounded-lg cursor-pointer border transition-all duration-200 ${
-                        selectedAssignment?._id === assignment._id
-                          ? "bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-300 shadow-md dark:from-indigo-900/30 dark:to-indigo-900/20 dark:border-indigo-700"
-                          : "bg-card border-border/30 hover:bg-muted/50 hover:border-indigo-200 hover:shadow-sm"
-                      }`}
+                      className={`group flex items-start justify-between p-3 sm:p-4 rounded-lg cursor-pointer border transition-all duration-200 ${selectedAssignment?._id === assignment._id
+                        ? "bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-300 shadow-md dark:from-indigo-900/30 dark:to-indigo-900/20 dark:border-indigo-700"
+                        : "bg-card border-border/30 hover:bg-muted/50 hover:border-indigo-200 hover:shadow-sm"
+                        }`}
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <h3
-                          className={`font-semibold text-sm sm:text-base leading-tight truncate ${
-                            selectedAssignment?._id === assignment._id
-                              ? "text-indigo-700 dark:text-indigo-300"
-                              : "text-foreground"
-                          }`}
+                          className={`font-semibold text-sm sm:text-base leading-tight truncate ${selectedAssignment?._id === assignment._id
+                            ? "text-indigo-700 dark:text-indigo-300"
+                            : "text-foreground"
+                            }`}
                         >
                           {assignment.title}
                         </h3>
@@ -340,20 +313,13 @@ export const AssignmentsTab = () => {
                               ).toLocaleDateString()}
                             </span>
                           </span>
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] sm:text-xs px-1.5 py-0"
-                          >
-                            {assignment.maxScore} pts
-                          </Badge>
                         </div>
                       </div>
                       <ChevronRight
-                        className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform flex-shrink-0 ml-1.5 sm:ml-2 ${
-                          selectedAssignment?._id === assignment._id
-                            ? "text-indigo-600 rotate-90 dark:text-indigo-400"
-                            : "text-muted-foreground group-hover:text-foreground"
-                        }`}
+                        className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform flex-shrink-0 ml-1.5 sm:ml-2 ${selectedAssignment?._id === assignment._id
+                          ? "text-indigo-600 rotate-90 dark:text-indigo-400"
+                          : "text-muted-foreground group-hover:text-foreground"
+                          }`}
                       />
                     </div>
                   ))
@@ -417,28 +383,6 @@ export const AssignmentsTab = () => {
                           className="h-10 sm:h-11 text-sm"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="maxScore"
-                          className="text-sm font-semibold"
-                        >
-                          Maximum Score
-                        </Label>
-                        <Input
-                          id="maxScore"
-                          type="number"
-                          required
-                          min="1"
-                          value={formData.maxScore}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              maxScore: Number(e.target.value),
-                            })
-                          }
-                          className="h-10 sm:h-11 text-sm sm:text-base"
-                        />
-                      </div>
                     </div>
 
                     <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-border/50">
@@ -476,12 +420,6 @@ export const AssignmentsTab = () => {
                             {new Date(
                               selectedAssignment.dueDate
                             ).toLocaleString()}
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-green-100 text-green-700 border border-green-200 font-medium dark:bg-green-900/40 dark:text-green-300 dark:border-green-800">
-                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          <span className="text-xs sm:text-sm">
-                            {selectedAssignment.maxScore} points
                           </span>
                         </span>
                       </div>
@@ -534,8 +472,10 @@ export const AssignmentsTab = () => {
                             <TableHead>Student</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Time Taken</TableHead>
+                            <TableHead>Link</TableHead>
                             <TableHead>Submitted</TableHead>
-                            <TableHead className="text-right">Grade</TableHead>
+
+                            {/* <TableHead className="text-right">Grade</TableHead> */}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -572,8 +512,23 @@ export const AssignmentsTab = () => {
                                   : "-"}
                               </TableCell>
                               <TableCell className="text-muted-foreground text-sm">
+                                {sub.assignmentLink ? (
+                                  <a
+                                    href={sub.assignmentLink}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-indigo-600 hover:underline flex items-center gap-1"
+                                  >
+                                    View <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-sm">
                                 {new Date(sub.submittedAt).toLocaleDateString()}
                               </TableCell>
+                              {/*
                               <TableCell className="text-right">
                                 {sub.status === "graded" ? (
                                   <div className="flex items-center justify-end gap-2 group/edit">
@@ -583,56 +538,15 @@ export const AssignmentsTab = () => {
                                     <span className="text-muted-foreground text-sm">
                                       / {selectedAssignment.maxScore}
                                     </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity"
-                                      onClick={() =>
-                                        setSubmissions((prev) =>
-                                          prev.map((p) =>
-                                            p._id === sub._id
-                                              ? {
-                                                  ...p,
-                                                  status: "pending_regrade",
-                                                }
-                                              : p
-                                          )
-                                        )
-                                      }
-                                    >
-                                      <span className="sr-only">Edit</span>
-                                      <FileCode className="w-3 h-3" />
-                                    </Button>
+                                     ...
                                   </div>
                                 ) : (
                                   <div className="flex items-center justify-end gap-2">
-                                    <Input
-                                      className="w-20 h-8 font-medium text-right"
-                                      placeholder="0"
-                                      type="number"
-                                      value={scoreInputs[sub._id] || ""}
-                                      onChange={(e) =>
-                                        setScoreInputs((prev) => ({
-                                          ...prev,
-                                          [sub._id]: e.target.value,
-                                        }))
-                                      }
-                                      onKeyDown={(e) =>
-                                        e.key === "Enter" &&
-                                        handleGrade(sub._id)
-                                      }
-                                    />
-                                    <Button
-                                      size="sm"
-                                      disabled={!scoreInputs[sub._id]}
-                                      onClick={() => handleGrade(sub._id)}
-                                      className="h-8"
-                                    >
-                                      Save
-                                    </Button>
+                                     ...
                                   </div>
                                 )}
                               </TableCell>
+                              */}
                             </TableRow>
                           ))}
                         </TableBody>

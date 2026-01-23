@@ -99,7 +99,7 @@ const Learning = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
               <Card className="bg-blue-50/50 border-blue-100 shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="p-2 bg-blue-100/50 rounded-lg">
@@ -167,7 +167,7 @@ const Learning = () => {
                     key={session._id}
                     className="hover:shadow-md transition-shadow duration-200"
                   >
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="sm:w-32 flex-shrink-0">
                           <div className="flex items-center gap-2 text-gray-500 mb-1">

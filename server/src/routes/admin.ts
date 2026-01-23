@@ -105,12 +105,7 @@ router.delete(
   requireRole("admin"),
   assignmentController.deleteAssignment
 );
-router.patch(
-  "/assignments/grade/:studentAssignmentId",
-  authMiddleware,
-  requireRole("admin"),
-  assignmentController.gradeAssignment
-);
+
 
 // Attendance
 router.get(
