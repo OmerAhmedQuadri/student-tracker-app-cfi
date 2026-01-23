@@ -19,11 +19,10 @@ export const getStudentsByBatch = async (batchId: string) => {
 
 // --- Assignments ---
 
-export const createAssignment = async (data: { 
-    title: string; 
+export const createAssignment = async (data: {
+    title: string;
     topicId?: string;
-    dueDate: string; 
-    maxScore: number;
+    dueDate: string;
     batchId: string;
     description?: string;
 }) => {
@@ -53,11 +52,6 @@ export const deleteAssignment = async (id: string) => {
 
 export const getSubmissionsForAssignment = async (assignmentId: string) => {
     const response = await api.get(`/mentor/assignments/${assignmentId}/submissions`);
-    return response.data;
-};
-
-export const gradeAssignment = async (studentAssignmentId: string, score: number) => {
-    const response = await api.patch(`/mentor/assignments/grade/${studentAssignmentId}`, { score });
     return response.data;
 };
 

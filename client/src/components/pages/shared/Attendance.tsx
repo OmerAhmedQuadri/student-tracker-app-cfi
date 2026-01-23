@@ -31,7 +31,8 @@ import { toast } from "react-hot-toast";
 
 interface MentorshipSession {
   _id: string;
-  topic: string;
+  topic?: string;
+  topics?: string[];
   scheduledAt: string;
   mentorName?: string;
   status: "scheduled" | "cancelled" | "completed";
@@ -41,7 +42,7 @@ interface AttendanceRecord {
   _id: string;
   sessionId: string | MentorshipSession;
   date: string;
-  status: "present" | "absent";
+  finalStatus: "present" | "absent" | "late";
 }
 
 const Attendance = () => {
@@ -100,9 +101,9 @@ const Attendance = () => {
     const total = attendanceHistory.length;
     // Assuming current API only returns 'present' records in /attendance/my usually,
     // but generalizing for absent if API changes
-    const present = attendanceHistory.filter((a) => a.status === "present")
+    const present = attendanceHistory.filter((a) => a.finalStatus === "present")
       .length;
-    const absent = attendanceHistory.filter((a) => a.status === "absent")
+    const absent = attendanceHistory.filter((a) => a.finalStatus === "absent")
       .length;
     // Calculate rate based on total vs present.
     // Ideally total sessions should be (attended + missed), but here we use history length as base.
@@ -247,7 +248,7 @@ const Attendance = () => {
                 >
                   <div className="space-y-1">
                     <p className="font-semibold text-gray-900">
-                      {session.topic || "Mentorship Session"}
+                      {session.topic || (session.topics ? session.topics.join(", ") : "Mentorship Session")}
                     </p>
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
@@ -329,10 +330,11 @@ const Attendance = () => {
                   </TableRow>
                 ) : (
                   attendanceHistory.map((record) => {
-                    const sessionTopic =
-                      typeof record.sessionId === "object"
-                        ? record.sessionId.topic
-                        : "Session";
+                    let sessionTopic = "Session";
+                    if (typeof record.sessionId === "object") {
+                      const session = record.sessionId as MentorshipSession;
+                      sessionTopic = session.topic || (session.topics ? session.topics.join(", ") : "Session");
+                    }
                     return (
                       <TableRow
                         key={record._id}
@@ -348,19 +350,19 @@ const Attendance = () => {
                           <Badge
                             variant="outline"
                             className={`
-                              ${record.status === "present"
+                              ${record.finalStatus === "present"
                                 ? "bg-green-50 text-green-700 border-green-200"
                                 : "bg-red-50 text-red-700 border-red-200"
                               }
                             `}
                           >
-                            {record.status === "present" ? (
+                            {record.finalStatus === "present" ? (
                               <CheckCircle2 className="w-3 h-3 mr-1" />
                             ) : (
                               <XCircle className="w-3 h-3 mr-1" />
                             )}
-                            {(record.status || "unknown").charAt(0).toUpperCase() +
-                              (record.status || "unknown").slice(1)}
+                            {(record.finalStatus || "unknown").charAt(0).toUpperCase() +
+                              (record.finalStatus || "unknown").slice(1)}
                           </Badge>
                         </TableCell>
                         <TableCell className="py-4 text-center text-sm text-gray-500 font-mono">
@@ -390,10 +392,11 @@ const Attendance = () => {
               </div>
             ) : (
               attendanceHistory.map((record) => {
-                const sessionTopic =
-                  typeof record.sessionId === "object"
-                    ? record.sessionId.topic
-                    : "Session";
+                let sessionTopic = "Session";
+                if (typeof record.sessionId === "object") {
+                  const session = record.sessionId as MentorshipSession;
+                  sessionTopic = session.topic || (session.topics ? session.topics.join(", ") : "Session");
+                }
                 return (
                   <div key={record._id} className="p-4 space-y-2">
                     <div className="flex justify-between items-start">
@@ -408,13 +411,13 @@ const Attendance = () => {
                       <Badge
                         variant="outline"
                         className={`
-                            ${record.status === "present"
+                            ${record.finalStatus === "present"
                             ? "bg-green-50 text-green-700 border-green-200"
                             : "bg-red-50 text-red-700 border-red-200"
                           }
                           `}
                       >
-                        {record.status === "present" ? "Present" : "Absent"}
+                        {record.finalStatus === "present" ? "Present" : "Absent"}
                       </Badge>
                     </div>
                     <div className="text-xs text-gray-400 flex items-center gap-1">

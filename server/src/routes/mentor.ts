@@ -28,10 +28,7 @@ router.get("/assignments", assignmentController.getAllAssignments);
 router.get("/assignments/:id", assignmentController.getAssignmentById);
 router.patch("/assignments/:id", assignmentController.updateAssignment);
 router.delete("/assignments/:id", assignmentController.deleteAssignment);
-router.patch(
-  "/assignments/grade/:studentAssignmentId",
-  assignmentController.gradeAssignment
-);
+
 router.get(
   "/assignments/:assignmentId/submissions",
   assignmentController.getSubmissionsForAssignment

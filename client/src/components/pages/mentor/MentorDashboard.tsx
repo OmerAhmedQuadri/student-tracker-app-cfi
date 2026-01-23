@@ -11,10 +11,8 @@ import {
   Monitor,
   Clock,
   FileText,
-  Bell,
   ArrowRight,
   List,
-  GraduationCap,
 } from "lucide-react";
 
 import StatCard from "@/components/dashboard/StatCard";

@@ -8,9 +8,6 @@ import {
   Loader2,
   Shield,
   Lock,
-  Briefcase,
-  GraduationCap,
-  LayoutDashboard,
   Globe,
   LogOut,
   LogIn,
@@ -214,22 +211,12 @@ const Profile = () => {
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="flex flex-wrap justify-center gap-2 mb-6">
                     <Badge
-
-                      className={`px-4 py-1.5 capitalize font-semibold text-sm pointer-events-none ${
-                        isMentor
-                          ? "bg-purple-600 text-white"
-                          : isAdmin
-                            ? "bg-red-600 text-white"
-                            : "bg-indigo-600 text-white"
-                      }`}
-
                       className={`px-4 py-1.5 capitalize font-semibold text-sm pointer-events-none ${isMentor
                         ? "bg-purple-600 text-white"
                         : isAdmin
                           ? "bg-red-600 text-white"
                           : "bg-indigo-600 text-white"
                         }`}
-
                     >
                       {user?.role}
                     </Badge>
@@ -305,7 +292,7 @@ const Profile = () => {
             {isStudent && (
               <form onSubmit={handleSaveSocials}>
                 <Card className="shadow-sm border border-gray-200 overflow-hidden">
-                  <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-6">
+                  <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-4 sm:px-6">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                       <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-indigo-600 rounded-xl">
@@ -323,7 +310,7 @@ const Profile = () => {
                       <Button
                         type="submit"
                         disabled={saving}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-10 px-6 font-semibold"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-10 px-6 font-semibold w-full sm:w-auto"
                       >
                         {saving ? (
                           <>
@@ -339,28 +326,25 @@ const Profile = () => {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-6 pt-6 pb-6 px-6">
+                  <CardContent className="space-y-6 pt-6 pb-6 px-4 sm:px-6">
                     {/* GitHub */}
                     <div className="space-y-2">
                       <Label
                         htmlFor="github"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-
                         <Github className="w-4 h-4 text-gray-900" /> GitHub
                         Profile
-
-                        <Github className="w-4 h-4 text-gray-900" /> GitHub Profile
-
                       </Label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
-                          https://github.com/
+                      <div className="flex rounded-md shadow-sm">
+                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium whitespace-nowrap">
+                          <span className="hidden sm:inline">https://github.com/</span>
+                          <span className="sm:hidden">github.com/</span>
                         </span>
                         <Input
                           id="github"
                           placeholder="username"
-                          className="pl-[9rem] h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium"
+                          className="rounded-l-none h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium flex-1 min-w-0"
                           value={socials.githubUrl.replace(
                             "https://github.com/",
                             "",
@@ -382,21 +366,18 @@ const Profile = () => {
                         htmlFor="linkedin"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-
                         <Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn
                         Profile
-
-                        <Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn Profile
-
                       </Label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none">
-                          https://linkedin.com/in/
+                      <div className="flex rounded-md shadow-sm">
+                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium whitespace-nowrap">
+                          <span className="hidden sm:inline">https://linkedin.com/in/</span>
+                          <span className="sm:hidden">linkedin/in/</span>
                         </span>
                         <Input
                           id="linkedin"
                           placeholder="username"
-                          className="pl-[11rem] h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium"
+                          className="rounded-l-none h-11 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-medium flex-1 min-w-0"
                           value={socials.linkedinUrl.replace(
                             "https://linkedin.com/in/",
                             "",
@@ -418,12 +399,8 @@ const Profile = () => {
                         htmlFor="medium"
                         className="text-sm font-semibold text-gray-700 flex items-center gap-2"
                       >
-
                         <Globe className="w-4 h-4 text-purple-600" /> Portfolio
                         / Blog
-
-                        <Globe className="w-4 h-4 text-purple-600" /> Portfolio / Blog
-
                       </Label>
                       <Input
                         id="medium"
@@ -443,7 +420,7 @@ const Profile = () => {
 
             {/* 3. Security - Enhanced Visual Design */}
             <Card className="shadow-sm border border-gray-200 overflow-hidden">
-              <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-6">
+              <CardHeader className="border-b border-gray-100 bg-gray-50 py-5 px-4 sm:px-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-red-600 rounded-xl">
                     <Shield className="w-5 h-5 text-white" />
@@ -458,9 +435,9 @@ const Profile = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6 pb-6 px-6">
+              <CardContent className="pt-6 pb-6 px-4 sm:px-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-5 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-indigo-100 transition-all duration-200">
                         <Lock className="w-6 h-6 text-gray-700 group-hover:text-indigo-600 transition-colors duration-200" />
@@ -471,7 +448,7 @@ const Profile = () => {
                           Password
                         </p>
 
-                        <p className="font-bold text-gray-900 text-base">Password</p>
+
 
                         <p className="text-sm text-gray-500 mt-1">
                           Last changed 30 days ago
@@ -507,12 +484,6 @@ const Profile = () => {
                 </CardDescription>
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPasswordModal(false)}
-                className="h-8 w-8 p-0 absolute right-2 top-2"
-              >
 
               <Button variant="ghost" size="sm" onClick={() => setShowPasswordModal(false)} className="h-8 w-8 p-0 absolute right-2 top-2">
 
@@ -533,7 +504,7 @@ const Profile = () => {
                     Current Password
                   </Label>
 
-                  <Label htmlFor="old-password" className="text-left block">Current Password</Label>
+
 
                   <div className="relative">
                     <Input
@@ -570,7 +541,7 @@ const Profile = () => {
                   <Label htmlFor="new-password" className="text-left block">
                     New Password
                   </Label>
-      <Label htmlFor="new-password" className="text-left block">New Password</Label>
+
 
                   <div className="relative">
                     <Input
@@ -611,7 +582,7 @@ const Profile = () => {
                     Confirm New Password
                   </Label>
 
-                  <Label htmlFor="confirm-password" className="text-left block">Confirm New Password</Label>
+
 
                   <div className="relative">
                     <Input

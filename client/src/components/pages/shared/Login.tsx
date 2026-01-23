@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -42,19 +42,11 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/login",
-        {
-          email: form.email,
-          password: form.password,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      // Use api client instead of direct axios
+      const response = await api.post("/login", {
+        email: form.email,
+        password: form.password,
+      });
 
       if (response.status === 200) {
         toast.success(response.data.message || "Login successful!");

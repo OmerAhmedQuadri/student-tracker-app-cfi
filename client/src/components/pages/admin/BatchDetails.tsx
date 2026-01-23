@@ -8,7 +8,7 @@ import {
   School,
   CalendarDays,
   Github,
-  Github
+  // Github
 
 } from "lucide-react";
 import {
@@ -16,7 +16,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
+  // CardDescription,
   CardDescription
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -88,7 +88,6 @@ const BatchDetails = () => {
   const filteredStudents = batchData.students.filter(
     (s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchTerm.toLowerCase()),
       s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -97,9 +96,6 @@ const BatchDetails = () => {
     const start = new Date(batchData.startDate);
     const end = new Date(batchData.endDate);
     const weeks = Math.ceil(
-
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7),
-
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7)
     );
     return `${weeks} Weeks`;
@@ -144,31 +140,19 @@ const BatchDetails = () => {
               label: "Students",
               value: batchData.studentCount,
               icon: Users,
-
               color: "indigo",
-
-              color: "indigo"
-
             },
             {
               label: "Mentors",
               value: batchData.mentorCount,
               icon: School,
-
               color: "purple",
-
-              color: "purple"
-
             },
             {
               label: "Duration",
               value: getDuration(),
               icon: CalendarDays,
-
               color: "blue",
-
-              color: "blue"
-
             },
             {
               label: "Capacity",
@@ -176,9 +160,6 @@ const BatchDetails = () => {
               icon: GraduationCap,
               color: "green",
             },
-
-              color: "green"
-            }
 
           ].map((item) => (
             <Card
@@ -199,10 +180,6 @@ const BatchDetails = () => {
                 >
 
                   <item.icon className={`h-6 w-6 text-${item.color}-600`} />
-
-                  <item.icon
-                    className={`h-6 w-6 text-${item.color}-600`}
-                  />
 
                 </div>
               </CardContent>
