@@ -12,20 +12,22 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async (to: string[], subject: string, body: string) => {
+    // console.log(`[EMAIL DEBUG] Attempting to send email to: ${to.join(", ")}`);
+    // console.log(`[EMAIL DEBUG] Config: Host=${env.EMAIL_HOST}, Port=${env.EMAIL_PORT}, User=${env.EMAIL_USER ? 'Set' : 'Not Set'}`);
+
     try {
         const mailOptions = {
             from: env.EMAIL_FROM || '"Student Tracker Manager" <no-reply@studenttracker.com>',
-            to: to.join(", "), // Join array of emails into a string
+            to: to.join(", "),
             subject: subject,
             text: body,
-            // html: "<b>Hello world?</b>", // html body
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log("Message sent: %s", info.messageId);
+       // console.log("[EMAIL DEBUG] Message sent: %s", info.messageId);
         return true;
     } catch (error) {
-        console.error("Error sending email:", error);
+       // console.error("[EMAIL DEBUG] Error sending email:", error);
         return false;
     }
 };

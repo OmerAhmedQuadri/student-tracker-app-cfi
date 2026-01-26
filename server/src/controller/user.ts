@@ -45,7 +45,7 @@ export const createAdmin = asyncHandler(
 
 export const createStudent = asyncHandler(
   async (req: Request, res: Response) => {
-    const { name, email, password, batchId } = req.body;
+    const { name, email, password, batch, phone } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -68,7 +68,8 @@ export const createStudent = asyncHandler(
       email,
       password: hashedPassword,
       role: "student",
-      batch: batchId || null,
+      batchId: batch || null,
+      phone: phone || null,
       status: "active",
       isActive: true,
     });
