@@ -28,7 +28,7 @@ interface SecurityLog {
 }
 
 const SecurityLogs = () => {
-  const [logs, setLogs] = useState<SecurityLog[]>([
+  const [logs] = useState<SecurityLog[]>([
     {
       id: "1",
       timestamp: new Date().toISOString(),

@@ -33,7 +33,7 @@ interface AttendanceRecord {
     _id: string;
     name: string;
     email: string;
-    batch?: string;
+    batchId?: string;
   };
   sessionId: string;
   finalStatus: "present" | "absent" | "late";
@@ -42,7 +42,8 @@ interface AttendanceRecord {
 
 interface Session {
   _id: string;
-  topic: string;
+  topic?: string;
+  topics?: string[];
   date: string;
   batchId: string;
 }
@@ -206,7 +207,10 @@ const AdminAttendance = () => {
       record.userId.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || record.finalStatus === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesBatch =
+      selectedBatch === "all" ||
+      (record.userId.batchId && record.userId.batchId === selectedBatch);
+    return matchesSearch && matchesStatus && matchesBatch;
   });
 
   const stats = {
@@ -380,8 +384,10 @@ const AdminAttendance = () => {
                   <SelectContent>
                     {filteredSessions.map((session) => (
                       <SelectItem key={session._id} value={session._id}>
-                        {session.topic} -{" "}
-                        {new Date(session.date).toLocaleDateString()}
+                        {(session.topics && session.topics.length > 0)
+                          ? session.topics.join(", ")
+                          : session.topic || "Untitled Session"}{" "}
+                        - {new Date(session.date).toLocaleDateString()}
                       </SelectItem>
                     ))}
                   </SelectContent>

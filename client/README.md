@@ -1,73 +1,104 @@
-# React + TypeScript + Vite
+# Student Tracker Client Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend client for the Student Tracker application, built with [Vite](https://vitejs.dev/), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), and [Tailwind CSS](https://tailwindcss.com/).
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
 
-## React Compiler
+Ensure you have **Node.js** (version 18 or higher recommended) and **npm** installed on your machine.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Installation
 
-## Expanding the ESLint configuration
+1.  Navigate to the `client` directory:
+    ```bash
+    cd client
+    ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+2.  Install dependencies:
+    ```bash
+    npm install
+    # or
+    pnpm install
+    ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Running Development Server
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+To start the local development server:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will usually be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Building for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To build the application for production deployment:
+
+```bash
+npm run build
+```
+
+The output will be generated in the `dist` folder.
+
+### Linting
+
+To run the linter and fix basic issues:
+
+```bash
+npm run lint
+```
+
+---
+
+## 📂 Project Structure
+
+The source code is located in the `src` directory. Here is an overview of the folder structure:
+
+```
+src/
+├── api/             # API client functions and axios configuration
+├── assets/          # Static assets (images, fonts, etc.)
+├── components/      # Reusable UI components
+│   ├── auth/        # Authentication related components
+│   ├── dashboard/   # Dashboard widgets and charts
+│   ├── layout/      # Layout components (Sidebar, Topbar)
+│   ├── pages/       # Full page components (Admin, Mentor, Student views)
+│   └── ui/          # Generic UI elements (Buttons, Inputs, Cards, etc.)
+├── context/         # React Contexts (e.g., AuthContext)
+├── hooks/           # Custom React hooks
+├── layouts/         # Main layout wrappers
+├── lib/             # Utility libraries and helper functions
+├── App.tsx          # Main application component
+├── index.css        # Global styles and Tailwind imports
+├── main.tsx         # Application entry point
+└── routes.tsx       # Application routing configuration
+```
+
+## 🛠️ Key Technologies
+
+*   **Vite**: Next Generation Frontend Tooling
+*   **React**: Library for building user interfaces
+*   **TypeScript**: Typed superset of JavaScript
+*   **Tailwind CSS**: Utility-first CSS framework
+*   **Lucide React**: Icon set
+*   **React Router DOM**: Routing library
+*   **Axios**: Promise-based HTTP client
+*   **React Hot Toast**: Toast notifications
+*   **Recharts**: Charting library (if used in dashboard)
+
+## 🎨 Styling
+
+The application uses **Tailwind CSS** for styling.
+Global styles are defined in `src/index.css`.
+The font family **Inter** is applied globally, with **Poppins** available for headings.
+
+## 🔗 Environment Variables
+
+Create a `.env` file in the root of the `client` directory if custom environment configuration is needed.
+Typical variables:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
 ```

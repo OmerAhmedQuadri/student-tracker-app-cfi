@@ -56,13 +56,7 @@ interface BatchDetail {
   }>;
 }
 
-interface Mentor {
-  _id: string;
-  name: string;
-  email: string;
-  isActive: boolean;
-  batchIds?: string[];
-}
+
 
 const BatchManagement = () => {
   const navigate = useNavigate();
@@ -74,9 +68,9 @@ const BatchManagement = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [creating, setCreating] = useState(false);
-  const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [mentors] = useState<any[]>([]);
   const [selectedMentorIds, setSelectedMentorIds] = useState<string[]>([]);
-  const [loadingMentors, setLoadingMentors] = useState(false);
+  const [loadingMentors] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState<{
     id: string;
@@ -101,23 +95,7 @@ const BatchManagement = () => {
     }
   };
 
-  const fetchMentors = async () => {
-    setLoadingMentors(true);
-    try {
-      const response = await api.get("/admin/mentors");
-      setMentors(response.data);
-    } catch (error) {
-      console.error("Failed to fetch mentors:", error);
-      toast.error("Failed to load mentors");
-    } finally {
-      setLoadingMentors(false);
-    }
-  };
 
-  const openCreateModal = () => {
-    setShowCreateModal(true);
-    fetchMentors();
-  };
 
   const handleCreateBatch = async () => {
     if (!newBatchId.trim()) {
@@ -161,11 +139,7 @@ const BatchManagement = () => {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g. "Jan 1"
-  };
+
 
   const formatMonthYear = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -176,14 +150,7 @@ const BatchManagement = () => {
     }); // e.g. "Jan 2025"
   };
 
-  const getDuration = (start?: string, end?: string) => {
-    if (!start || !end) return "N/A";
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffWeeks = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7));
-    return `${diffWeeks} Weeks`;
-  };
+
 
   const handleDeleteBatch = (batchId: string, studentCount: number) => {
     console.log("Delete batch called:", { batchId, studentCount }); // Debug log
@@ -608,7 +575,7 @@ const BatchManagement = () => {
                           </p>
                           {mentor.batchIds && mentor.batchIds.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {mentor.batchIds.map((batchId) => (
+                              {mentor.batchIds.map((batchId: string) => (
                                 <Badge
                                   key={batchId}
                                   variant="outline"

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Users, Loader2, ArrowLeft, GraduationCap, Mail } from "lucide-react";
+import { Users, Loader2, ArrowLeft, GraduationCap, Mail, Github, Edit2, Save, X } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { getMentorBatches, getStudentsByBatch } from "@/api/mentorApis";
+import { Input } from "@/components/ui/input";
+import { getMentorBatches, getStudentsByBatch, getBatchById, updateBatch } from "@/api/mentorApis";
 import { toast } from "react-hot-toast";
 
 interface Student {
@@ -22,6 +23,10 @@ const MentorBatches = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
+  const [githubLink, setGithubLink] = useState("");
+  const [isEditingLink, setIsEditingLink] = useState(false);
+  const [tempLink, setTempLink] = useState("");
+  const [linkLoading, setLinkLoading] = useState(false);
 
   useEffect(() => {
     fetchBatches();
@@ -44,13 +49,34 @@ const MentorBatches = () => {
     setSelectedBatch(batchId);
     setStudentsLoading(true);
     try {
-      const data = await getStudentsByBatch(batchId);
-      setStudents(data);
+      const [studentsData, batchData] = await Promise.all([
+        getStudentsByBatch(batchId),
+        getBatchById(batchId)
+      ]);
+      setStudents(studentsData);
+      setGithubLink(batchData.githubLink || "");
+      setTempLink(batchData.githubLink || "");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to fetch students");
+      toast.error("Failed to fetch batch details");
     } finally {
       setStudentsLoading(false);
+    }
+  };
+
+  const handleSaveLink = async () => {
+    if (!selectedBatch) return;
+    setLinkLoading(true);
+    try {
+      await updateBatch(selectedBatch, { githubLink: tempLink });
+      setGithubLink(tempLink);
+      setIsEditingLink(false);
+      toast.success("GitHub link updated");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update GitHub link");
+    } finally {
+      setLinkLoading(false);
     }
   };
 
@@ -185,6 +211,64 @@ const MentorBatches = () => {
             <p className="text-sm sm:text-base text-gray-600">
               {students.length} students enrolled
             </p>
+
+            <div className="mt-3 flex items-center gap-2">
+              <Github className="w-4 h-4 text-gray-500" />
+              {isEditingLink ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={tempLink}
+                    onChange={(e) => setTempLink(e.target.value)}
+                    placeholder="https://github.com/..."
+                    className="h-8 w-64 text-sm"
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSaveLink}
+                    disabled={linkLoading}
+                    className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    {linkLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditingLink(false);
+                      setTempLink(githubLink);
+                    }}
+                    disabled={linkLoading}
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {githubLink ? (
+                    <a
+                      href={githubLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1"
+                    >
+                      {githubLink.replace(/^https?:\/\//, '')}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-gray-400 italic">No GitHub repository linked</span>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingLink(true)}
+                    className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

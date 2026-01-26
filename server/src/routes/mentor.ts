@@ -8,6 +8,7 @@ import * as notificationController from "../controller/notifications";
 import * as externalActivityController from "../controller/externalActivities";
 import { getAllStudents } from "../controller/admin";
 import { getMyBatchStudents, getBatchAttendanceHistory, getMentorBatches, getBatchAttendanceByBatch, getStudentsByBatch } from "../controller/mentorStudents";
+import * as batchController from "../controller/batch";
 
 const router: Router = Router();
 
@@ -19,7 +20,10 @@ router.get("/students", getMyBatchStudents);
 router.get("/students/all", getAllStudents); // All students (for reference)
 router.get("/students/batch/:batchId", getStudentsByBatch); // Get students by specific batch
 router.get("/attendance/history", getBatchAttendanceHistory);
+// Batches
 router.get("/batches", getMentorBatches); // Get all batches taught by mentor
+router.get("/batches/:batchId", batchController.getBatchById);
+router.patch("/batches/:batchId", batchController.updateBatch);
 router.get("/attendance/by-batch", getBatchAttendanceByBatch); // Get attendance filtered by batch
 
 // Assignments

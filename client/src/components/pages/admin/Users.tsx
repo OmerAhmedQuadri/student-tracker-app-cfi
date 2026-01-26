@@ -10,7 +10,7 @@ import {
   Edit,
   X,
 
-  Plus,
+
 
   AlertTriangle,
   Loader2,
@@ -432,18 +432,18 @@ const UsersManagement = () => {
                               </span>
                             )
                           ) : // Student: show single batch
-                          user.batchId ? (
-                            <Badge
-                              variant="outline"
-                              className="bg-indigo-50 text-indigo-600 border-indigo-200"
-                            >
-                              {user.batchId}
-                            </Badge>
-                          ) : (
-                            <span className="text-sm text-gray-400">
-                              No batch
-                            </span>
-                          )}
+                            user.batchId ? (
+                              <Badge
+                                variant="outline"
+                                className="bg-indigo-50 text-indigo-600 border-indigo-200"
+                              >
+                                {user.batchId}
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-gray-400">
+                                No batch
+                              </span>
+                            )}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -463,14 +463,12 @@ const UsersManagement = () => {
                           }
                         >
                           <span
-                            className={`flex items-center ${
-                              user.isActive ? "text-green-700" : "text-red-700"
-                            }`}
+                            className={`flex items-center ${user.isActive ? "text-green-700" : "text-red-700"
+                              }`}
                           >
                             <span
-                              className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                user.isActive ? "bg-green-500" : "bg-red-500"
-                              }`}
+                              className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.isActive ? "bg-green-500" : "bg-red-500"
+                                }`}
                             ></span>
                             {user.isActive ? "Active" : "Inactive"}
                           </span>

@@ -682,7 +682,7 @@ const Assignments = () => {
               const status = getSubmissionStatus(assignment._id);
               const urgency = getUrgencyStatus(assignment);
               const daysUntilDue = getDaysUntilDue(assignment.dueDate);
-              const submission = getSubmission(assignment._id);
+
 
               return (
                 <Card

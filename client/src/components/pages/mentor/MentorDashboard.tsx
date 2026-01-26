@@ -296,32 +296,5 @@ export default function MentorDashboard() {
       </div>
     </div>
   );
-}
 
-/* ===== Reusable Components ===== */
-
-function ActionButton({ icon: Icon, title, subtitle, onClick }: any) {
-  return (
-    <button
-      onClick={onClick}
-      className="rounded-xl bg-white/10 p-4 text-left transition active:scale-95"
-    >
-      <Icon className="w-6 h-6 mb-3" />
-      <p className="font-semibold">{title}</p>
-      <p className="text-sm opacity-80">{subtitle}</p>
-      <ChevronRight className="mt-3 w-4 h-4 opacity-80" />
-    </button>
-  );
-}
-
-function ActionRow({ title, subtitle }: any) {
-  return (
-    <div className="flex items-center justify-between rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800">
-      <div>
-        <p className="font-medium text-sm">{title}</p>
-        <p className="text-xs text-slate-500">{subtitle}</p>
-      </div>
-      <ChevronRight className="w-4 h-4 text-slate-400" />
-    </div>
-  );
 }

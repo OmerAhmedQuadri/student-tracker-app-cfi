@@ -77,7 +77,7 @@ export const updateUserStatus = asyncHandler(
 
 export const getUsersByRole = asyncHandler(
   async (req: Request, res: Response) => {
-    const role = req.params.role;
+    const role = req.params.role as string;
 
     if (!["student", "mentor"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
@@ -149,7 +149,7 @@ export const assignBatch = asyncHandler(
       // If batchIds array is provided, use it
       if (batchIds && Array.isArray(batchIds)) {
         user.batchIds = batchIds;
-      } 
+      }
       // If single batchId provided, add it to batchIds array
       else if (batchId) {
         user.batchIds = user.batchIds || [];
@@ -157,7 +157,7 @@ export const assignBatch = asyncHandler(
           user.batchIds.push(batchId);
         }
       }
-    } 
+    }
     // Handle student with single batch
     else if (user.role === "student") {
       user.batchId = batchId;

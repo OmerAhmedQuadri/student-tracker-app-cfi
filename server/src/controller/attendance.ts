@@ -2,35 +2,36 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { StudentAttendance } from "../models/StudentAttendance";
 import { MentorshipSession } from "../models/MentorshipSession";
+import { checkAndSendAbsenteeWarning } from "../utils/absenteeMonitor";
 
 // Mark Attendance (Student)
 export const markAttendance = asyncHandler(async (req: Request, res: Response) => {
-  const { sessionId } = req.body;
-  
-  const session = await MentorshipSession.findById(sessionId);
-  if (!session) {
-    return res.status(404).json({ message: "Session not found" });
-  }
+    const { sessionId } = req.body;
 
-  let attendance = await StudentAttendance.findOne({
-    userId: req.user!.id,
-    sessionId
-  });
+    const session = await MentorshipSession.findById(sessionId);
+    if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+    }
 
-  if (attendance) {
-      attendance.markedByStudent = true;
-      await attendance.save();
-  } else {
-    attendance = await StudentAttendance.create({
+    let attendance = await StudentAttendance.findOne({
         userId: req.user!.id,
-        sessionId,
-        markedByStudent: true,
-        approvedByMentor: false,
-        finalStatus: "absent" // Default untill approved? Or strict? Let's leave undefined or strictly logic later. Schema says enum present/absent.
+        sessionId
     });
-  }
 
-  res.status(200).json(attendance);
+    if (attendance) {
+        attendance.markedByStudent = true;
+        await attendance.save();
+    } else {
+        attendance = await StudentAttendance.create({
+            userId: req.user!.id,
+            sessionId,
+            markedByStudent: true,
+            approvedByMentor: false,
+            finalStatus: "absent" // Default untill approved? Or strict? Let's leave undefined or strictly logic later. Schema says enum present/absent.
+        });
+    }
+
+    res.status(200).json(attendance);
 });
 
 // Approve Attendance (Mentor)
@@ -47,13 +48,21 @@ export const approveAttendance = asyncHandler(async (req: Request, res: Response
     if (finalStatus) attendance.finalStatus = finalStatus;
 
     await attendance.save();
+
+    // Check and send warning if absent
+    if (attendance.finalStatus === 'absent' && attendance.approvedByMentor) {
+        // We don't await this to keep response fast, or we can await if critical.
+        // Let's not await to avoid blocking response.
+        checkAndSendAbsenteeWarning(attendance.userId.toString());
+    }
+
     res.json(attendance);
 });
 
 // Mark Attendance by Mentor for Students
 export const mentorMarkAttendance = asyncHandler(async (req: Request, res: Response) => {
     const { sessionId, studentId, status } = req.body;
-    
+
     if (!sessionId || !studentId || !status) {
         return res.status(400).json({ message: "Session ID, Student ID, and status are required" });
     }
@@ -90,12 +99,17 @@ export const mentorMarkAttendance = asyncHandler(async (req: Request, res: Respo
     }
 
     res.status(200).json(attendance);
+
+    // Check and send warning if absent
+    if (status === 'absent') {
+        checkAndSendAbsenteeWarning(studentId);
+    }
 });
 
 // Get Attendance for a Session (Mentor)
 export const getSessionAttendance = asyncHandler(async (req: Request, res: Response) => {
     const { sessionId } = req.params;
-    const attendance = await StudentAttendance.find({ sessionId }).populate("userId", "name email");
+    const attendance = await StudentAttendance.find({ sessionId }).populate("userId", "name email batchId");
     res.json(attendance);
 });
 
