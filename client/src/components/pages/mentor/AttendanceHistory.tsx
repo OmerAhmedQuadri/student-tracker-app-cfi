@@ -41,7 +41,8 @@ interface AttendanceRecord {
   };
   sessionId: {
     _id: string;
-    topic: string;
+    topics?: string[];
+    topic?: string;
     date: string;
   };
   date: string;
@@ -477,7 +478,7 @@ const AttendanceHistory = () => {
                         <TableCell className="py-2 sm:py-3 md:py-4 hidden md:table-cell text-left">
                           <div className="min-w-0">
                             <p className="font-medium text-sm md:text-base text-gray-900 truncate">
-                              {record.sessionId?.topic || "Unknown Session"}
+                              {record.sessionId?.topics?.[0] || record.sessionId?.topic || "Unknown Session"}
                             </p>
                             <p className="text-xs md:text-sm text-gray-500 truncate">
                               {record.userId?.batchId

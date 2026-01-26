@@ -347,7 +347,7 @@ const AdminSessions = () => {
                           <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
                             {session.topic}
                           </h3>
-                          <Badge className="bg-green-100 text-green-700 text-xs">
+                          <Badge className="bg-green-100 text-green-700 text-xs hover:bg-green-100">
                             Completed
                           </Badge>
                         </div>
