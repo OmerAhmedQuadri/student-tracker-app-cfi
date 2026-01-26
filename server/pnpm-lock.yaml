@@ -24,7 +24,7 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
       express:
-        specifier: ^5.2.1
+        specifier: ^5.0.5
         version: 5.2.1
       mongoose:
         specifier: ^9.1.5
@@ -49,7 +49,7 @@ importers:
         specifier: ^8.2.3
         version: 8.2.3
       '@types/express':
-        specifier: ^5.0.6
+        specifier: ^5.0.5
         version: 5.0.6
       '@types/jsonwebtoken':
         specifier: ^9.0.10

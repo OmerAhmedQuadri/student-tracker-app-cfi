@@ -72,7 +72,7 @@ export const getBatchAttendanceHistory = asyncHandler(
       userId: { $in: studentIds }
     })
       .populate('userId', 'name email batchId')
-      .populate('sessionId', 'topic scheduledAt')
+      .populate('sessionId', 'topics topic date')
       .sort({ date: -1 });
 
     res.json(attendance);
@@ -124,7 +124,7 @@ export const getBatchAttendanceByBatch = asyncHandler(
       userId: { $in: studentIds }
     })
       .populate('userId', 'name email batchId')
-      .populate('sessionId', 'topic date')
+      .populate('sessionId', 'topics topic date')
       .sort({ date: -1 });
 
     res.json(attendance);
