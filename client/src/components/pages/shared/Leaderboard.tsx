@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Trophy,
   Medal,
-  Award,
+
   TrendingUp,
   Star,
   Users,
@@ -84,15 +84,7 @@ const Leaderboard = () => {
     );
   };
 
-  const getRankBadgeColor = (rank: number) => {
-    if (rank === 1)
-      return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
-    if (rank === 2)
-      return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
-    if (rank === 3)
-      return "bg-gradient-to-r from-amber-600 to-amber-800 text-white";
-    return "bg-gray-100 text-gray-700";
-  };
+
 
   const topThree = leaderboard.slice(0, 3);
   const others = leaderboard.slice(3);
@@ -115,33 +107,30 @@ const Leaderboard = () => {
               <div className="flex rounded-md shadow-sm" role="group">
                 <button
                   type="button"
-                  className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
-                    timeFrame === "all"
-                      ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
-                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-l-md border ${timeFrame === "all"
+                    ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
                   onClick={() => setTimeFrame("all")}
                 >
                   All Time
                 </button>
                 <button
                   type="button"
-                  className={`px-4 py-2 text-sm font-medium border-t border-b border-r ${
-                    timeFrame === "weekly"
-                      ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
-                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium border-t border-b border-r ${timeFrame === "weekly"
+                    ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
                   onClick={() => setTimeFrame("weekly")}
                 >
                   This Week
                 </button>
                 <button
                   type="button"
-                  className={`px-4 py-2 text-sm font-medium rounded-r-md border-t border-b border-r ${
-                    timeFrame === "monthly"
-                      ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
-                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-r-md border-t border-b border-r ${timeFrame === "monthly"
+                    ? "bg-indigo-50 border-indigo-500 text-indigo-700 z-10"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
                   onClick={() => setTimeFrame("monthly")}
                 >
                   This Month
@@ -239,7 +228,7 @@ const Leaderboard = () => {
                             {Math.round(
                               (topThree[1].totalPoints /
                                 topThree[0].totalPoints) *
-                                100,
+                              100,
                             )}
                             %
                           </span>
@@ -319,7 +308,7 @@ const Leaderboard = () => {
                             {Math.round(
                               (topThree[2].totalPoints /
                                 topThree[1].totalPoints) *
-                                100,
+                              100,
                             )}
                             %
                           </span>
@@ -358,11 +347,10 @@ const Leaderboard = () => {
                 {others.map((entry) => (
                   <div
                     key={entry.userId._id}
-                    className={`p-5 flex items-center gap-4 hover:bg-gray-50 transition-all ${
-                      currentUserRank === entry.rank
-                        ? "bg-indigo-50 border-l-4 border-indigo-600"
-                        : ""
-                    }`}
+                    className={`p-5 flex items-center gap-4 hover:bg-gray-50 transition-all ${currentUserRank === entry.rank
+                      ? "bg-indigo-50 border-l-4 border-indigo-600"
+                      : ""
+                      }`}
                   >
                     <div className="shrink-0 w-10 flex justify-center">
                       {getRankIcon(entry.rank)}

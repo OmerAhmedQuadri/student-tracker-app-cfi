@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from "@/context/AuthContext";
 
-import { BookOpen, Clock, CalendarCheck, TrendingUp, CheckCircle2, FileText, ArrowUpRight } from 'lucide-react';
+import { BookOpen, Clock, CalendarCheck, TrendingUp, CheckCircle2, FileText, ArrowUpRight, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
 
@@ -34,13 +35,18 @@ const StudentDashboard = () => {
         totalPoints: 0
     });
     const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+    const [showAbsenteeAlert, setShowAbsenteeAlert] = useState(false);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 // 1. Fetch Dashboard Data (Profile, Recent Assignments)
                 const dashboardRes = await api.get('/dashboard/student');
-                const { profile, recentAssignments } = dashboardRes.data;
+                const { profile, recentAssignments, consecutiveAbsences } = dashboardRes.data;
+
+                if (consecutiveAbsences) {
+                    setShowAbsenteeAlert(true);
+                }
 
                 // 2. Fetch Assignments Data for "Pending" count
                 const [allAssignmentsRes, myAssignmentsRes] = await Promise.all([
@@ -60,7 +66,8 @@ const StudentDashboard = () => {
                 // 4. Fetch Attendance for "Attendance" count
                 const attendanceRes = await api.get('/attendance/my');
                 const attendanceRecords = attendanceRes.data || [];
-                const attendanceCount = attendanceRecords.length;
+                // ONLY count records where finalStatus is 'present'
+                const attendanceCount = attendanceRecords.filter((a: any) => a.finalStatus === 'present').length;
 
                 // Update Stats
                 setStats({
@@ -97,12 +104,19 @@ const StudentDashboard = () => {
 
                 // Add Recent Attendance
                 attendanceRecords.slice(0, 3).forEach((att: any) => {
+                    let sessionDate = att.date; // fallback
+                    if (att.sessionId && typeof att.sessionId === 'object') {
+                        // Prefer session date/scheduledAt
+                        if (att.sessionId.date) sessionDate = att.sessionId.date;
+                        else if (att.sessionId.scheduledAt) sessionDate = att.sessionId.scheduledAt;
+                    }
+
                     activities.push({
                         id: `att-${att._id}`,
                         type: 'attendance',
                         title: 'Attendance Marked',
-                        description: new Date(att.date).toLocaleDateString(undefined, { weekday: 'long' }),
-                        time: new Date(att.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                        description: new Date(sessionDate).toLocaleDateString(undefined, { weekday: 'long' }),
+                        time: new Date(sessionDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
                     });
                 });
 
@@ -173,6 +187,16 @@ const StudentDashboard = () => {
                                 Welcome back, <span className="font-semibold text-gray-800">{user?.name}</span>. Here's an overview of your progress.
                             </p>
                         </div>
+
+                        {showAbsenteeAlert && (
+                            <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Attendance Warning</AlertTitle>
+                                <AlertDescription>
+                                    You have missed the last 3 consecutive sessions. Please contact your mentor immediately to discuss your attendance.
+                                </AlertDescription>
+                            </Alert>
+                        )}
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -13,7 +13,6 @@ import {
   ClipboardCheck,
   Calendar,
   Megaphone,
-  Trophy,
   Zap,
   History,
   UsersRound,
@@ -87,7 +86,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: "Batch Management", path: "/admin/batches", icon: Layers },
     { name: "Sessions", path: "/admin/sessions", icon: Calendar },
     { name: "Attendance", path: "/admin/attendance", icon: ClipboardCheck },
-    { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
     { name: "Profile", path: "/profile", icon: User },
   ];
 

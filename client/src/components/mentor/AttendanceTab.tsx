@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Check, X, Users, Calendar, Search, Loader2 } from 'lucide-react';
 import * as mentorApi from '@/api/mentorApis';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

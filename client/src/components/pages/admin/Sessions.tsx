@@ -78,11 +78,6 @@ const AdminSessions = () => {
     }
   };
 
-  const handleDeleteClick = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setShowDeleteDialog(true);
-  };
-
   const handleDeleteConfirm = async () => {
     if (!sessionToDelete) return;
 
@@ -98,8 +93,8 @@ const AdminSessions = () => {
     }
   };
 
-  const filteredSessions = selectedBatch === "all" 
-    ? sessions 
+  const filteredSessions = selectedBatch === "all"
+    ? sessions
     : sessions.filter((s) => s.batchId === selectedBatch);
 
   const upcomingSessions = filteredSessions

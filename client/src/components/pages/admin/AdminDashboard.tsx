@@ -34,15 +34,7 @@ interface DashboardStats {
   batchDistribution: { [key: string]: number };
 }
 
-interface RecentActivity {
-  _id: string;
-  user: {
-    name: string;
-    role: string;
-  };
-  action: string;
-  timestamp: string;
-}
+
 
 interface User {
   _id: string;
@@ -66,9 +58,7 @@ const AdminDashboard = () => {
     batchDistribution: {},
   });
   const [loading, setLoading] = useState(true);
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>(
-    [],
-  );
+
   const [editingBatch, setEditingBatch] = useState<{
     userId: string;
     userName: string;
@@ -78,7 +68,7 @@ const AdminDashboard = () => {
   } | null>(null);
   const [batchInput, setBatchInput] = useState("");
   const [batchesInput, setBatchesInput] = useState<string[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
+
 
   useEffect(() => {
     fetchDashboardData();
@@ -97,7 +87,7 @@ const AdminDashboard = () => {
       const students = studentsRes.data;
       const mentors = mentorsRes.data;
       const users = [...students, ...mentors];
-      setAllUsers(users);
+
 
       // Calculate batch statistics
       const batchDistribution: { [key: string]: number } = {};
@@ -155,20 +145,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const openBatchModal = (user: User) => {
-    const currentBatch = user.batchId || "";
-    const currentBatches =
-      user.batchIds || (user.batchId ? [user.batchId] : []);
-    setEditingBatch({
-      userId: user._id,
-      userName: user.name,
-      userRole: user.role,
-      currentBatch,
-      currentBatches,
-    });
-    setBatchInput(currentBatch);
-    setBatchesInput(currentBatches);
-  };
+
 
   if (loading) {
     return (
@@ -448,11 +425,10 @@ const AdminDashboard = () => {
                   {editingBatch.userName}
                 </p>
                 <span
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                    editingBatch.userRole === "mentor"
-                      ? "bg-purple-100 text-purple-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
+                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${editingBatch.userRole === "mentor"
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-blue-100 text-blue-700"
+                    }`}
                 >
                   {editingBatch.userRole === "mentor" ? "Mentor" : "Student"}
                 </span>

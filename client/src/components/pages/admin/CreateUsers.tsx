@@ -23,12 +23,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 // import { Badge } from '@/components/ui/badge';
 import { toast } from "react-hot-toast";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface CreateUserFormData {
   name: string;
   email: string;
   password: string;
   batch?: string;
+  phone?: string;
 }
 
 const AdminCreateUsers = () => {
@@ -46,6 +49,7 @@ const AdminCreateUsers = () => {
     email: "",
     password: "",
     batch: "",
+    phone: "",
   });
 
   const [adminData, setAdminData] = useState<CreateUserFormData>({
@@ -111,7 +115,7 @@ const AdminCreateUsers = () => {
 
       if (res.ok) {
         toast.success("Student created successfully");
-        setStudentData({ name: "", email: "", password: "", batch: "" });
+        setStudentData({ name: "", email: "", password: "", batch: "", phone: "" });
         setShowStudentForm(false);
       } else {
         const error = await res.json();
@@ -345,11 +349,10 @@ const AdminCreateUsers = () => {
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="student-name"
-                      className={`pl-9 ${
-                        formErrors.name
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.name
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={studentData.name}
                       onChange={(e) =>
                         setStudentData({ ...studentData, name: e.target.value })
@@ -378,11 +381,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="student-email"
                       type="email"
-                      className={`pl-9 ${
-                        formErrors.email
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.email
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={studentData.email}
                       onChange={(e) =>
                         setStudentData({
@@ -414,11 +416,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="student-password"
                       type={showStudentPassword ? "text" : "password"}
-                      className={`pl-9 pr-10 ${
-                        formErrors.password
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 pr-10 ${formErrors.password
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={studentData.password}
                       onChange={(e) =>
                         setStudentData({
@@ -470,6 +471,23 @@ const AdminCreateUsers = () => {
                       setStudentData({ ...studentData, batch: e.target.value })
                     }
                     placeholder="Batch 2024"
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="student-phone"
+                    className="text-sm font-medium text-left block mb-2"
+                  >
+                    Phone Number
+                  </Label>
+                  <PhoneInput
+                    country={'in'}
+                    value={studentData.phone}
+                    onChange={(phone) => setStudentData({ ...studentData, phone })}
+                    containerStyle={{ width: '100%' }}
+                    inputStyle={{ width: '100%', height: '40px', borderRadius: '0.375rem', borderColor: '#e5e7eb' }}
                     disabled={loading}
                   />
                 </div>
@@ -552,11 +570,10 @@ const AdminCreateUsers = () => {
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="mentor-name"
-                      className={`pl-9 ${
-                        formErrors.name
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.name
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={mentorData.name}
                       onChange={(e) =>
                         setMentorData({ ...mentorData, name: e.target.value })
@@ -585,11 +602,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="mentor-email"
                       type="email"
-                      className={`pl-9 ${
-                        formErrors.email
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.email
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={mentorData.email}
                       onChange={(e) =>
                         setMentorData({ ...mentorData, email: e.target.value })
@@ -618,11 +634,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="mentor-password"
                       type={showMentorPassword ? "text" : "password"}
-                      className={`pl-9 pr-10 ${
-                        formErrors.password
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 pr-10 ${formErrors.password
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={mentorData.password}
                       onChange={(e) =>
                         setMentorData({
@@ -736,11 +751,10 @@ const AdminCreateUsers = () => {
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="admin-name"
-                      className={`pl-9 ${
-                        formErrors.name
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.name
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={adminData.name}
                       onChange={(e) =>
                         setAdminData({ ...adminData, name: e.target.value })
@@ -769,11 +783,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="admin-email"
                       type="email"
-                      className={`pl-9 ${
-                        formErrors.email
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 ${formErrors.email
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={adminData.email}
                       onChange={(e) =>
                         setAdminData({ ...adminData, email: e.target.value })
@@ -802,11 +815,10 @@ const AdminCreateUsers = () => {
                     <Input
                       id="admin-password"
                       type={showAdminPassword ? "text" : "password"}
-                      className={`pl-9 pr-10 ${
-                        formErrors.password
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                          : ""
-                      }`}
+                      className={`pl-9 pr-10 ${formErrors.password
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                        }`}
                       value={adminData.password}
                       onChange={(e) =>
                         setAdminData({ ...adminData, password: e.target.value })

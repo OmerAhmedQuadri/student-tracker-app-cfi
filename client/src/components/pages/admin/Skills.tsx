@@ -25,23 +25,13 @@ const AdminSkills = () => {
     const [skills, setSkills] = useState<Skill[]>([]);
     const [topics, setTopics] = useState<Topic[]>([]);
     const [selectedSkill, setSelectedSkill] = useState<string>('');
-    const [loading, setLoading] = useState(true);
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         difficulty: 'intermediate' as 'beginner' | 'intermediate' | 'advanced',
         estimatedMinutes: 60
     });
-
-    useEffect(() => {
-        fetchSkills();
-    }, []);
-
-    useEffect(() => {
-        if (selectedSkill) {
-            fetchTopics(selectedSkill);
-        }
-    }, [selectedSkill]);
 
     const fetchSkills = async () => {
         try {
@@ -53,8 +43,6 @@ const AdminSkills = () => {
         } catch (error) {
             console.error('Failed to fetch skills:', error);
             toast.error('Failed to load skills');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -92,7 +80,7 @@ const AdminSkills = () => {
 
     const handleDeleteTopic = async (topicId: string) => {
         if (!confirm('Are you sure you want to delete this topic?')) return;
-        
+
         try {
             await api.delete(`/admin/skills/topics/${topicId}`);
             toast.success('Topic deleted successfully');
@@ -112,13 +100,23 @@ const AdminSkills = () => {
         }
     };
 
+    useEffect(() => {
+        fetchSkills();
+    }, []);
+
+    useEffect(() => {
+        if (selectedSkill) {
+            fetchTopics(selectedSkill);
+        }
+    }, [selectedSkill]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
             {/* Header */}
             <div className="relative h-48 bg-gradient-to-br from-purple-600 via-pink-600 to-rose-600 overflow-hidden">
                 <div className="absolute inset-0 bg-black/10"></div>
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                
+
                 <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-lg">
@@ -129,7 +127,7 @@ const AdminSkills = () => {
                             <p className="text-purple-100 text-sm mt-1">Manage skills and topics</p>
                         </div>
                     </div>
-                    
+
                     <Button
                         onClick={() => setShowCreateModal(true)}
                         disabled={!selectedSkill}
@@ -202,16 +200,15 @@ const AdminSkills = () => {
                                     <button
                                         key={skill._id}
                                         onClick={() => setSelectedSkill(skill._id)}
-                                        className={`w-full text-left p-3 rounded-lg transition-all ${
-                                            selectedSkill === skill._id
-                                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                                                : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
-                                        }`}
+                                        className={`w-full text-left p-3 rounded-lg transition-all ${selectedSkill === skill._id
+                                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                                            : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
+                                            }`}
                                     >
                                         <p className="text-sm font-semibold">{skill.name}</p>
                                     </button>
                                 ))}
-                                
+
                                 {skills.length === 0 && (
                                     <div className="text-center py-8">
                                         <p className="text-xs text-gray-500">No skills found</p>
@@ -229,7 +226,7 @@ const AdminSkills = () => {
                             </CardTitle>
                             <CardDescription className="text-xs">Learning topics and their difficulty levels</CardDescription>
                         </CardHeader>
-                        
+
                         <CardContent className="p-6">
                             <div className="space-y-4">
                                 {topics.map((topic) => (
@@ -240,7 +237,7 @@ const AdminSkills = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <h3 className="text-base font-bold text-gray-900 mb-2">{topic.title}</h3>
-                                                
+
                                                 <div className="flex items-center gap-3">
                                                     <Badge className={getDifficultyColor(topic.difficulty)}>
                                                         {topic.difficulty}
@@ -250,7 +247,7 @@ const AdminSkills = () => {
                                                     </span>
                                                 </div>
                                             </div>
-                                            
+
                                             <Button
                                                 size="sm"
                                                 variant="outline"
@@ -262,7 +259,7 @@ const AdminSkills = () => {
                                         </div>
                                     </div>
                                 ))}
-                                
+
                                 {topics.length === 0 && (
                                     <div className="text-center py-12">
                                         <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />

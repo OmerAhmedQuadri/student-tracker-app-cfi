@@ -36,7 +36,7 @@ interface Assignment {
 const AdminAssignments = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [skills, setSkills] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -60,8 +60,6 @@ const AdminAssignments = () => {
     } catch (error) {
       console.error("Failed to fetch data:", error);
       toast.error("Failed to load data");
-    } finally {
-      setLoading(false);
     }
   };
 

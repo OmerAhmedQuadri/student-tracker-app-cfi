@@ -49,6 +49,7 @@ interface BatchData {
   startDate?: string;
   endDate?: string;
   description?: string;
+  githubLink?: string;
 }
 
 const BatchDetails = () => {
@@ -229,14 +230,19 @@ const BatchDetails = () => {
 
             <div className="md:col-span-2">
               <p className="text-slate-500">GitHub Repository</p>
-              <a
-                href="https://github.com/thehackingschool/CS24_Classwork"
-                target="_blank"
-                className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
-              >
-                https://github.com/thehackingschool/CS24_Classwork
-                <Github className="h-4 w-4" />
-              </a>
+              {batchData.githubLink ? (
+                <a
+                  href={batchData.githubLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+                >
+                  {batchData.githubLink}
+                  <Github className="h-4 w-4" />
+                </a>
+              ) : (
+                <p className="text-sm text-gray-500 italic">No repository linked</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -265,13 +271,13 @@ const BatchDetails = () => {
               <table className="w-full">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 w-[40%]">
                       Student
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 w-[30%]">
                       Contact
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 w-[30%]">
                       Status
                     </th>
                   </tr>
@@ -291,7 +297,7 @@ const BatchDetails = () => {
                                 {s.name.slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
+                            <div className="text-left">
                               <p className="font-semibold text-slate-900 group-hover:text-indigo-700">
                                 {s.name}
                               </p>
@@ -302,16 +308,16 @@ const BatchDetails = () => {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 text-sm text-slate-600">
+                        <td className="px-6 py-4 text-sm text-center text-slate-600">
                           {s.phone || "—"}
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 text-center">
                           <Badge
                             className={
                               s.isActive
-                                ? "bg-green-100 text-green-700"
-                                : "bg-slate-100 text-slate-600"
+                                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                             }
                           >
                             {s.isActive ? "Active" : "Inactive"}

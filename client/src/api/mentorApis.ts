@@ -12,6 +12,16 @@ export const getMentorBatches = async () => {
     return response.data;
 };
 
+export const getBatchById = async (batchId: string) => {
+    const response = await api.get(`/mentor/batches/${batchId}`);
+    return response.data;
+};
+
+export const updateBatch = async (batchId: string, data: { githubLink?: string }) => {
+    const response = await api.patch(`/mentor/batches/${batchId}`, data);
+    return response.data;
+};
+
 export const getStudentsByBatch = async (batchId: string) => {
     const response = await api.get(`/mentor/students/batch/${batchId}`);
     return response.data;

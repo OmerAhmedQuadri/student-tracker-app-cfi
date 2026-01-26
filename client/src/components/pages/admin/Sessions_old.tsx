@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -305,7 +305,7 @@ const AdminSessions = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {}}>
+                          <DropdownMenuItem onClick={() => { }}>
                             <Pencil className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
@@ -396,7 +396,7 @@ const AdminSessions = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {}}>
+                          <DropdownMenuItem onClick={() => { }}>
                             <Pencil className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
@@ -466,11 +466,10 @@ const AdminSessions = () => {
                   <Input
                     id="batchId"
                     placeholder="Batch 1"
-                    className={`mt-1 ${
-                      formErrors.batchId
+                    className={`mt-1 ${formErrors.batchId
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                         : ""
-                    }`}
+                      }`}
                     value={formData.batchId}
                     onChange={(e) =>
                       setFormData({ ...formData, batchId: e.target.value })
@@ -492,11 +491,10 @@ const AdminSessions = () => {
                   <Input
                     id="date"
                     type="datetime-local"
-                    className={`mt-1 ${
-                      formErrors.date
+                    className={`mt-1 ${formErrors.date
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                         : ""
-                    }`}
+                      }`}
                     value={formData.date}
                     onChange={(e) =>
                       setFormData({ ...formData, date: e.target.value })
@@ -518,11 +516,10 @@ const AdminSessions = () => {
                   <Input
                     id="topic"
                     placeholder="Intro to Node.js"
-                    className={`mt-1 ${
-                      formErrors.topic
+                    className={`mt-1 ${formErrors.topic
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                         : ""
-                    }`}
+                      }`}
                     value={formData.topic}
                     onChange={(e) =>
                       setFormData({ ...formData, topic: e.target.value })

@@ -36,6 +36,7 @@ interface MentorshipSession {
   scheduledAt: string;
   mentorName?: string;
   status: "scheduled" | "cancelled" | "completed";
+  date?: string; // This usually exists on existing records
 }
 
 interface AttendanceRecord {
@@ -331,9 +332,17 @@ const Attendance = () => {
                 ) : (
                   attendanceHistory.map((record) => {
                     let sessionTopic = "Session";
+                    let sessionDate = record.date; // Default to record date
+
                     if (typeof record.sessionId === "object") {
                       const session = record.sessionId as MentorshipSession;
                       sessionTopic = session.topic || (session.topics ? session.topics.join(", ") : "Session");
+                      // Prefer session date if available
+                      if (session.date) {
+                        sessionDate = session.date;
+                      } else if (session.scheduledAt) {
+                        sessionDate = session.scheduledAt;
+                      }
                     }
                     return (
                       <TableRow
@@ -341,7 +350,7 @@ const Attendance = () => {
                         className="hover:bg-gray-50/50 transition-colors border-gray-100"
                       >
                         <TableCell className="py-4 text-center font-medium text-gray-900">
-                          {new Date(record.date).toLocaleDateString()}
+                          {new Date(sessionDate).toLocaleDateString()}
                         </TableCell>
                         <TableCell className="py-4 text-center text-gray-600">
                           {sessionTopic}
