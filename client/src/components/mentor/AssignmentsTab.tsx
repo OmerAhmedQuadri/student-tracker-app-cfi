@@ -5,9 +5,9 @@ import {
   ChevronRight,
   Search,
   FileCode,
-  Calendar,
   Loader2,
   ExternalLink,
+  CheckCircle2,
 } from "lucide-react";
 import * as mentorApi from "@/api/mentorApis";
 import api from "@/lib/api";
@@ -40,10 +40,16 @@ import {
 } from "@/components/ui/dialog";
 
 // Types
+interface Task {
+  _id?: string;
+  title: string;
+  dueDate: string;
+}
+
 interface Assignment {
   _id: string;
   title: string;
-  dueDate: string;
+  tasks: Task[];
   description?: string;
 }
 
@@ -51,7 +57,15 @@ interface Submission {
   _id: string;
   userId: { _id: string; name: string; email: string };
   status: string;
-  submittedAt: string;
+  taskSubmissions?: {
+    taskId: string;
+    status: 'pending' | 'submitted';
+    submittedAt: string;
+    timeTakenMinutes?: number;
+    assignmentLink?: string;
+  }[];
+  // Backwards compatibility or aggregate fields
+  submittedAt?: string;
   timeTakenMinutes?: number;
   assignmentLink?: string;
 }
@@ -78,16 +92,16 @@ export const AssignmentsTab = () => {
   const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(
     null
   );
+  const [submissionDetailsOpen, setSubmissionDetailsOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
     title: "",
-    dueDate: "",
     batchId: "",
+    tasks: [{ title: "", dueDate: "" }],
   });
-
-  // Score input state for each submission row
-  // const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadBatches();
@@ -141,7 +155,7 @@ export const AssignmentsTab = () => {
         batchId: selectedBatch,
       });
       setIsCreating(false);
-      setFormData({ title: "", dueDate: "", batchId: "" });
+      setFormData({ title: "", batchId: "", tasks: [{ title: "", dueDate: "" }] });
       loadAssignments();
     } catch (error) {
       console.error("Failed to create assignment", error);
@@ -181,16 +195,12 @@ export const AssignmentsTab = () => {
     try {
       const data = await mentorApi.getSubmissionsForAssignment(assignment._id);
       setSubmissions(data);
-      // Reset score inputs
-
     } catch (error) {
       console.error("Failed to load submissions", error);
     } finally {
       setLoadingSubmissions(false);
     }
   };
-
-
 
   const filteredAssignments = assignments.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -234,7 +244,7 @@ export const AssignmentsTab = () => {
       <div className="px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-auto lg:h-[calc(100vh-240px)] lg:min-h-[500px]">
           {/* Left Sidebar: List of Assignments */}
-          <Card className="lg:col-span-4 h-[600px] lg:h-full flex flex-col border-border/50 shadow-md overflow-hidden bg-card">
+          <Card className="lg:col-span-4 h-auto min-h-[300px] max-h-[600px] lg:max-h-none lg:h-full flex flex-col border-border/50 shadow-md overflow-hidden bg-card">
             <div className="p-4 sm:p-5 border-b border-border/50 bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-background">
               <div className="flex justify-between items-center gap-2 mb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -306,11 +316,9 @@ export const AssignmentsTab = () => {
                         </h3>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 px-1.5 py-0.5 bg-background/60 rounded border border-border/50">
-                            <Calendar className="w-3 h-3 flex-shrink-0" />
+                            <FileCode className="w-3 h-3 flex-shrink-0" />
                             <span className="text-[10px] sm:text-xs">
-                              {new Date(
-                                assignment.dueDate
-                              ).toLocaleDateString()}
+                              {assignment.tasks?.length || 0} Tasks
                             </span>
                           </span>
                         </div>
@@ -361,28 +369,76 @@ export const AssignmentsTab = () => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="dueDate"
-                          className="text-sm font-semibold"
-                        >
-                          Due Date & Time
-                        </Label>
-                        <Input
-                          id="dueDate"
-                          type="datetime-local"
-                          required
-                          value={formData.dueDate}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              dueDate: e.target.value,
-                            })
-                          }
-                          className="h-10 sm:h-11 text-sm"
-                        />
-                      </div>
+                    <div className="space-y-4">
+                      <Label className="text-sm font-semibold">Tasks</Label>
+                      {formData.tasks.map((task, index) => (
+                        <div key={index} className="space-y-3 p-4 border border-border/50 rounded-lg bg-gray-50/50">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium text-muted-foreground">Task {index + 1}</span>
+                            {formData.tasks.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newTasks = [...formData.tasks];
+                                  newTasks.splice(index, 1);
+                                  setFormData({ ...formData, tasks: newTasks });
+                                }}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                              >
+                                <Trash className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor={`task-title-${index}`} className="text-xs">Task Title</Label>
+                              <Input
+                                id={`task-title-${index}`}
+                                placeholder="Task Name"
+                                required
+                                value={task.title}
+                                onChange={(e) => {
+                                  const newTasks = [...formData.tasks];
+                                  newTasks[index].title = e.target.value;
+                                  setFormData({ ...formData, tasks: newTasks });
+                                }}
+                                className="h-9 text-sm"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`task-due-${index}`} className="text-xs">Due Date</Label>
+                              <Input
+                                id={`task-due-${index}`}
+                                type="datetime-local"
+                                required
+                                value={task.dueDate}
+                                onChange={(e) => {
+                                  const newTasks = [...formData.tasks];
+                                  newTasks[index].dueDate = e.target.value;
+                                  setFormData({ ...formData, tasks: newTasks });
+                                }}
+                                className="h-9 text-sm"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            tasks: [...formData.tasks, { title: "", dueDate: "" }],
+                          })
+                        }
+                        className="w-full sm:w-auto text-xs"
+                      >
+                        <Plus className="w-3 h-3 mr-1" /> Add Task
+                      </Button>
                     </div>
 
                     <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-border/50">
@@ -414,12 +470,9 @@ export const AssignmentsTab = () => {
                       </h2>
                       <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                         <span className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-indigo-100 text-indigo-700 border border-indigo-200 font-medium dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800">
-                          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <FileCode className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="text-xs sm:text-sm">
-                            Due{" "}
-                            {new Date(
-                              selectedAssignment.dueDate
-                            ).toLocaleString()}
+                            {selectedAssignment.tasks?.length || 0} Tasks
                           </span>
                         </span>
                       </div>
@@ -466,7 +519,43 @@ export const AssignmentsTab = () => {
                     </div>
                   ) : (
                     <div className="rounded-lg border border-border/50 overflow-hidden shadow-sm">
-                      <Table>
+                      {/* Mobile List View */}
+                      <div className="block sm:hidden">
+                        {submissions.map((sub) => {
+                          const submittedTasksCount = sub.taskSubmissions?.filter(ts => ts.status === 'submitted').length || 0;
+                          const totalTasks = selectedAssignment.tasks?.length || 0;
+                          return (
+                            <div key={sub._id} className="p-4 border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors" onClick={() => {
+                              setSelectedSubmission(sub);
+                              setSubmissionDetailsOpen(true);
+                            }}>
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <p className="font-semibold text-sm">{sub.userId?.name}</p>
+                                  <p className="text-xs text-muted-foreground">{sub.userId?.email}</p>
+                                </div>
+                                {sub.status === "graded" ? (
+                                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">Graded</Badge>
+                                ) : (
+                                  <Badge variant="outline" className={sub.status === 'submitted' || submittedTasksCount === totalTasks ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-50" : "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50"}>
+                                    {sub.status === 'submitted' || submittedTasksCount === totalTasks ? 'Submitted' : 'Pending'}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                                <span>{submittedTasksCount}/{totalTasks} Tasks</span>
+                                <span>{sub.taskSubmissions?.reduce((acc, curr) => acc + (curr.timeTakenMinutes || 0), 0) || 0}m</span>
+                              </div>
+                              <div className="mt-3 pt-2 text-right border-t border-border/50">
+                                <span className="text-xs text-indigo-600 font-medium">View Details →</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Desktop Table View */}
+                      <Table className="hidden sm:table">
                         <TableHeader className="bg-muted/50">
                           <TableRow>
                             <TableHead>Student</TableHead>
@@ -474,81 +563,78 @@ export const AssignmentsTab = () => {
                             <TableHead>Time Taken</TableHead>
                             <TableHead>Link</TableHead>
                             <TableHead>Submitted</TableHead>
-
-                            {/* <TableHead className="text-right">Grade</TableHead> */}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {submissions.map((sub) => (
-                            <TableRow key={sub._id}>
-                              <TableCell className="font-medium">
-                                <div className="flex flex-col">
-                                  <span>{sub.userId?.name}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {sub.userId?.email}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {sub.status === "graded" ? (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-green-50 text-green-700 border-green-200"
-                                  >
-                                    Graded
-                                  </Badge>
-                                ) : (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-yellow-50 text-yellow-700 border-yellow-200"
-                                  >
-                                    Pending
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-muted-foreground text-sm">
-                                {sub.timeTakenMinutes
-                                  ? `${sub.timeTakenMinutes}m`
-                                  : "-"}
-                              </TableCell>
-                              <TableCell className="text-muted-foreground text-sm">
-                                {sub.assignmentLink ? (
-                                  <a
-                                    href={sub.assignmentLink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-indigo-600 hover:underline flex items-center gap-1"
-                                  >
-                                    View <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                ) : (
-                                  "-"
-                                )}
-                              </TableCell>
-                              <TableCell className="text-muted-foreground text-sm">
-                                {new Date(sub.submittedAt).toLocaleDateString()}
-                              </TableCell>
-                              {/*
-                              <TableCell className="text-right">
-                                {sub.status === "graded" ? (
-                                  <div className="flex items-center justify-end gap-2 group/edit">
-                                    <span className="font-bold text-green-700">
-                                      {sub.score}
+                          {submissions.map((sub) => {
+                            // Calculate aggregate stats
+                            const submittedTasksCount = sub.taskSubmissions?.filter(ts => ts.status === 'submitted').length || 0;
+                            const totalTasks = selectedAssignment.tasks?.length || 0;
+                            const latestSubmissionDate = sub.taskSubmissions?.reduce((latest, current) => {
+                              return !latest || new Date(current.submittedAt) > new Date(latest) ? current.submittedAt : latest;
+                            }, null as string | null);
+
+                            return (
+                              <TableRow key={sub._id}>
+                                <TableCell className="font-medium">
+                                  <div className="flex flex-col">
+                                    <span>{sub.userId?.name}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {sub.userId?.email}
                                     </span>
-                                    <span className="text-muted-foreground text-sm">
-                                      / {selectedAssignment.maxScore}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col gap-1">
+                                    {sub.status === "graded" ? (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-green-50 text-green-700 border-green-200 w-fit hover:bg-green-50"
+                                      >
+                                        Graded
+                                      </Badge>
+                                    ) : (sub.status === "submitted" || submittedTasksCount === totalTasks) && totalTasks > 0 ? (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-green-50 text-green-700 border-green-200 w-fit hover:bg-green-50"
+                                      >
+                                        Submitted
+                                      </Badge>
+                                    ) : (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-yellow-50 text-yellow-700 border-yellow-200 w-fit hover:bg-yellow-50"
+                                      >
+                                        {sub.status === 'partially_submitted' || submittedTasksCount > 0 ? 'Partial' : 'Pending'}
+                                      </Badge>
+                                    )}
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {submittedTasksCount}/{totalTasks} Tasks
                                     </span>
-                                     ...
                                   </div>
-                                ) : (
-                                  <div className="flex items-center justify-end gap-2">
-                                     ...
-                                  </div>
-                                )}
-                              </TableCell>
-                              */}
-                            </TableRow>
-                          ))}
+                                </TableCell>
+                                <TableCell className="text-muted-foreground text-sm">
+                                  {sub.taskSubmissions?.reduce((acc, curr) => acc + (curr.timeTakenMinutes || 0), 0) || 0}m
+                                </TableCell>
+                                <TableCell className="text-muted-foreground text-sm">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 text-xs"
+                                    onClick={() => {
+                                      setSelectedSubmission(sub);
+                                      setSubmissionDetailsOpen(true);
+                                    }}
+                                  >
+                                    View Details
+                                  </Button>
+                                </TableCell>
+                                <TableCell className="text-muted-foreground text-sm">
+                                  {latestSubmissionDate ? new Date(latestSubmissionDate).toLocaleDateString() : "-"}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     </div>
@@ -609,6 +695,102 @@ export const AssignmentsTab = () => {
             >
               Delete Assignment
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Submission Details Dialog */}
+      <Dialog open={submissionDetailsOpen} onOpenChange={setSubmissionDetailsOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Submission Details</DialogTitle>
+            <DialogDescription>
+              Viewing submission for <span className="font-semibold text-foreground">{selectedSubmission?.userId?.name}</span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {selectedAssignment?.tasks?.map((task, index) => {
+              const taskSubmission = selectedSubmission?.taskSubmissions?.find(ts => ts.taskId === task._id);
+              const isSubmitted = taskSubmission?.status === 'submitted';
+
+              return (
+                <div key={task._id || index} className="p-4 rounded-lg border border-border/50 bg-card">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-semibold text-sm">{task.title}</h4>
+                      <p className="text-xs text-muted-foreground">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                    </div>
+                    {isSubmitted ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">Submitted</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50 hover:bg-yellow-50">Pending</Badge>
+                    )}
+                  </div>
+
+                  {isSubmitted && taskSubmission && (
+                    <div className="grid grid-cols-2 gap-4 text-sm mt-3 pt-3 border-t border-border/50">
+                      <div>
+                        <span className="text-muted-foreground text-xs block mb-1">Link</span>
+                        {taskSubmission.assignmentLink ? (
+                          <a
+                            href={taskSubmission.assignmentLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-indigo-600 hover:underline flex items-center gap-1 font-medium"
+                          >
+                            Open Resource <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : <span className="text-muted-foreground">-</span>}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-xs block mb-1">Time Taken</span>
+                        <span className="font-medium">{taskSubmission.timeTakenMinutes || 0} mins</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+
+
+          <DialogFooter className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setSubmissionDetailsOpen(false)}>Close</Button>
+            {selectedSubmission && selectedSubmission.status !== 'graded' && (
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                disabled={isGrading}
+                onClick={async () => {
+                  setIsGrading(true);
+                  try {
+                    await mentorApi.gradeAssignment(selectedSubmission._id, "graded");
+                    // Refresh submissions
+                    if (selectedAssignment) {
+                      const updatedSubmissions = await mentorApi.getSubmissionsForAssignment(selectedAssignment._id);
+                      setSubmissions(updatedSubmissions);
+                      // Update local selected submission
+                      setSelectedSubmission((prev) => prev ? ({ ...prev, status: "graded" }) : null);
+                    }
+                  } catch (err) {
+                    console.error("Failed to approve", err);
+                  } finally {
+                    setIsGrading(false);
+                  }
+                }}
+              >
+                {isGrading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Approving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" /> Approve Assignment
+                  </>
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

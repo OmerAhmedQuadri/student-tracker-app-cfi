@@ -366,7 +366,7 @@ const Attendance = () => {
                         className="hover:bg-gray-50/50 transition-colors border-gray-100"
                       >
                         <TableCell className="py-4 text-center font-medium text-gray-900">
-                          {new Date(sessionDate).toLocaleDateString()}
+                          {new Date(sessionDate).toLocaleDateString('en-GB')}
                         </TableCell>
                         <TableCell className="py-4 text-center text-gray-600">
                           {sessionTopic}
@@ -442,7 +442,7 @@ const Attendance = () => {
                           {sessionTopic}
                         </h4>
                         <p className="text-sm text-gray-500 mt-1">
-                          {new Date(record.date).toLocaleDateString()}
+                          {new Date(record.date).toLocaleDateString('en-GB')}
                         </p>
                       </div>
                       <Badge

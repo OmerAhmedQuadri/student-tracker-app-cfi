@@ -34,7 +34,8 @@ interface Session {
   date: string;
   startTime: string;
   endTime: string;
-  topics: string[];
+  topics?: string[];
+  topic?: string; // Backward compatibility
 }
 
 interface Student {
@@ -42,11 +43,18 @@ interface Student {
   name: string;
 }
 
+interface Task {
+  _id?: string;
+  title: string;
+  dueDate: string;
+}
+
 interface Assignment {
   _id: string;
   title: string;
   batchId: string;
-  dueDate: string;
+  tasks: Task[];
+  dueDate?: string; // Optional now as tasks have due dates
 }
 
 const DailyProgress = () => {
@@ -55,15 +63,16 @@ const DailyProgress = () => {
   const [day, setDay] = useState<string>("1");
   const [selectedBatchId, setSelectedBatchId] = useState<string>("");
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
   // Data
   const [batches, setBatches] = useState<string[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
+  const [batchAssignments, setBatchAssignments] = useState<Assignment[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [attendanceCount, setAttendanceCount] = useState<number>(0);
   const [absentees, setAbsentees] = useState<string[]>([]);
-  const [tasks, setTasks] = useState<string[]>([]);
   const [loadingSessionData, setLoadingSessionData] = useState(false);
 
   // Initial Data Fetch
@@ -98,10 +107,11 @@ const DailyProgress = () => {
       );
       setFilteredSessions(batchSessions);
       setSelectedSessionId(""); // Reset session selection
+      setSelectedAssignmentId(""); // Reset assignment selection
       setCurrentSession(null);
       setAttendanceCount(0);
       setAbsentees([]);
-      setTasks([]);
+      // setTasks([]); // Removed tasks state
     }
   }, [selectedBatchId, sessions]);
 
@@ -186,17 +196,14 @@ const DailyProgress = () => {
         );
 
         /* ===============================
-                   TASKS
+                   TASKS (Fetch Assignments)
                 =============================== */
 
-        setTasks(
-          assignmentsData
-            .filter((a: Assignment) => a.batchId === selectedBatchId)
-            .map((a: Assignment) => {
-              const date = new Date(a.dueDate).toLocaleDateString("en-GB");
-              return `${a.title} (Due: ${date})`;
-            }),
-        );
+        const sessionAssigns = assignmentsData.filter((a: Assignment) => a.batchId === selectedBatchId);
+        setBatchAssignments(sessionAssigns);
+
+        // Optional: Pre-select if only one assignment exists? No, let user choose.
+
       } catch (error) {
         // console.error("Failed to fetch session details", error);
         toast.error(
@@ -234,12 +241,23 @@ const DailyProgress = () => {
     const endTime = formatTime12Hour(currentSession.endTime);
 
     // Format topics
-    const topicsList = currentSession.topics.map((t) => `- ${t}`).join("\n");
-    // Format tasks
-    const tasksList =
-      tasks.length > 0
-        ? tasks.map((t, i) => `${i + 1}. ${t}`).join("\n")
-        : "No specific tasks assigned.";
+    const sessionTopics = currentSession.topics || (currentSession.topic ? [currentSession.topic] : ["No Topic"]);
+    const topicsList = sessionTopics.map((t) => `- ${t}`).join("\n");
+
+    // Format tasks from Selected Assignment
+    let tasksList = "No specific tasks assigned.";
+    if (selectedAssignmentId) {
+      const assignment = batchAssignments.find(a => a._id === selectedAssignmentId);
+      if (assignment && assignment.tasks && assignment.tasks.length > 0) {
+        tasksList = assignment.tasks.map((t, i) => {
+          const duedate = t.dueDate ? new Date(t.dueDate).toLocaleDateString("en-GB") : "No Due Date";
+          return `${i + 1}. ${t.title} (Due: ${duedate})`;
+        }).join("\n");
+      } else if (assignment) {
+        tasksList = `${assignment.title} (Check portal for details)`;
+      }
+    }
+
     // Format absentees
     const absenteesList =
       absentees.length > 0 ? absentees.map((a) => `- ${a}`).join("\n") : "None";
@@ -279,12 +297,23 @@ Team - Code For India Foundation
     const endTime = formatTime12Hour(currentSession.endTime);
 
     // Format topics
-    const topicsList = currentSession.topics.map((t) => `• ${t}`).join("\n");
+    const sessionTopics = currentSession.topics || (currentSession.topic ? [currentSession.topic] : ["No Topic"]);
+    const topicsList = sessionTopics.map((t) => `• ${t}`).join("\n");
+
     // Format tasks
-    const tasksList =
-      tasks.length > 0
-        ? tasks.map((t, i) => `${i + 1}. ${t}`).join("\n")
-        : "No specific tasks assigned.";
+    let tasksList = "No specific tasks assigned.";
+    if (selectedAssignmentId) {
+      const assignment = batchAssignments.find(a => a._id === selectedAssignmentId);
+      if (assignment && assignment.tasks && assignment.tasks.length > 0) {
+        tasksList = assignment.tasks.map((t, i) => {
+          const duedate = t.dueDate ? new Date(t.dueDate).toLocaleDateString("en-GB") : "No Due Date";
+          return `${i + 1}. ${t.title} (Due: ${duedate})`;
+        }).join("\n");
+      } else if (assignment) {
+        tasksList = `${assignment.title} (Check portal for details)`;
+      }
+    }
+
     // Format absentees
     const absenteesList =
       absentees.length > 0 ? absentees.map((a) => `- ${a}`).join("\n") : "None";
@@ -319,7 +348,7 @@ https://codeforindia.com
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6 text-left">
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
@@ -386,10 +415,37 @@ https://codeforindia.com
                 <SelectValue placeholder="Select Session" />
               </SelectTrigger>
               <SelectContent>
-                {filteredSessions.map((session) => (
-                  <SelectItem key={session._id} value={session._id}>
-                    {new Date(session.date).toLocaleDateString()} -{" "}
-                    {session.topics.join(", ").substring(0, 20)}...
+                {filteredSessions.map((session) => {
+                  const topicsDisplay = session.topics && session.topics.length > 0
+                    ? session.topics.join(", ")
+                    : session.topic || "No Topic";
+
+                  return (
+                    <SelectItem key={session._id} value={session._id}>
+                      {new Date(session.date).toLocaleDateString()} -{" "}
+                      {topicsDisplay.substring(0, 20)}{topicsDisplay.length > 20 ? "..." : ""}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Assignment</Label>
+            <Select
+              value={selectedAssignmentId}
+              onValueChange={setSelectedAssignmentId}
+              disabled={!selectedBatchId}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="Select Assignment (Optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {batchAssignments.map((assignment) => (
+                  <SelectItem key={assignment._id} value={assignment._id}>
+                    {assignment.title}
                   </SelectItem>
                 ))}
               </SelectContent>

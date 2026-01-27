@@ -6,13 +6,26 @@ import { User } from "../models/User";
 
 // Create Assignment
 export const createAssignment = asyncHandler(async (req: Request, res: Response) => {
-  const { title, dueDate, batchId } = req.body;
+  const { title, batchId, tasks } = req.body;
 
   if (!batchId) {
     return res.status(400).json({ message: "Batch ID is required" });
   }
 
-  const assignment = new Assignment({ title, dueDate, batchId });
+  // Validate tasks
+  if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+    return res.status(400).json({ message: "At least one task is required" });
+  }
+
+  const assignment = new Assignment({
+    title,
+    batchId,
+    tasks: tasks.map((task: any) => ({
+      title: task.title,
+      dueDate: new Date(task.dueDate),
+    })),
+  });
+
   await assignment.save();
   res.status(201).json(assignment);
 });
@@ -64,9 +77,9 @@ export const deleteAssignment = asyncHandler(async (req: Request, res: Response)
   res.json({ message: "Assignment deleted successfully" });
 });
 
-// Submit Assignment (Student)
+// Submit Assignment Task (Student)
 export const submitAssignment = asyncHandler(async (req: Request, res: Response) => {
-  const { assignmentId, timeTakenMinutes, assignmentLink } = req.body;
+  const { assignmentId, taskId, timeTakenMinutes, assignmentLink } = req.body;
 
   // Check if assignment exists
   const assignment = await Assignment.findById(assignmentId);
@@ -74,32 +87,84 @@ export const submitAssignment = asyncHandler(async (req: Request, res: Response)
     return res.status(404).json({ message: "Assignment not found" });
   }
 
+  // Verify task belongs to assignment
+  const taskExists = assignment.tasks.some((t) => t._id?.toString() === taskId);
+  if (!taskExists) {
+    return res.status(400).json({ message: "Task not found in this assignment" });
+  }
+
   let submission = await StudentAssignment.findOne({
     userId: req.user!.id,
     assignmentId,
   });
 
-  if (submission) {
-    submission.submittedAt = new Date();
-    submission.status = "submitted";
-    submission.timeTakenMinutes = timeTakenMinutes;
-    submission.assignmentLink = assignmentLink;
-    await submission.save();
-  } else {
-    submission = await StudentAssignment.create({
+  if (!submission) {
+    submission = new StudentAssignment({
       userId: req.user!.id,
       assignmentId,
-      status: "submitted",
-      submittedAt: new Date(),
-      timeTakenMinutes,
-      assignmentLink
+      status: "pending",
+      taskSubmissions: [],
     });
   }
+
+  // Find if this task was already submitted
+  const existingTaskSubmissionIndex = submission.taskSubmissions.findIndex(
+    (ts) => ts.taskId.toString() === taskId
+  );
+
+  const newTaskSubmission = {
+    taskId,
+    status: "submitted" as const,
+    submittedAt: new Date(),
+    timeTakenMinutes,
+    assignmentLink,
+  };
+
+  if (existingTaskSubmissionIndex > -1) {
+    // Update existing
+    submission.taskSubmissions[existingTaskSubmissionIndex] = {
+      ...submission.taskSubmissions[existingTaskSubmissionIndex],
+      ...newTaskSubmission, // Update fields
+      submittedAt: new Date(), // Always update submittedAt
+    };
+  } else {
+    // Add new
+    submission.taskSubmissions.push(newTaskSubmission);
+  }
+
+  // Update overall status
+  const totalTasks = assignment.tasks.length;
+  const submittedTasks = submission.taskSubmissions.filter(ts => ts.status === 'submitted').length;
+
+  if (submittedTasks === totalTasks) {
+    submission.status = "submitted";
+  } else if (submittedTasks > 0) {
+    submission.status = "partially_submitted";
+  } else {
+    submission.status = "pending";
+  }
+
+  await submission.save();
   res.status(200).json(submission);
 });
 
 // Grade Assignment (Mentor)
+export const gradeAssignment = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status, score } = req.body; // Expect status="graded"
 
+  const submission = await StudentAssignment.findById(id);
+  if (!submission) {
+    return res.status(404).json({ message: "Submission not found" });
+  }
+
+  // Update status
+  if (status) submission.status = status;
+  // if (score !== undefined) submission.score = score; // If we had a score field
+
+  await submission.save();
+  res.json(submission);
+});
 
 // Get My Assignments (Student)
 export const getMyAssignments = asyncHandler(async (req: Request, res: Response) => {
