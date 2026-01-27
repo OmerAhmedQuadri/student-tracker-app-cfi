@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { Pagination } from "@/components/ui/pagination";
 
 interface User {
   _id: string;
@@ -196,6 +197,25 @@ const UsersManagement = () => {
       (activeTab === "mentors" && user.role === "mentor");
     return matchesSearch && matchesTab;
   });
+
+  // Calculate pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTab]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (loading) {
     return (
@@ -371,7 +391,7 @@ const UsersManagement = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredUsers.map((user) => (
+                  {paginatedUsers.map((user) => (
                     <tr
                       key={user._id}
                       className="hover:bg-gray-50 transition-colors"
@@ -528,6 +548,17 @@ const UsersManagement = () => {
                   <p className="text-gray-500">No users found</p>
                 </div>
               )}
+
+              {/* Pagination */}
+              <div className="border-t border-gray-100 px-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={filteredUsers.length}
+                  itemsPerPage={itemsPerPage}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

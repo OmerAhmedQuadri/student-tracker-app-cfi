@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { Pagination } from "@/components/ui/pagination";
 
 interface Session {
   _id: string;
@@ -104,6 +105,24 @@ const AdminSessions = () => {
   const pastSessions = filteredSessions
     .filter((s) => new Date(s.date) <= new Date())
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Pagination for Past Sessions
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Smaller for sessions as cards are large
+  const totalPages = Math.ceil(pastSessions.length / itemsPerPage);
+
+  const paginatedPastSessions = pastSessions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedBatch]); // Reset when batch changes
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (loading) {
     return (
@@ -316,8 +335,8 @@ const AdminSessions = () => {
           </Card>
 
           {/* Past Sessions - Redesigned */}
-          <Card className="bg-white shadow-lg border-0 overflow-hidden">
-            <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50 py-5 px-6">
+          <Card className="bg-white shadow-lg border-0 overflow-hidden flex flex-col h-full">
+            <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50 py-5 px-6 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <CheckCircle className="w-5 h-5 text-gray-600" />
@@ -334,9 +353,9 @@ const AdminSessions = () => {
               </div>
             </CardHeader>
 
-            <CardContent className="p-6 max-h-[600px] overflow-y-auto">
-              <div className="space-y-4">
-                {pastSessions.slice(0, 10).map((session) => (
+            <CardContent className="p-6 flex-1 flex flex-col">
+              <div className="space-y-4 flex-1">
+                {paginatedPastSessions.map((session) => (
                   <div
                     key={session._id}
                     className="p-5 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-md transition-all duration-200 group opacity-90"
@@ -394,6 +413,19 @@ const AdminSessions = () => {
                   </div>
                 )}
               </div>
+
+              {/* Pagination */}
+              {pastSessions.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    totalItems={pastSessions.length}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
