@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
+import { Pagination } from "@/components/ui/pagination";
 
 interface AttendanceRecord {
   _id: string;
@@ -212,6 +213,25 @@ const AdminAttendance = () => {
       (record.userId.batchId && record.userId.batchId === selectedBatch);
     return matchesSearch && matchesStatus && matchesBatch;
   });
+
+  // Pagination Logic
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredAttendance.length / itemsPerPage);
+
+  const paginatedAttendance = filteredAttendance.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, selectedBatch, selectedSession]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const stats = {
     total: attendance.length,
@@ -486,7 +506,7 @@ const AdminAttendance = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {filteredAttendance.map((record) => (
+                    {paginatedAttendance.map((record) => (
                       <tr
                         key={record._id}
                         className="hover:bg-gray-50 transition-colors"
@@ -531,6 +551,18 @@ const AdminAttendance = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+            {/* Pagination Component */}
+            {filteredAttendance.length > 0 && (
+              <div className="border-t border-gray-100 px-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={filteredAttendance.length}
+                  itemsPerPage={itemsPerPage}
+                />
               </div>
             )}
           </CardContent>

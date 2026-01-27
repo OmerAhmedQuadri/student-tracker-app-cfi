@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -53,6 +54,10 @@ const Attendance = () => {
   const [sessions, setSessions] = useState<MentorshipSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState<string | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchData = async () => {
     setLoading(true);
@@ -113,6 +118,17 @@ const Attendance = () => {
 
     return { total, present, absent, rate };
   }, [attendanceHistory]);
+
+  const totalPages = Math.ceil(attendanceHistory.length / itemsPerPage);
+  const paginatedHistory = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return attendanceHistory.slice(startIndex, startIndex + itemsPerPage);
+  }, [attendanceHistory, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const upcomingSessions = sessions.filter(
     (s) =>
@@ -315,7 +331,7 @@ const Attendance = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {attendanceHistory.length === 0 ? (
+                {paginatedHistory.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={4}
@@ -330,7 +346,7 @@ const Attendance = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  attendanceHistory.map((record) => {
+                  paginatedHistory.map((record) => {
                     let sessionTopic = "Session";
                     let sessionDate = record.date; // Default to record date
 
@@ -388,9 +404,21 @@ const Attendance = () => {
             </Table>
           </div>
 
+          {attendanceHistory.length > 0 && (
+            <div className="border-t border-gray-100">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={attendanceHistory.length}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
+          )}
+
           {/* Mobile Card View */}
           <div className="md:hidden divide-y divide-gray-100">
-            {attendanceHistory.length === 0 ? (
+            {paginatedHistory.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <div className="flex flex-col items-center justify-center space-y-3">
                   <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
@@ -400,7 +428,7 @@ const Attendance = () => {
                 </div>
               </div>
             ) : (
-              attendanceHistory.map((record) => {
+              paginatedHistory.map((record) => {
                 let sessionTopic = "Session";
                 if (typeof record.sessionId === "object") {
                   const session = record.sessionId as MentorshipSession;
