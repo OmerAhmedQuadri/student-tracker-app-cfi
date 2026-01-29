@@ -205,7 +205,7 @@ const AttendanceHistory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 text-left">
       {/* Header */}
       <div className="flex flex-col items-center justify-center gap-3 mb-4 sm:mb-6 md:mb-8 text-center relative">
         <div className="w-full">

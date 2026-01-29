@@ -38,6 +38,11 @@ router.get(
   assignmentController.getSubmissionsForAssignment
 );
 
+router.patch(
+  "/assignments/submission/:id/grade",
+  assignmentController.gradeAssignment
+);
+
 // Attendance
 router.post(
   "/attendance/mark",

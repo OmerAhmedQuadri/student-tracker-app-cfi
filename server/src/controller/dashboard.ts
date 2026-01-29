@@ -11,10 +11,14 @@ export const getStudentDashboard = asyncHandler(async (req: Request, res: Respon
     const profile = await StudentProfile.findOne({ userId });
 
     // Recent assignments
-    const recentAssignments = await StudentAssignment.find({ userId })
-        .sort({ submittedAt: -1 })
-        .limit(5)
+    const recentAssignmentsRaw = await StudentAssignment.find({ userId })
+        .sort({ _id: -1 }) // Sort by creation time (approx recent)
+        .limit(10)
         .populate("assignmentId");
+
+    const recentAssignments = recentAssignmentsRaw
+        .filter((a: any) => a.assignmentId) // Filter out null/invalid assignments
+        .slice(0, 5);
 
     // Check for consecutive absences (last 3 sessions)
     const last3Attendance = await StudentAttendance.find({ userId })

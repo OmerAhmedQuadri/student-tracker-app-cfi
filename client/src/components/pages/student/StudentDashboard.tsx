@@ -54,7 +54,8 @@ const StudentDashboard = () => {
                     api.get('/assignments/my')
                 ]);
                 const totalAssignments = allAssignmentsRes.data.length || 0;
-                const submittedAssignmentsCount = myAssignmentsRes.data.length || 0;
+                // Only count fully submitted assignments
+                const submittedAssignmentsCount = myAssignmentsRes.data.filter((s: any) => s.status === 'submitted').length || 0;
                 const pendingCount = Math.max(0, totalAssignments - submittedAssignmentsCount);
 
                 // 3. Fetch Learning Sessions for "Learning Hours"
@@ -82,12 +83,27 @@ const StudentDashboard = () => {
 
                 // Add Recent Assignments (Submissions)
                 recentAssignments.forEach((assignment: any) => {
+                    // Find latest submission date from tasks
+                    let latestDate = assignment.submittedAt;
+                    if (assignment.taskSubmissions && assignment.taskSubmissions.length > 0) {
+                        const dates = assignment.taskSubmissions
+                            .filter((ts: any) => (ts.status === 'submitted' || ts.submittedAt))
+                            .map((ts: any) => new Date(ts.submittedAt).getTime())
+                            .filter((d: number) => !isNaN(d));
+
+                        if (dates.length > 0) {
+                            latestDate = new Date(Math.max(...dates));
+                        }
+                    }
+
+                    if (!latestDate) return;
+
                     activities.push({
                         id: `sub-${assignment._id}`,
                         type: 'submission',
-                        title: `Submitted Assignment`,
+                        title: assignment.status === 'partially_submitted' ? 'Partially Submitted' : 'Submitted Assignment',
                         description: assignment.assignmentId?.title || 'Unknown Assignment',
-                        time: new Date(assignment.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                        time: new Date(latestDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
                     });
                 });
 
