@@ -37,8 +37,7 @@ Follow these steps to build and set up the application from scratch:
     Navigate to the client directory, install dependencies, and build the project.
     ```bash
     cd client
-    pnpm i
-    touch .env 
+    pnpm i 
     pnpm build
     ```
 
