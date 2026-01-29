@@ -12,10 +12,7 @@ import notificationRoutes from "./routes/notification";
 
 import path from "path";
 
-
 const app = express();
-
-
 
 app.use(express.static(path.join(__dirname, "dist")))
 
@@ -25,11 +22,11 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser());   
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+app.use("/health", (req: Request, res: Response) => {
+  res.status(200).send("OK");
+})
 
 async function bootstrap() {
   try {
