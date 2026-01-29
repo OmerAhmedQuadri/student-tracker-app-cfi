@@ -7,7 +7,7 @@ const router: Router = Router();
 
 router.get("/me", authMiddleware, getMe);
 router.put("/change-password", authMiddleware, changePassword);
-router.post("/admin",  createAdmin);//authMiddleware, requireRole("admin"),
+router.post("/admin", authMiddleware, requireRole("admin"), createAdmin);
 router.post("/students", authMiddleware, requireRole("admin"), createStudent);
 router.post("/mentors", authMiddleware, requireRole("admin"), createMentor);
 router.post("/login", login);
