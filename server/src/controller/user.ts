@@ -89,7 +89,7 @@ export const createStudent = asyncHandler(
 
 export const createMentor = asyncHandler(
   async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, batchId, batchIds } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -107,6 +107,14 @@ export const createMentor = asyncHandler(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Prepare batchIds array
+    let finalBatchIds: string[] = [];
+    if (batchIds && Array.isArray(batchIds)) {
+      finalBatchIds = batchIds;
+    } else if (batchId) {
+      finalBatchIds = [batchId];
+    }
+
     const mentor = new User({
       name,
       email,
@@ -114,6 +122,9 @@ export const createMentor = asyncHandler(
       role: "mentor",
       status: "pending",
       isActive: true,
+      batchIds: finalBatchIds, // Save assigned batches
+      // fallback for legacy support if needed, though schema likely uses batchIds or batchId
+      batchId: finalBatchIds.length > 0 ? finalBatchIds[0] : undefined
     });
 
     await mentor.save();

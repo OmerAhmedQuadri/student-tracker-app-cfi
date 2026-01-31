@@ -8,6 +8,7 @@ export interface IAssignment {
     _id?: Types.ObjectId;
     title: string;
     dueDate: Date;
+    url?: string;
   }[];
 }
 
@@ -18,6 +19,7 @@ const AssignmentSchema = new Schema<IAssignment>({
   tasks: [{
     title: { type: String, required: true },
     dueDate: { type: Date, required: true },
+    url: { type: String },
   }],
 });
 

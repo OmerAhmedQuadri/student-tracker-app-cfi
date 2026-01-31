@@ -23,6 +23,7 @@ export const createAssignment = asyncHandler(async (req: Request, res: Response)
     tasks: tasks.map((task: any) => ({
       title: task.title,
       dueDate: new Date(task.dueDate),
+      url: task.url,
     })),
   });
 
