@@ -44,6 +44,7 @@ interface Task {
   _id?: string;
   title: string;
   dueDate: string;
+  url?: string;
 }
 
 interface Assignment {
@@ -80,7 +81,7 @@ export const AssignmentsTab = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [selectedBatch, setSelectedBatch] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [selectedAssignment, setSelectedAssignment] =
@@ -100,7 +101,7 @@ export const AssignmentsTab = () => {
   const [formData, setFormData] = useState({
     title: "",
     batchId: "",
-    tasks: [{ title: "", dueDate: "" }],
+    tasks: [{ title: "", dueDate: "", url: "" }],
   });
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export const AssignmentsTab = () => {
         batchId: selectedBatch,
       });
       setIsCreating(false);
-      setFormData({ title: "", batchId: "", tasks: [{ title: "", dueDate: "" }] });
+      setFormData({ title: "", batchId: "", tasks: [{ title: "", dueDate: "", url: "" }] });
       loadAssignments();
     } catch (error) {
       console.error("Failed to create assignment", error);
@@ -422,6 +423,20 @@ export const AssignmentsTab = () => {
                                 className="h-9 text-sm"
                               />
                             </div>
+                            <div className="col-span-1 sm:col-span-2 space-y-2">
+                              <Label htmlFor={`task-url-${index}`} className="text-xs">Task Link/Resource (Optional)</Label>
+                              <Input
+                                id={`task-url-${index}`}
+                                placeholder="https://..."
+                                value={task.url || ""}
+                                onChange={(e) => {
+                                  const newTasks = [...formData.tasks];
+                                  newTasks[index].url = e.target.value;
+                                  setFormData({ ...formData, tasks: newTasks });
+                                }}
+                                className="h-9 text-sm"
+                              />
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -432,7 +447,7 @@ export const AssignmentsTab = () => {
                         onClick={() =>
                           setFormData({
                             ...formData,
-                            tasks: [...formData.tasks, { title: "", dueDate: "" }],
+                            tasks: [...formData.tasks, { title: "", dueDate: "", url: "" }],
                           })
                         }
                         className="w-full sm:w-auto text-xs"

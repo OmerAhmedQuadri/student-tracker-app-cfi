@@ -40,6 +40,7 @@ interface Task {
   _id: string;
   title: string;
   dueDate: string;
+  url?: string;
 }
 
 interface Assignment {
@@ -608,10 +609,23 @@ const Assignments = () => {
                                           <div className="flex items-center justify-between gap-4">
                                             <div className="flex-1">
                                               <p className="font-bold text-left text-gray-900">{task.title}</p>
-                                              <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                                                <Calendar className="w-3 h-3" />
-                                                Due: {formatDate(task.dueDate)}
-                                              </p>
+                                              <div className="flex flex-col gap-1 mt-1">
+                                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                  <Calendar className="w-3 h-3" />
+                                                  Due: {formatDate(task.dueDate)}
+                                                </p>
+                                                {task.url && (
+                                                  <a
+                                                    href={task.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 hover:underline w-fit"
+                                                  >
+                                                    <ExternalLink className="w-3 h-3" />
+                                                    View Resource
+                                                  </a>
+                                                )}
+                                              </div>
                                             </div>
 
                                             {isSubmitted ? (

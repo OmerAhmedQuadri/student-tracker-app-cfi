@@ -48,22 +48,23 @@ export default function MentorDashboard() {
   const [stats, setStats] = useState({
     assignments: 0,
     sessions: 0,
-    students: 12,
+    students: 0,
+    attendance: 0,
+  });
+
+  const [actionItems, setActionItems] = useState({
+    pendingAttendance: 0,
+    upcomingSession: null as { title: string; date: string; startTime: string } | null,
+    ungradedSubmissions: 0,
   });
 
   useEffect(() => {
     (async () => {
       try {
-        const [assignments, sessions] = await Promise.all([
-          mentorApi.getAllAssignments(),
-          mentorApi.getMentorshipSessions(),
-        ]);
+        const dashboardData = await mentorApi.getMentorDashboardStats();
 
-        setStats({
-          assignments: assignments.length,
-          sessions: sessions.length,
-          students: 12,
-        });
+        setStats(dashboardData.stats);
+        setActionItems(dashboardData.actionItems);
       } catch (err) {
         console.error("Dashboard stats failed", err);
       }
@@ -155,7 +156,7 @@ export default function MentorDashboard() {
                 value={stats.sessions.toString()}
                 icon={Calendar}
               />
-              <StatCard title="Attendance" value="85%" icon={Activity} />
+              <StatCard title="Attendance" value={`${stats.attendance}%`} icon={Activity} />
             </div>
 
             {/* Main Cards - New Layout */}
@@ -225,13 +226,15 @@ export default function MentorDashboard() {
                       Action Items
                     </CardTitle>
                     <span className="text-xs sm:text-sm font-medium text-gray-600">
-                      3 pending
+                      {actionItems.pendingAttendance + actionItems.ungradedSubmissions + (actionItems.upcomingSession ? 1 : 0)} pending
                     </span>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 sm:pt-6">
                   <div className="space-y-1">
-                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                      onClick={() => changeTab('attendance')} // Or specific route
+                    >
                       <div className="mt-0.5">
                         <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
@@ -240,13 +243,15 @@ export default function MentorDashboard() {
                           Pending Attendance
                         </p>
                         <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
-                          3 requests waiting
+                          {actionItems.pendingAttendance} requests waiting
                         </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
 
-                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                      onClick={() => changeTab('sessions')}
+                    >
                       <div className="mt-0.5">
                         <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
@@ -255,13 +260,17 @@ export default function MentorDashboard() {
                           Upcoming Session
                         </p>
                         <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
-                          React Patterns · Today 4PM
+                          {actionItems.upcomingSession
+                            ? `${actionItems.upcomingSession.title} · ${new Date(actionItems.upcomingSession.date).toLocaleDateString()} ${actionItems.upcomingSession.startTime}`
+                            : "No upcoming sessions"}
                         </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
 
-                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                      onClick={() => navigate('/mentor/assignments')}
+                    >
                       <div className="mt-0.5">
                         <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       </div>
@@ -270,7 +279,7 @@ export default function MentorDashboard() {
                           New Submissions
                         </p>
                         <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
-                          5 assignments to grade
+                          {actionItems.ungradedSubmissions} assignments to grade
                         </p>
                       </div>
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />

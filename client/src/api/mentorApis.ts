@@ -7,6 +7,11 @@ export const getAllStudents = async () => {
     return response.data;
 };
 
+export const getMentorDashboardStats = async () => {
+    const response = await api.get("/dashboard/mentor");
+    return response.data;
+};
+
 export const getMentorBatches = async () => {
     const response = await api.get("/mentor/batches");
     return response.data;

@@ -43,6 +43,27 @@ const AdminCreateUsers = () => {
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [batches, setBatches] = useState<{ batchId: string; description?: string }[]>([]);
+
+  const fetchBatches = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/admin/batches", {
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBatches(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch batches", error);
+    }
+  };
+
+  const handleOpenMentorForm = () => {
+    fetchBatches();
+    setShowMentorForm(true);
+  };
 
   const [studentData, setStudentData] = useState<CreateUserFormData>({
     name: "",
@@ -62,6 +83,7 @@ const AdminCreateUsers = () => {
     name: "",
     email: "",
     password: "",
+    batch: "",
   });
 
   const validateEmail = (email: string) => {
@@ -146,7 +168,10 @@ const AdminCreateUsers = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(mentorData),
+        body: JSON.stringify({
+          ...mentorData,
+          batchId: mentorData.batch,
+        }),
       });
 
       if (res.ok) {
@@ -250,7 +275,7 @@ const AdminCreateUsers = () => {
 
           <Card
             className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 cursor-pointer group"
-            onClick={() => setShowMentorForm(true)}
+            onClick={handleOpenMentorForm}
           >
             <CardHeader className="border-b border-gray-100 bg-gray-50/50">
               <div className="flex items-center gap-4">
@@ -622,87 +647,114 @@ const AdminCreateUsers = () => {
                   )}
                 </div>
 
-                <div>
-                  <Label
-                    htmlFor="mentor-password"
-                    className="text-sm font-medium text-left block mb-2"
-                  >
-                    Password
-                  </Label>
-                  <div className="relative mt-1">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="mentor-password"
-                      type={showMentorPassword ? "text" : "password"}
-                      className={`pl-9 pr-10 ${formErrors.password
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                        : ""
-                        }`}
-                      value={mentorData.password}
-                      onChange={(e) =>
-                        setMentorData({
-                          ...mentorData,
-                          password: e.target.value,
-                        })
-                      }
-                      placeholder="••••••••"
-                      disabled={loading}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowMentorPassword(!showMentorPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-                    >
-                      {showMentorPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  {formErrors.password && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {formErrors.password}
-                    </p>
-                  )}
-                  {!formErrors.password && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Password must be at least 8 characters
-                    </p>
-                  )}
-                </div>
 
-                <div className="flex gap-2 justify-end pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setShowMentorForm(false);
-                      setFormErrors({});
-                    }}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-purple-600 hover:bg-purple-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Create Mentor
-                      </>
+                  <div>
+                    <Label
+                      htmlFor="mentor-batch"
+                      className="text-sm font-medium text-left block mb-2"
+                    >
+                      Assign Batch
+                    </Label>
+                    <div className="relative mt-1">
+                      <select
+                        id="mentor-batch"
+                        className={`w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md border ${formErrors.batch ? "border-red-300" : ""}`}
+                        value={mentorData.batch || ""}
+                        onChange={(e) => setMentorData({ ...mentorData, batch: e.target.value })}
+                        disabled={loading}
+                      >
+                        <option value="">Select a batch</option>
+                        {batches.map((b) => (
+                          <option key={b.batchId} value={b.batchId}>
+                            {b.batchId}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor="mentor-password"
+                      className="text-sm font-medium text-left block mb-2"
+                    >
+                      Password
+                    </Label>
+                    {/* Password Input continues below... */}
+                    <div className="relative mt-1">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="mentor-password"
+                        type={showMentorPassword ? "text" : "password"}
+                        className={`pl-9 pr-10 ${formErrors.password
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                          : ""
+                          }`}
+                        value={mentorData.password}
+                        onChange={(e) =>
+                          setMentorData({
+                            ...mentorData,
+                            password: e.target.value,
+                          })
+                        }
+                        placeholder="••••••••"
+                        disabled={loading}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowMentorPassword(!showMentorPassword)}
+                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                      >
+                        {showMentorPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    {formErrors.password && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {formErrors.password}
+                      </p>
                     )}
-                  </Button>
-                </div>
+                    {!formErrors.password && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Password must be at least 8 characters
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 justify-end pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setShowMentorForm(false);
+                        setFormErrors({});
+                      }}
+                      disabled={loading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-purple-600 hover:bg-purple-700 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Create Mentor
+                        </>
+                      )}
+                    </Button>
+                  </div>
               </form>
             </CardContent>
           </Card>
