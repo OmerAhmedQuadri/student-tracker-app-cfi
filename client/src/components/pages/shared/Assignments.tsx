@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Loader2,
   // Link as LinkIcon,
@@ -74,6 +74,25 @@ type FilterType = 'all' | 'pending' | 'submitted';
 type SortType = 'dueDate' | 'title' | 'subject';
 
 
+const getAssignmentDueDate = (assignment: Assignment) => {
+  if (!assignment.tasks || assignment.tasks.length === 0) return null;
+  // Return the earliest due date for sorting urgency? Or latest?
+  // Usually earliest due date is what urgency is based on.
+  const dates = assignment.tasks.map(t => new Date(t.dueDate).getTime());
+  return new Date(Math.min(...dates)).toISOString();
+};
+
+const getDaysUntilDue = (assignment: Assignment) => {
+  const dueDate = getAssignmentDueDate(assignment);
+  if (!dueDate) return null;
+  const now = new Date();
+  const due = new Date(dueDate);
+  const diffTime = due.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+
 const Assignments = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [mySubmissions, setMySubmissions] = useState<Submission[]>([]);
@@ -114,11 +133,15 @@ const Assignments = () => {
     fetchData();
   }, []);
 
-  const getSubmissionStatus = (assignment: Assignment) => {
-    const submission = mySubmissions.find(s => {
+  const getSubmission = useCallback((assignmentId: string) => {
+    return mySubmissions.find(s => {
       if (!s.assignmentId) return false;
-      return (typeof s.assignmentId === 'string' ? s.assignmentId : s.assignmentId._id) === assignment._id;
+      return (typeof s.assignmentId === 'string' ? s.assignmentId : s.assignmentId._id) === assignmentId;
     });
+  }, [mySubmissions]);
+
+  const getSubmissionStatus = useCallback((assignment: Assignment) => {
+    const submission = getSubmission(assignment._id);
 
     if (!submission) return 'Pending';
     if (submission.status) {
@@ -133,34 +156,9 @@ const Assignments = () => {
       if (submittedCount > 0) return 'Partial';
     }
     return 'Pending';
-  };
+  }, [getSubmission]);
 
-  const getSubmission = (assignmentId: string) => {
-    return mySubmissions.find(s => {
-      if (!s.assignmentId) return false;
-      return (typeof s.assignmentId === 'string' ? s.assignmentId : s.assignmentId._id) === assignmentId;
-    });
-  };
-
-  const getAssignmentDueDate = (assignment: Assignment) => {
-    if (!assignment.tasks || assignment.tasks.length === 0) return null;
-    // Return the earliest due date for sorting urgency? Or latest?
-    // Usually earliest due date is what urgency is based on.
-    const dates = assignment.tasks.map(t => new Date(t.dueDate).getTime());
-    return new Date(Math.min(...dates)).toISOString();
-  };
-
-  const getDaysUntilDue = (assignment: Assignment) => {
-    const dueDate = getAssignmentDueDate(assignment);
-    if (!dueDate) return null;
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const getUrgencyStatus = (assignment: Assignment) => {
+  const getUrgencyStatus = useCallback((assignment: Assignment) => {
     const status = getSubmissionStatus(assignment);
     if (status === 'Submitted') return 'completed';
 
@@ -170,7 +168,7 @@ const Assignments = () => {
     if (daysUntilDue <= 2) return 'urgent';
     if (daysUntilDue <= 7) return 'upcoming';
     return 'normal';
-  };
+  }, [getSubmissionStatus]);
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
@@ -232,7 +230,7 @@ const Assignments = () => {
     });
 
     return filtered;
-  }, [assignments, searchQuery, statusFilter, sortBy, mySubmissions]);
+  }, [assignments, searchQuery, statusFilter, sortBy, getSubmissionStatus]);
 
   // Stats
   const stats = useMemo(() => {
@@ -247,7 +245,8 @@ const Assignments = () => {
     }).length;
 
     return { total, submitted, pending, overdue };
-  }, [assignments, mySubmissions]);
+    return { total, submitted, pending, overdue };
+  }, [assignments, mySubmissions, getSubmissionStatus]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

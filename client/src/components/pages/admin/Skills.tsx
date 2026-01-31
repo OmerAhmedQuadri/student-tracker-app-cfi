@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { TrendingUp, Plus, Trash2, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,20 +33,7 @@ const AdminSkills = () => {
         estimatedMinutes: 60
     });
 
-    const fetchSkills = async () => {
-        try {
-            const res = await api.get('/skills');
-            setSkills(res.data);
-            if (res.data.length > 0 && !selectedSkill) {
-                setSelectedSkill(res.data[0]._id);
-            }
-        } catch (error) {
-            console.error('Failed to fetch skills:', error);
-            toast.error('Failed to load skills');
-        }
-    };
-
-    const fetchTopics = async (skillId: string) => {
+    const fetchTopics = useCallback(async (skillId: string) => {
         try {
             const res = await api.get(`/admin/skills/topics/${skillId}`);
             setTopics(res.data);
@@ -54,7 +41,7 @@ const AdminSkills = () => {
             console.error('Failed to fetch topics:', error);
             setTopics([]);
         }
-    };
+    }, []);
 
     const handleCreateTopic = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -101,6 +88,18 @@ const AdminSkills = () => {
     };
 
     useEffect(() => {
+        const fetchSkills = async () => {
+            try {
+                const res = await api.get('/skills');
+                setSkills(res.data);
+                if (res.data.length > 0 && !selectedSkill) {
+                    setSelectedSkill(res.data[0]._id);
+                }
+            } catch (error) {
+                console.error('Failed to fetch skills:', error);
+                toast.error('Failed to load skills');
+            }
+        };
         fetchSkills();
     }, []);
 
@@ -108,7 +107,7 @@ const AdminSkills = () => {
         if (selectedSkill) {
             fetchTopics(selectedSkill);
         }
-    }, [selectedSkill]);
+    }, [selectedSkill, fetchTopics]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">

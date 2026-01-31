@@ -1,32 +1,47 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 import DashboardLayout from './layouts/DashboardLayout';
-// import Dashboard from './components/pages/shared/Dashboard';
-import Assignments from './components/pages/shared/Assignments';
-import Attendance from './components/pages/shared/Attendance';
-import Learning from './components/pages/shared/Learning';
-
-import Profile from './components/pages/shared/Profile';
-import Login from './components/pages/shared/Login';
-import AdminDashboard from './components/pages/admin/AdminDashboard';
-import StudentDashboard from './components/pages/student/StudentDashboard';
-import MentorDashboard from './components/pages/mentor/MentorDashboard';
-import MentorAttendance from './components/pages/mentor/MentorAttendance';
-import MentorStudents from './components/pages/mentor/MentorStudents';
-import MentorBatches from './components/pages/mentor/MentorBatches';
-import AttendanceHistory from './components/pages/mentor/AttendanceHistory';
-import UsersManagement from './components/pages/admin/Users';
-import AdminSessions from './components/pages/admin/Sessions';
-import AdminAttendance from './components/pages/admin/Attendance';
-import AdminCreateUsers from './components/pages/admin/CreateUsers';
-import BatchManagement from './components/pages/admin/BatchManagement';
-import BatchDetails from './components/pages/admin/BatchDetails';
-import MentorExternalActivities from './components/pages/mentor/ExternalActivities';
-import DailyProgress from './components/pages/mentor/DailyProgress';
-import Notifications from './components/pages/shared/Notifications';
-import ExternalActivitiesPage from './components/pages/shared/ExternalActivities';
-import Leaderboard from './components/pages/shared/Leaderboard';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import Root from './components/layout/Root';
+
+// Lazy load components
+const Assignments = lazy(() => import('./components/pages/shared/Assignments'));
+const Attendance = lazy(() => import('./components/pages/shared/Attendance'));
+const Learning = lazy(() => import('./components/pages/shared/Learning'));
+const Profile = lazy(() => import('./components/pages/shared/Profile'));
+const Login = lazy(() => import('./components/pages/shared/Login'));
+const AdminDashboard = lazy(() => import('./components/pages/admin/AdminDashboard'));
+const StudentDashboard = lazy(() => import('./components/pages/student/StudentDashboard'));
+const MentorDashboard = lazy(() => import('./components/pages/mentor/MentorDashboard'));
+const MentorAttendance = lazy(() => import('./components/pages/mentor/MentorAttendance'));
+const MentorStudents = lazy(() => import('./components/pages/mentor/MentorStudents'));
+const MentorBatches = lazy(() => import('./components/pages/mentor/MentorBatches'));
+const AttendanceHistory = lazy(() => import('./components/pages/mentor/AttendanceHistory'));
+const UsersManagement = lazy(() => import('./components/pages/admin/Users'));
+const AdminSessions = lazy(() => import('./components/pages/admin/Sessions'));
+const AdminAttendance = lazy(() => import('./components/pages/admin/Attendance'));
+const AdminCreateUsers = lazy(() => import('./components/pages/admin/CreateUsers'));
+const BatchManagement = lazy(() => import('./components/pages/admin/BatchManagement'));
+const BatchDetails = lazy(() => import('./components/pages/admin/BatchDetails'));
+const MentorExternalActivities = lazy(() => import('./components/pages/mentor/ExternalActivities'));
+const DailyProgress = lazy(() => import('./components/pages/mentor/DailyProgress'));
+const Notifications = lazy(() => import('./components/pages/shared/Notifications'));
+const ExternalActivitiesPage = lazy(() => import('./components/pages/shared/ExternalActivities'));
+const Leaderboard = lazy(() => import('./components/pages/shared/Leaderboard'));
+
+// Loading Fallback
+const PageLoader = () => (
+    <div className="flex items-center justify-center h-full w-full min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+);
+
+const Loadable = (Component: React.ComponentType<any>) => (
+    <Suspense fallback={<PageLoader />}>
+        <Component />
+    </Suspense>
+);
 
 export const router = createBrowserRouter([
     {
@@ -35,7 +50,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: 'login',
-                element: <Login />,
+                element: Loadable(Login),
             },
             {
                 path: 'admin',
@@ -46,35 +61,35 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 path: 'dashboard',
-                                element: <AdminDashboard />,
+                                element: Loadable(AdminDashboard),
                             },
                             {
                                 path: 'users',
-                                element: <UsersManagement />,
+                                element: Loadable(UsersManagement),
                             },
                             {
                                 path: 'create-users',
-                                element: <AdminCreateUsers />,
+                                element: Loadable(AdminCreateUsers),
                             },
                             {
                                 path: 'batches',
-                                element: <BatchManagement />,
+                                element: Loadable(BatchManagement),
                             },
                             {
                                 path: 'batch/:batchId',
-                                element: <BatchDetails />,
+                                element: Loadable(BatchDetails),
                             },
                             {
                                 path: 'sessions',
-                                element: <AdminSessions />,
+                                element: Loadable(AdminSessions),
                             },
                             {
                                 path: 'attendance',
-                                element: <AdminAttendance />,
+                                element: Loadable(AdminAttendance),
                             },
                             {
                                 path: 'profile',
-                                element: <Profile />,
+                                element: Loadable(Profile),
                             }
                         ]
                     }
@@ -89,12 +104,11 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 path: 'dashboard',
-                                element: <StudentDashboard />,
+                                element: Loadable(StudentDashboard),
                             },
-
                             {
                                 path: 'external-activities',
-                                element: <ExternalActivitiesPage />,
+                                element: Loadable(ExternalActivitiesPage),
                             }
                         ]
                     }
@@ -109,43 +123,43 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 path: 'dashboard',
-                                element: <MentorDashboard />,
+                                element: Loadable(MentorDashboard),
                             },
                             {
                                 path: 'students',
-                                element: <MentorStudents />,
+                                element: Loadable(MentorStudents),
                             },
                             {
                                 path: 'batches',
-                                element: <MentorBatches />,
+                                element: Loadable(MentorBatches),
                             },
                             {
                                 path: 'assignments',
-                                element: <MentorDashboard />,
+                                element: Loadable(MentorDashboard),
                             },
                             {
                                 path: 'attendance',
-                                element: <MentorAttendance />,
+                                element: Loadable(MentorAttendance),
                             },
                             {
                                 path: 'attendance/history',
-                                element: <AttendanceHistory />,
+                                element: Loadable(AttendanceHistory),
                             },
                             {
                                 path: 'sessions',
-                                element: <MentorDashboard />,
+                                element: Loadable(MentorDashboard),
                             },
                             {
                                 path: 'external-activities',
-                                element: <MentorExternalActivities />,
+                                element: Loadable(MentorExternalActivities),
                             },
                             {
                                 path: 'daily-progress',
-                                element: <DailyProgress />,
+                                element: Loadable(DailyProgress),
                             },
                             {
                                 path: 'profile',
-                                element: <Profile />,
+                                element: Loadable(Profile),
                             }
                         ]
                     }
@@ -164,28 +178,28 @@ export const router = createBrowserRouter([
                             },
                             {
                                 path: 'assignments',
-                                element: <Assignments />,
+                                element: Loadable(Assignments),
                             },
                             {
                                 path: 'attendance',
-                                element: <Attendance />,
+                                element: Loadable(Attendance),
                             },
                             {
                                 path: 'learning',
-                                element: <Learning />,
+                                element: Loadable(Learning),
                             },
 
                             {
                                 path: 'profile',
-                                element: <Profile />,
+                                element: Loadable(Profile),
                             },
                             {
                                 path: 'leaderboard',
-                                element: <Leaderboard />,
+                                element: Loadable(Leaderboard),
                             },
                             {
                                 path: 'notifications',
-                                element: <Notifications />,
+                                element: Loadable(Notifications),
                             },
                         ],
                     },
