@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
 import { Pagination } from "@/components/ui/pagination";
+import api from "@/lib/api";
 
 interface AttendanceRecord {
   _id: string;
@@ -97,17 +98,11 @@ const AdminAttendance = () => {
 
   const fetchSessions = async () => {
     try {
-      const res = await fetch(
-        "http://localhost:5000/api/admin/sessions/mentorship",
-        {
-          credentials: "include",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data);
-        if (data.length > 0) {
-          setSelectedSession(data[0]._id);
+      const res = await api.get("/admin/sessions/mentorship");
+      if (res.status === 200) {
+        setSessions(res.data);
+        if (res.data.length > 0) {
+          setSelectedSession(res.data[0]._id);
         }
       }
     } catch (error) {
@@ -118,12 +113,9 @@ const AdminAttendance = () => {
 
   const fetchBatches = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/batches", {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const batchIds = data.map((batch: any) => batch.batchId);
+      const res = await api.get("/admin/batches");
+      if (res.status === 200) {
+        const batchIds = res.data.map((batch: { batchId: string }) => batch.batchId);
         setBatches(batchIds);
       }
     } catch (error) {
@@ -136,10 +128,9 @@ const AdminAttendance = () => {
     try {
       // Fetch attendance for all sessions
       const attendancePromises = sessions.map((session) =>
-        fetch(
-          `http://localhost:5000/api/admin/attendance/session/${session._id}`,
-          { credentials: "include" }
-        ).then((res) => (res.ok ? res.json() : []))
+        api
+          .get(`/admin/attendance/session/${session._id}`)
+          .then((res) => (res.status === 200 ? res.data : []))
       );
       const allAttendanceData = await Promise.all(attendancePromises);
       const combinedAttendance = allAttendanceData.flat();
@@ -155,15 +146,9 @@ const AdminAttendance = () => {
   const fetchAttendance = async (sessionId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/admin/attendance/session/${sessionId}`,
-        {
-          credentials: "include",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setAttendance(data);
+      const res = await api.get(`/admin/attendance/session/${sessionId}`);
+      if (res.status === 200) {
+        setAttendance(res.data);
       } else {
         toast.error("Failed to load attendance records");
       }
