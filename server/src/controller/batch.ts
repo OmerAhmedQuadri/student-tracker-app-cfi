@@ -36,7 +36,7 @@ export const createBatch = asyncHandler(async (req: Request, res: Response) => {
 export const getAllBatchDetails = asyncHandler(
   async (req: Request, res: Response) => {
     // Get all defined batches
-    const definedBatches = await Batch.find({});
+    const definedBatches = await Batch.find({}).sort({ startDate: -1, createdAt: -1 });
     const batchMap = new Map<string, {
       students: any[],
       mentors: any[],
@@ -201,23 +201,35 @@ export const deleteBatch = asyncHandler(
   }
 );
 
-// Update batch details (e.g. githubLink)
+// Update batch details (upsert if likely missing)
 export const updateBatch = asyncHandler(async (req: Request, res: Response) => {
   const { batchId } = req.params;
-  const { githubLink } = req.body;
+  const { githubLink, description, startDate, endDate } = req.body;
 
-  const batch = await Batch.findOne({ name: batchId });
+  let batch = await Batch.findOne({ name: batchId });
 
   if (!batch) {
-    res.status(404);
-    throw new Error('Batch not found');
+    // If batch doesn't exist, create it (Upsert)
+    // Dates are optional now
+    batch = await Batch.create({
+      name: batchId as string,
+      description: description || "",
+      githubLink: githubLink || "",
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined
+    });
+  } else {
+    // Update existing
+    // Cast to any if needed, but preferably rely on interface.
+    // However, IBatch extends Document so we should be careful.
+    // If we simply assign, TS checks types.
+    if (githubLink !== undefined) batch.githubLink = githubLink;
+    if (description !== undefined) batch.description = description;
+    if (startDate !== undefined) batch.startDate = new Date(startDate);
+    if (endDate !== undefined) batch.endDate = new Date(endDate);
+
+    await batch.save();
   }
 
-  if (githubLink !== undefined) {
-    // Cast to any to bypass potential TS type definition lag if interface wasn't fully picked up yet
-    (batch as any).githubLink = githubLink;
-  }
-
-  await batch.save();
   res.json(batch);
 });

@@ -13,7 +13,7 @@ import {
   assignBatch,
   updateMentorBatches,
 } from "../controller/admin";
-import { getAllBatchDetails, getBatchById, createBatch, deleteBatch } from "../controller/batch";
+import { getAllBatchDetails, getBatchById, createBatch, deleteBatch, updateBatch } from "../controller/batch";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { requireRole } from "../middleware/role.middleware";
 import * as assignmentController from "../controller/assignments";
@@ -72,6 +72,7 @@ router.delete("/delete/:id", authMiddleware, requireRole("admin"), deleteUser);
 router.get("/batches", authMiddleware, requireRole("admin"), getAllBatchDetails);
 router.post("/batches", authMiddleware, requireRole("admin"), createBatch);
 router.get("/batches/:batchId", authMiddleware, requireRole("admin"), getBatchById);
+router.patch("/batches/:batchId", authMiddleware, requireRole("admin"), updateBatch);
 router.delete("/batches/:batchId", authMiddleware, requireRole("admin"), deleteBatch);
 
 // Assignments

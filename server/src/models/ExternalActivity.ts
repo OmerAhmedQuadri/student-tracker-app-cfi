@@ -11,6 +11,7 @@ export interface IExternalActivity {
   submittedAt: Date;
   reviewedAt?: Date;
   reviewedBy?: Types.ObjectId;
+  lastActivityDate?: Date;
 }
 
 const ExternalActivitySchema = new Schema<IExternalActivity>({

@@ -8,17 +8,24 @@ import {
   School,
   CalendarDays,
   Github,
-  // Github
-
+  Edit,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  // CardDescription,
-  CardDescription
+  CardDescription,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,12 +66,28 @@ const BatchDetails = () => {
   const [batchData, setBatchData] = useState<BatchData | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({
+    startDate: "",
+    endDate: "",
+    description: "",
+    githubLink: "",
+  });
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   useEffect(() => {
     const fetchBatchDetails = async () => {
       try {
         const res = await api.get(`/admin/batches/${batchId}`);
         setBatchData(res.data);
+        if (res.data) {
+          setEditData({
+            startDate: res.data.startDate ? new Date(res.data.startDate).toISOString().split('T')[0] : "",
+            endDate: res.data.endDate ? new Date(res.data.endDate).toISOString().split('T')[0] : "",
+            description: res.data.description || "",
+            githubLink: res.data.githubLink || "",
+          });
+        }
       } catch (err) {
         toast.error("Failed to load batch details");
         navigate("/admin/batches");
@@ -102,6 +125,36 @@ const BatchDetails = () => {
     return `${weeks} Weeks`;
   };
 
+  const handleUpdateBatch = async () => {
+    if (!batchId) return;
+
+    // Validation
+    if ((!batchData?.startDate && !editData.startDate) || (!batchData?.endDate && !editData.endDate)) {
+      // If trying to fix a TBD batch, dates are required
+      if (!editData.startDate || !editData.endDate) {
+        toast.error("Start and End dates are required to initialize this batch");
+        return;
+      }
+    }
+
+    setLoadingUpdate(true);
+    try {
+      const res = await api.patch(`/admin/batches/${batchId}`, editData);
+      setBatchData((prev) => prev ? { ...prev, ...res.data } : null);
+      toast.success("Batch updated successfully");
+      setShowEditModal(false);
+      // Update local state is enough, no need to refetch full details usually
+      // But let's resync just in case
+      // window.location.reload(); 
+      // Actually we updated state above.
+    } catch (error: any) {
+      console.error("Failed to update batch:", error);
+      toast.error(error.response?.data?.message || "Failed to update batch");
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
@@ -127,9 +180,19 @@ const BatchDetails = () => {
             </div>
           </div>
 
-          <Badge className="px-4 py-1 bg-indigo-100 text-indigo-700">
-            Active Batch
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setShowEditModal(true)}
+            >
+              <Edit className="w-4 h-4" />
+              Edit Details
+            </Button>
+            <Badge className="px-4 py-1 bg-indigo-100 text-indigo-700">
+              Active Batch
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -341,8 +404,70 @@ const BatchDetails = () => {
           </CardContent>
         </Card>
       </div>
+      {/* Edit Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Batch Details</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={editData.description}
+                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                placeholder="Batch description"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={editData.startDate}
+                  onChange={(e) => setEditData({ ...editData, startDate: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={editData.endDate}
+                  onChange={(e) => setEditData({ ...editData, endDate: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="githubLink">GitHub Repository URL</Label>
+              <Input
+                id="githubLink"
+                value={editData.githubLink}
+                onChange={(e) => setEditData({ ...editData, githubLink: e.target.value })}
+                placeholder="https://github.com/..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={loadingUpdate}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateBatch} disabled={loadingUpdate} className="bg-indigo-600 hover:bg-indigo-700">
+              {loadingUpdate ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
-
 export default BatchDetails;

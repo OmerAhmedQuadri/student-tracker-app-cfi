@@ -40,7 +40,8 @@ interface Session {
   _id: string;
   batchId: string;
   date: string;
-  topic: string;
+  topic?: string;
+  topics?: string[];
   createdAt: string;
 }
 
@@ -268,7 +269,7 @@ const AdminSessions = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start gap-2 mb-3">
                           <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
-                            {session.topic}
+                            {session.topic || (session.topics && session.topics.length > 0 ? session.topics.join(", ") : "No Topic")}
                           </h3>
                         </div>
 
@@ -364,7 +365,7 @@ const AdminSessions = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
-                            {session.topic}
+                            {session.topic || (session.topics && session.topics.length > 0 ? session.topics.join(", ") : "No Topic")}
                           </h3>
                           <Badge className="bg-green-100 text-green-700 text-xs hover:bg-green-100">
                             Completed

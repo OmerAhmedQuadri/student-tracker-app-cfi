@@ -13,8 +13,8 @@ const batchSchema = new Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, default: "" },
   githubLink: { type: String, default: "" },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  startDate: { type: Date },
+  endDate: { type: Date },
 }, { timestamps: true });
 
 export const Batch = mongoose.model<IBatch>('Batch', batchSchema);

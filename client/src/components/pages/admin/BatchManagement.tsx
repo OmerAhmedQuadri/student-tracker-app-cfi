@@ -11,6 +11,7 @@ import {
   ChevronRight,
   X,
   AlertTriangle,
+  Plus,
 } from "lucide-react";
 import {
   Card,
@@ -31,6 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Check } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -68,9 +71,9 @@ const BatchManagement = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [creating, setCreating] = useState(false);
-  const [mentors] = useState<any[]>([]);
+  const [mentors, setMentors] = useState<any[]>([]);
   const [selectedMentorIds, setSelectedMentorIds] = useState<string[]>([]);
-  const [loadingMentors] = useState(false);
+  const [loadingMentors, setLoadingMentors] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState<{
     id: string;
@@ -80,7 +83,21 @@ const BatchManagement = () => {
 
   useEffect(() => {
     fetchBatches();
+    fetchMentors();
   }, []);
+
+  const fetchMentors = async () => {
+    setLoadingMentors(true);
+    try {
+      const response = await api.get("/admin/mentors");
+      setMentors(response.data);
+    } catch (error) {
+      console.error("Failed to fetch mentors:", error);
+      toast.error("Failed to load mentors");
+    } finally {
+      setLoadingMentors(false);
+    }
+  };
 
   const fetchBatches = async () => {
     setLoading(true);
@@ -203,13 +220,22 @@ const BatchManagement = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Batch Management
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Overview of all batches and user assignments
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Batch Management
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Overview of all batches and user assignments
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Batch
+            </Button>
           </div>
         </div>
       </div>
@@ -457,7 +483,7 @@ const BatchManagement = () => {
               <div className="mb-5">
                 <Label
                   htmlFor="batchId"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-medium text-gray-700 text-left block"
                 >
                   Batch ID <span className="text-red-500">*</span>
                 </Label>
@@ -475,7 +501,7 @@ const BatchManagement = () => {
               <div className="mb-5">
                 <Label
                   htmlFor="description"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-medium text-gray-700 text-left block"
                 >
                   Description
                 </Label>
@@ -493,7 +519,7 @@ const BatchManagement = () => {
                 <div>
                   <Label
                     htmlFor="startDate"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 text-left block"
                   >
                     Start Date <span className="text-red-500">*</span>
                   </Label>
@@ -509,7 +535,7 @@ const BatchManagement = () => {
                 <div>
                   <Label
                     htmlFor="endDate"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 text-left block"
                   >
                     End Date <span className="text-red-500">*</span>
                   </Label>
@@ -525,7 +551,7 @@ const BatchManagement = () => {
               </div>
 
               <div className="mb-5">
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block text-left">
                   Assign Mentors <span className="text-red-500">*</span>
                 </Label>
                 {loadingMentors ? (
@@ -540,55 +566,90 @@ const BatchManagement = () => {
                     No mentors available. Create mentors first.
                   </div>
                 ) : (
-                  <div className="space-y-2 border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    {mentors.map((mentor) => (
-                      <label
-                        key={mentor._id}
-                        className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedMentorIds.includes(mentor._id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedMentorIds([
-                                ...selectedMentorIds,
-                                mentor._id,
-                              ]);
-                            } else {
+                  <div className="space-y-2 border border-gray-200 rounded-lg p-3 max-h-60 overflow-y-auto bg-gray-50/50">
+                    {mentors.map((mentor) => {
+                      const isSelected = selectedMentorIds.includes(mentor._id);
+                      return (
+                        <div
+                          key={mentor._id}
+                          onClick={() => {
+                            if (isSelected) {
                               setSelectedMentorIds(
-                                selectedMentorIds.filter(
-                                  (id) => id !== mentor._id
-                                )
+                                selectedMentorIds.filter((id) => id !== mentor._id)
                               );
+                            } else {
+                              setSelectedMentorIds([...selectedMentorIds, mentor._id]);
                             }
                           }}
-                          disabled={creating}
-                          className="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">
-                            {mentor.name}
-                          </p>
-                          <p className="text-xs text-gray-500 truncate">
-                            {mentor.email}
-                          </p>
-                          {mentor.batchIds && mentor.batchIds.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {mentor.batchIds.map((batchId: string) => (
-                                <Badge
-                                  key={batchId}
-                                  variant="outline"
-                                  className="text-xs bg-purple-50 text-purple-600 border-purple-200"
-                                >
-                                  {batchId}
-                                </Badge>
-                              ))}
+                          className={`group flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${isSelected
+                              ? "bg-white border-indigo-600 ring-1 ring-indigo-600 shadow-sm"
+                              : "bg-white border-gray-200 hover:border-indigo-300 hover:shadow-sm"
+                            }`}
+                        >
+                          {/* Custom Checkbox */}
+                          <div
+                            className={`flex-shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${isSelected
+                                ? "bg-indigo-600 border-indigo-600"
+                                : "bg-white border-gray-300 group-hover:border-indigo-400"
+                              }`}
+                          >
+                            {isSelected && (
+                              <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                            )}
+                          </div>
+
+                          {/* Avatar */}
+                          <Avatar className="h-9 w-9 border border-gray-100">
+                            <AvatarFallback
+                              className={`${isSelected
+                                  ? "bg-indigo-100 text-indigo-700"
+                                  : "bg-gray-100 text-gray-600 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+                                } transition-colors font-medium text-sm`}
+                            >
+                              {mentor.name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .substring(0, 2)
+                                .toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p
+                                className={`text-sm font-semibold truncate ${isSelected ? "text-indigo-900" : "text-gray-900"
+                                  }`}
+                              >
+                                {mentor.name}
+                              </p>
+                              {/* Badges inline if space permits, or simplify */}
+                              {mentor.batchIds && mentor.batchIds.length > 0 && (
+                                <div className="flex -space-x-1 overflow-hidden">
+                                  {mentor.batchIds.slice(0, 3).map((batchId: string) => (
+                                    <div
+                                      key={batchId}
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200 ring-1 ring-white"
+                                    >
+                                      {batchId}
+                                    </div>
+                                  ))}
+                                  {mentor.batchIds.length > 3 && (
+                                    <div className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-50 text-gray-500 border border-gray-200 ring-1 ring-white">
+                                      +{mentor.batchIds.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                          )}
+                            <p className="text-xs text-gray-500 truncate">
+                              {mentor.email}
+                            </p>
+                          </div>
                         </div>
-                      </label>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 {selectedMentorIds.length > 0 && (
