@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "react-hot-toast";
+import api from "@/lib/api";
 
 interface ExternalActivity {
   _id: string;
@@ -93,40 +94,32 @@ const AdminExternalActivities = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/mentor/students/all", {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const studentUsers = data.filter(
-          (user: any) => user.role === "student",
-        );
-        setStudents(studentUsers);
-        // Select first student by default
-        if (studentUsers.length > 0) {
-          setSelectedUserId(studentUsers[0]._id);
-        }
+      const res = await api.get("/mentor/students");
+      // Assuming /mentor/students returns the list of students directly
+      const studentUsers = res.data;
+
+      // Optional: If the endpoint returns mixed roles (unlikely for /mentor/students), filter here.
+      // But adhering to "only students mentor should be showing", this endpoint is safer.
+      setStudents(studentUsers);
+
+      // Select first student by default
+      if (studentUsers.length > 0) {
+        setSelectedUserId(studentUsers[0]._id);
       }
     } catch (error) {
       console.error("Failed to fetch students:", error);
+      toast.error("Failed to fetch students list");
     }
   };
 
   const fetchActivitiesByUser = async (userId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/mentor/external-activities/${userId}`,
-        {
-          credentials: "include",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setActivities(data);
-      }
+      const res = await api.get(`/mentor/external-activities/${userId}`);
+      setActivities(res.data);
     } catch (error) {
       console.error("Failed to fetch activities:", error);
+      toast.error("Failed to fetch activities");
     } finally {
       setLoading(false);
     }
@@ -138,36 +131,20 @@ const AdminExternalActivities = () => {
     points?: number,
   ) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/mentor/external-activities/${activityId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ status, points: points || 10 }),
-        },
-      );
+      const res = await api.patch(`/mentor/external-activities/${activityId}`, {
+        status,
+        points: points || 10
+      });
 
-      if (res.ok) {
-        const updatedActivity = await res.json();
-        setActivities((prev) =>
-          prev.map((a) => (a._id === activityId ? updatedActivity : a)),
-        );
-        toast.success(`Activity ${status}!`);
-      } else {
-        const errorText = await res.text();
-        let errorMessage = "Failed to update activity";
-        try {
-          const error = JSON.parse(errorText);
-          errorMessage = error.message || errorMessage;
-        } catch (e) {
-          errorMessage = errorText || errorMessage;
-        }
-        toast.error(errorMessage);
-      }
-    } catch (error) {
+      const updatedActivity = res.data;
+      setActivities((prev) =>
+        prev.map((a) => (a._id === activityId ? updatedActivity : a)),
+      );
+      toast.success(`Activity ${status}!`);
+    } catch (error: any) {
       console.error("Failed to update activity:", error);
-      toast.error("Network error: Failed to update activity");
+      const errorMessage = error.response?.data?.message || "Failed to update activity";
+      toast.error(errorMessage);
     }
   };
 

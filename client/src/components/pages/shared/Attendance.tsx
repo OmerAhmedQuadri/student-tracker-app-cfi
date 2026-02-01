@@ -182,7 +182,7 @@ const Attendance = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="bg-blue-50/50 border-blue-100 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="p-2 bg-blue-100/50 rounded-lg">
@@ -312,7 +312,7 @@ const Attendance = () => {
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden lg:block overflow-x-auto">
             <Table>
               <TableHeader className="bg-gray-50/50">
                 <TableRow className="hover:bg-transparent border-gray-100">
@@ -404,20 +404,8 @@ const Attendance = () => {
             </Table>
           </div>
 
-          {attendanceHistory.length > 0 && (
-            <div className="border-t border-gray-100">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                totalItems={attendanceHistory.length}
-                itemsPerPage={itemsPerPage}
-              />
-            </div>
-          )}
-
           {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-100">
+          <div className="lg:hidden p-4 space-y-4">
             {paginatedHistory.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <div className="flex flex-col items-center justify-center space-y-3">
@@ -434,41 +422,62 @@ const Attendance = () => {
                   const session = record.sessionId as MentorshipSession;
                   sessionTopic = session.topic || (session.topics ? session.topics.join(", ") : "Session");
                 }
+                const isPresent = record.finalStatus === "present";
+                const statusColor = isPresent ? "text-green-700 bg-green-50 border-green-200" : "text-red-700 bg-red-50 border-red-200";
+
                 return (
-                  <div key={record._id} className="p-4 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-medium text-gray-900">
+                  <div key={record._id} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:border-indigo-100 transition-colors">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="space-y-1">
+                        <h4 className="font-semibold text-gray-900 line-clamp-1">
                           {sessionTopic}
                         </h4>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {new Date(record.date).toLocaleDateString('en-GB')}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                            {new Date(record.date).toLocaleDateString('en-GB')}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-gray-400" />
+                            {new Date(record.date).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={`
-                            ${record.finalStatus === "present"
-                            ? "bg-green-50 text-green-700 border-green-200"
-                            : "bg-red-50 text-red-700 border-red-200"
-                          }
-                          `}
-                      >
-                        {record.finalStatus === "present" ? "Present" : "Absent"}
+
+                      <Badge variant="outline" className={`shrink-0 ${statusColor} px-2.5 py-0.5`}>
+                        {isPresent ? (
+                          <div className="flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Present</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <XCircle className="w-3 h-3" />
+                            <span>Absent</span>
+                          </div>
+                        )}
                       </Badge>
-                    </div>
-                    <div className="text-xs text-gray-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {new Date(record.date).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
                     </div>
                   </div>
                 );
               })
             )}
           </div>
+
+          {attendanceHistory.length > 0 && (
+            <div className="border-t border-gray-100 p-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={attendanceHistory.length}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

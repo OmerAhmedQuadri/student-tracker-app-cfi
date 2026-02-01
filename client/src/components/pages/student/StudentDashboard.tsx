@@ -156,13 +156,13 @@ const StudentDashboard = () => {
         return (
             <div className="space-y-6 animate-pulse">
                 {/* Header Skeleton */}
-                <div className="bg-white border-b py-8">
+                <div className="bg-white border-b py-6 sm:py-8">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                         <div className="text-center space-y-2">
                             <div className="h-8 w-64 bg-gray-200 rounded mx-auto"></div>
                             <div className="h-4 w-96 bg-gray-200 rounded mx-auto"></div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {[1, 2, 3, 4].map((i) => (
                                 <div key={i} className="h-24 bg-gray-100 rounded-xl"></div>
                             ))}
@@ -194,11 +194,11 @@ const StudentDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50/50 pb-12">
             {/* Header Section */}
-            <div className="bg-white border-b py-8">
+            <div className="bg-white border-b py-6 sm:py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="space-y-8">
                         <div className="text-center">
-                            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Student Dashboard</h1>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Student Dashboard</h1>
                             <p className="text-gray-500 mt-2 max-w-2xl text-lg mx-auto">
                                 Welcome back, <span className="font-semibold text-gray-800">{user?.name}</span>. Here's an overview of your progress.
                             </p>
@@ -215,7 +215,7 @@ const StudentDashboard = () => {
                         )}
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <Card className="bg-blue-50/50 border-blue-100 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-4 flex items-center gap-4">
                                     <div className="p-2 bg-blue-100/50 rounded-lg">

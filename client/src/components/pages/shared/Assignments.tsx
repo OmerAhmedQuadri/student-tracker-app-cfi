@@ -10,7 +10,8 @@ import {
   Filter,
   ArrowUpDown,
   ExternalLink,
-  BookOpen
+  BookOpen,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,6 +91,175 @@ const getDaysUntilDue = (assignment: Assignment) => {
   const diffTime = due.getTime() - now.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
+};
+
+// --- Refactored Task Submission Component for Premium UI ---
+interface TaskSubmissionViewProps {
+  assignment: Assignment;
+  getSubmission: (id: string) => Submission | undefined;
+  selectedTask: Task | null;
+  setSelectedTask: (task: Task | null) => void;
+  assignmentLink: string;
+  setAssignmentLink: (val: string) => void;
+  timeTaken: string;
+  setTimeTaken: (val: string) => void;
+  submitting: boolean;
+  handleTaskSubmit: (e: React.FormEvent, task: Task) => void;
+  formatDate: (date?: string) => string;
+}
+
+const TaskSubmissionView = ({
+  assignment,
+  getSubmission,
+  selectedTask,
+  setSelectedTask,
+  assignmentLink,
+  setAssignmentLink,
+  timeTaken,
+  setTimeTaken,
+  submitting,
+  handleTaskSubmit,
+  formatDate
+}: TaskSubmissionViewProps) => {
+  return (
+    <div className="space-y-4 mt-2">
+      {assignment.tasks && assignment.tasks.length > 0 ? (
+        assignment.tasks.map((task, index) => {
+          const submission = getSubmission(assignment._id);
+          const taskSubmission = submission?.taskSubmissions?.find(ts => ts.taskId === task._id);
+          const isSubmitted = taskSubmission?.status === 'submitted';
+          const isExpanded = selectedTask?._id === task._id;
+
+          return (
+            <div
+              key={task._id || index}
+              className={`
+                group p-5 border rounded-xl transition-all duration-200
+                ${isExpanded
+                  ? 'bg-indigo-50/30 border-indigo-200 shadow-sm'
+                  : 'bg-white border-gray-100 hover:border-indigo-100 hover:shadow-sm'
+                }
+              `}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-1.5">
+                  <p className={`font-semibold text-sm ${isExpanded ? 'text-indigo-900' : 'text-gray-900'}`}>{task.title}</p>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <span className="text-[10px] uppercase tracking-wide font-medium text-gray-500">
+                        {formatDate(task.dueDate)}
+                      </span>
+                    </div>
+
+                    {task.url && (
+                      <a
+                        href={task.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        View Resource
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {isSubmitted ? (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-100 shadow-sm">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="text-xs font-semibold">Done</span>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant={isExpanded ? "ghost" : "outline"}
+                    className={`
+                      h-8 px-3 text-xs font-medium transition-colors
+                      ${isExpanded
+                        ? "text-gray-500 hover:text-gray-700 hover:bg-black/5"
+                        : "border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50"
+                      }
+                    `}
+                    onClick={() => {
+                      if (isExpanded) {
+                        setSelectedTask(null);
+                      } else {
+                        setSelectedTask(task);
+                        setAssignmentLink('');
+                        setTimeTaken('');
+                      }
+                    }}
+                  >
+                    {isExpanded ? <X className="w-4 h-4" /> : "Submit"}
+                  </Button>
+                )}
+              </div>
+
+              {/* Inline Submission Form */}
+              {isExpanded && !isSubmitted && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleTaskSubmit(e, task);
+                  }}
+                  className="mt-5 pt-5 border-t border-indigo-100/50 space-y-5 animate-in slide-in-from-top-1 duration-200"
+                >
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`link-${task._id}`} className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">
+                      Assignment Link <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id={`link-${task._id}`}
+                      type="url"
+                      required
+                      value={assignmentLink}
+                      onChange={(e) => setAssignmentLink(e.target.value)}
+                      placeholder="https://github.com/..."
+                      className="h-10 bg-white border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`time-${task._id}`} className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">
+                      Time Taken (minutes) <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id={`time-${task._id}`}
+                      type="number"
+                      required
+                      min="1"
+                      value={timeTaken}
+                      onChange={(e) => setTimeTaken(e.target.value)}
+                      placeholder="e.g. 60"
+                      className="h-10 bg-white border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      type="submit"
+                      disabled={submitting}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full sm:w-auto font-medium"
+                    >
+                      {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Submit Task"}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          );
+        })
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+          <BookOpen className="w-10 h-10 mb-2 opacity-20" />
+          <p className="text-sm font-medium">No tasks assigned</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 
@@ -303,7 +473,7 @@ const Assignments = () => {
               <div className="h-8 w-64 bg-gray-200 rounded mx-auto"></div>
               <div className="h-4 w-48 bg-gray-200 rounded mx-auto"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-24 bg-gray-100 rounded-xl"></div>
               ))}
@@ -337,7 +507,7 @@ const Assignments = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="bg-blue-50/50 border-blue-100 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="p-2 bg-blue-100/50 rounded-lg">
@@ -446,7 +616,7 @@ const Assignments = () => {
         </div>
 
         {/* Desktop Table View */}
-        <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="hidden lg:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-gray-50/50">
@@ -586,116 +756,28 @@ const Assignments = () => {
                                 </Button>
                               </DialogTrigger>
                               <DialogContent className="sm:max-w-xl">
-                                <DialogHeader>
+                                <DialogHeader className="border-b pb-4 mb-4 space-y-2">
                                   <DialogTitle className="text-xl font-bold text-gray-900 text-left">
                                     {assignment.title}
                                   </DialogTitle>
                                   <DialogDescription className="text-sm text-gray-600">
-                                    Complete the following tasks.
+                                    Complete the following tasks below. Click on a task to submit.
                                   </DialogDescription>
                                 </DialogHeader>
 
-                                <div className="space-y-4 mt-2">
-                                  {assignment.tasks && assignment.tasks.length > 0 ? (
-                                    assignment.tasks.map((task, index) => {
-                                      const submission = getSubmission(assignment._id);
-                                      const taskSubmission = submission?.taskSubmissions?.find(ts => ts.taskId === task._id);
-                                      const isSubmitted = taskSubmission?.status === 'submitted';
-                                      const isExpanded = selectedTask?._id === task._id;
-
-                                      return (
-                                        <div key={task._id || index} className={`p-4 border rounded-lg transition-colors ${isExpanded ? 'bg-indigo-50 border-indigo-100' : 'bg-gray-50'}`}>
-                                          <div className="flex items-center justify-between gap-4">
-                                            <div className="flex-1">
-                                              <p className="font-bold text-left text-gray-900">{task.title}</p>
-                                              <div className="flex flex-col gap-1 mt-1">
-                                                <p className="text-xs text-gray-500 flex items-center gap-1">
-                                                  <Calendar className="w-3 h-3" />
-                                                  Due: {formatDate(task.dueDate)}
-                                                </p>
-                                                {task.url && (
-                                                  <a
-                                                    href={task.url}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 hover:underline w-fit"
-                                                  >
-                                                    <ExternalLink className="w-3 h-3" />
-                                                    View Resource
-                                                  </a>
-                                                )}
-                                              </div>
-                                            </div>
-
-                                            {isSubmitted ? (
-                                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1 whitespace-nowrap">
-                                                <CheckCircle2 className="w-3 h-3" />
-                                                Submitted
-                                              </Badge>
-                                            ) : (
-                                              <Button
-                                                size="sm"
-                                                variant={isExpanded ? "secondary" : "outline"}
-                                                onClick={() => {
-                                                  if (isExpanded) {
-                                                    setSelectedTask(null);
-                                                  } else {
-                                                    setSelectedTask(task);
-                                                    setAssignmentLink('');
-                                                    setTimeTaken('');
-                                                  }
-                                                }}
-                                              >
-                                                {isExpanded ? "Cancel" : "Submit"}
-                                              </Button>
-                                            )}
-                                          </div>
-
-                                          {/* Inline Submission Form */}
-                                          {isExpanded && !isSubmitted && (
-                                            <form onSubmit={(e) => {
-                                              e.preventDefault();
-                                              handleTaskSubmit(e, task);
-                                            }} className="mt-4 pt-4 border-t border-indigo-100 space-y-4 animate-in slide-in-from-top-2">
-                                              <div className="space-y-2">
-                                                <Label htmlFor={`link-${task._id}`} className="text-sm font-medium text-gray-700 text-left block">Assignment Link <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                  id={`link-${task._id}`}
-                                                  type="url"
-                                                  required
-                                                  value={assignmentLink}
-                                                  onChange={(e) => setAssignmentLink(e.target.value)}
-                                                  placeholder="https://github.com/..."
-                                                  className="h-10 bg-white"
-                                                />
-                                              </div>
-                                              <div className="space-y-2">
-                                                <Label htmlFor={`time-${task._id}`} className="text-sm font-medium text-gray-700 text-left block">Time Taken (minutes) <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                  id={`time-${task._id}`}
-                                                  type="number"
-                                                  required
-                                                  min="1"
-                                                  value={timeTaken}
-                                                  onChange={(e) => setTimeTaken(e.target.value)}
-                                                  placeholder="e.g. 60"
-                                                  className="h-10 bg-white"
-                                                />
-                                              </div>
-                                              <div className="flex justify-end pt-2">
-                                                <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto">
-                                                  {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Submit Task"}
-                                                </Button>
-                                              </div>
-                                            </form>
-                                          )}
-                                        </div>
-                                      );
-                                    })
-                                  ) : (
-                                    <p className="text-center text-muted-foreground py-4">No tasks found for this assignment.</p>
-                                  )}
-                                </div>
+                                <TaskSubmissionView
+                                  assignment={assignment}
+                                  getSubmission={getSubmission}
+                                  selectedTask={selectedTask}
+                                  setSelectedTask={setSelectedTask}
+                                  assignmentLink={assignmentLink}
+                                  setAssignmentLink={setAssignmentLink}
+                                  timeTaken={timeTaken}
+                                  setTimeTaken={setTimeTaken}
+                                  submitting={submitting}
+                                  handleTaskSubmit={handleTaskSubmit}
+                                  formatDate={formatDate}
+                                />
                               </DialogContent>
                             </Dialog>
                           </div>
@@ -710,7 +792,7 @@ const Assignments = () => {
         </div>
 
         {/* Mobile Card View */}
-        <div className="md:hidden space-y-4">
+        <div className="lg:hidden space-y-4">
           {filteredAssignments.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-200">
               <div className="flex flex-col items-center justify-center space-y-3">
@@ -730,202 +812,120 @@ const Assignments = () => {
               return (
                 <Card
                   key={assignment._id}
-                  className="border border-gray-200 hover:border-indigo-300 transition-all shadow-sm"
+                  className="group overflow-hidden border border-gray-200 hover:border-indigo-300 transition-all shadow-sm hover:shadow-md"
                 >
-                  <CardContent className="p-4 space-y-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">
-                          {assignment.title}
-                        </h3>
-                        <div className="flex items-center flex-wrap gap-2 mt-1">
-                          <Badge
-                            variant="secondary"
-                            className="font-normal text-[10px] bg-gray-100 text-gray-600"
-                          >
-                            {assignment.subject || "General"}
-                          </Badge>
-                          <Badge
-                            className={`${getUrgencyColor(urgency)} text-[10px] px-1.5 py-0 border`}
-                          >
-                            {getUrgencyLabel(urgency, daysUntilDue)}
-                          </Badge>
+                  <CardContent className="p-0">
+                    <div className="p-5 space-y-4">
+                      {/* Header: Title + Status */}
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="space-y-1">
+                          <h3 className="font-bold text-gray-900 line-clamp-2 md:text-lg">
+                            {assignment.title}
+                          </h3>
+                        </div>
+                        <Badge
+                          className={`${getStatusColor(status)} shrink-0`}
+                          variant="outline"
+                        >
+                          {status}
+                        </Badge>
+                      </div>
+
+                      {/* Metadata Row */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className="font-normal text-xs bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        >
+                          {assignment.subject || "General"}
+                        </Badge>
+                        <Badge
+                          className={`${getUrgencyColor(urgency)} text-xs px-2 py-0.5 border font-medium`}
+                        >
+                          {getUrgencyLabel(urgency, daysUntilDue)}
+                        </Badge>
+                        <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium ml-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>{formatDate(dueDate || undefined)}</span>
                         </div>
                       </div>
-                      <Badge
-                        className={getStatusColor(status)}
-                        variant="outline"
-                      >
-                        {status}
-                      </Badge>
-                    </div>
 
-                    {assignment.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        {assignment.description}
-                      </p>
-                    )}
+                      {/* Description */}
+                      {assignment.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                          {assignment.description}
+                        </p>
+                      )}
 
-                    <div className="flex flex-wrap items-center justify-between text-sm pt-2 gap-2">
-                      <div className="flex items-center gap-1.5 text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span className="text-xs font-medium">{formatDate(dueDate || undefined)}</span>
-                      </div>
+                      {/* Resource Link */}
                       {assignment.url && (
                         <a
                           href={assignment.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
                         >
-                          <ExternalLink className="w-3 h-3" />
+                          <ExternalLink className="w-3.5 h-3.5" />
                           View Resource
                         </a>
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-gray-100">
-                      {status === "Pending" ? (
-                        <Dialog
-                          open={
-                            dialogOpen &&
-                            selectedAssignment?._id === assignment._id
+                    {/* Footer Action */}
+                    <div className="px-5 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between gap-4">
+                      <Dialog
+                        open={
+                          dialogOpen &&
+                          selectedAssignment?._id === assignment._id
+                        }
+                        onOpenChange={(open) => {
+                          setDialogOpen(open);
+                          if (!open) {
+                            setSelectedAssignment(null);
                           }
-                          onOpenChange={(open) => {
-                            setDialogOpen(open);
-                            if (!open) {
-                              setSelectedAssignment(null);
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200"
+                            onClick={() => {
+                              setSelectedAssignment(assignment);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            {status === 'Submitted' ? (
+                              <>
+                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                View Tasks
+                              </>
+                            ) : "View Tasks"}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-xl">
+                          <DialogHeader className="border-b pb-4 mb-4 space-y-2">
+                            <DialogTitle className="text-xl font-bold text-gray-900 text-left">
+                              {assignment.title}
+                            </DialogTitle>
+                            <DialogDescription className="text-sm text-gray-600">
+                              Complete the following tasks below. Click on a task to submit.
+                            </DialogDescription>
+                          </DialogHeader>
 
-                            }
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
-                              onClick={() => {
-                                setSelectedAssignment(assignment);
-                                setDialogOpen(true);
-                              }}
-                            >
-                              View Tasks
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-xl">
-                            <DialogHeader>
-                              <DialogTitle className="text-xl font-bold text-gray-900 text-left">
-                                {assignment.title}
-                              </DialogTitle>
-                              <DialogDescription className="text-sm text-gray-600">
-                                Complete the following tasks.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <div className="space-y-4 mt-2">
-                              {assignment.tasks && assignment.tasks.length > 0 ? (
-                                assignment.tasks.map((task, index) => {
-                                  // Use simple lookup since submission is available in scope? 
-                                  const submission = getSubmission(assignment._id); // Need to get submission again or pass it
-                                  const taskSubmission = submission?.taskSubmissions?.find(ts => ts.taskId === task._id);
-                                  const isSubmitted = taskSubmission?.status === 'submitted';
-                                  const isExpanded = selectedTask?._id === task._id;
-
-                                  return (
-                                    <div key={task._id || index} className={`p-4 border rounded-lg transition-colors ${isExpanded ? 'bg-indigo-50 border-indigo-100' : 'bg-gray-50'}`}>
-                                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                        <div className="flex-1">
-                                          <p className="font-bold text-left text-gray-900">{task.title}</p>
-                                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                                            <Calendar className="w-3 h-3" />
-                                            Due: {formatDate(task.dueDate)}
-                                          </p>
-                                        </div>
-
-                                        {isSubmitted ? (
-                                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1 whitespace-nowrap self-end sm:self-auto">
-                                            <CheckCircle2 className="w-3 h-3" />
-                                            Submitted
-                                          </Badge>
-                                        ) : (
-                                          <Button
-                                            size="sm"
-                                            variant={isExpanded ? "secondary" : "outline"}
-                                            className="w-full sm:w-auto"
-                                            onClick={() => {
-                                              if (isExpanded) {
-                                                setSelectedTask(null);
-                                              } else {
-                                                setSelectedTask(task);
-                                                setAssignmentLink('');
-                                                setTimeTaken('');
-                                              }
-                                            }}
-                                          >
-                                            {isExpanded ? "Cancel" : "Submit"}
-                                          </Button>
-                                        )}
-                                      </div>
-
-                                      {/* Inline Submission Form Mobile */}
-                                      {isExpanded && !isSubmitted && (
-                                        <form onSubmit={(e) => {
-                                          e.preventDefault();
-                                          handleTaskSubmit(e, task);
-                                        }} className="mt-4 pt-4 border-t border-indigo-100 space-y-4 animate-in slide-in-from-top-2">
-                                          <div className="space-y-2">
-                                            <Label htmlFor={`link-mobile-${task._id}`} className="text-sm font-medium text-gray-700 text-left block">Assignment Link <span className="text-red-500">*</span></Label>
-                                            <Input
-                                              id={`link-mobile-${task._id}`}
-                                              type="url"
-                                              required
-                                              value={assignmentLink}
-                                              onChange={(e) => setAssignmentLink(e.target.value)}
-                                              placeholder="https://github.com/..."
-                                              className="h-10 bg-white"
-                                            />
-                                          </div>
-                                          <div className="space-y-2">
-                                            <Label htmlFor={`time-mobile-${task._id}`} className="text-sm font-medium text-gray-700 text-left block">Time Taken (minutes) <span className="text-red-500">*</span></Label>
-                                            <Input
-                                              id={`time-mobile-${task._id}`}
-                                              type="number"
-                                              required
-                                              min="1"
-                                              value={timeTaken}
-                                              onChange={(e) => setTimeTaken(e.target.value)}
-                                              placeholder="e.g. 60"
-                                              className="h-10 bg-white"
-                                            />
-                                          </div>
-                                          <div className="flex justify-end pt-2">
-                                            <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700 text-white w-full">
-                                              {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Submit Task"}
-                                            </Button>
-                                          </div>
-                                        </form>
-                                      )}
-                                    </div>
-                                  );
-                                })
-                              ) : (
-                                <p className="text-center text-muted-foreground py-4">No tasks found for this assignment.</p>
-                              )}
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          className="w-full bg-green-50 text-green-700 border-green-200"
-                          onClick={() => {
-                            setSelectedAssignment(assignment);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          View Submissions
-                        </Button>
-                      )}
+                          <TaskSubmissionView
+                            assignment={assignment}
+                            getSubmission={getSubmission}
+                            selectedTask={selectedTask}
+                            setSelectedTask={setSelectedTask}
+                            assignmentLink={assignmentLink}
+                            setAssignmentLink={setAssignmentLink}
+                            timeTaken={timeTaken}
+                            setTimeTaken={setTimeTaken}
+                            submitting={submitting}
+                            handleTaskSubmit={handleTaskSubmit}
+                            formatDate={formatDate}
+                          />
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </CardContent>
                 </Card>
